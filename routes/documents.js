@@ -97,5 +97,49 @@ router.get("/fetchSelections", (req, res) => {
     }
   });
 });
+router.get("/fetchInputs", (req, res) => {
+  const { purposeID } = req.query;
+  if (!purposeID) {
+    return res.json({
+      Status: "Error",
+      Message: "Purpose ID is required",
+    });
+  }
+  const query = "SELECT * FROM purpose_inputs WHERE purposeID = ?";
+  db.query(query, [purposeID], (err, data) => {
+    if (err)
+      return res.json({
+        Status: "Error",
+        Message: "Error fetching inputs data.",
+      });
+    if (data.length > 0) {
+      return res.json({ Status: "Success", data: data });
+    } else {
+      return res.json({ Status: "Error", Message: "Inputs not found" });
+    }
+  });
+});
+router.get("/fetchUploads", (req, res) => {
+  const { purposeID } = req.query;
+  if (!purposeID) {
+    return res.json({
+      Status: "Error",
+      Message: "Purpose ID is required",
+    });
+  }
+  const query = "SELECT * FROM purpose_upload WHERE purposeID = ?";
+  db.query(query, [purposeID], (err, data) => {
+    if (err)
+      return res.json({
+        Status: "Error",
+        Message: "Error fetching uploads data.",
+      });
+    if (data.length > 0) {
+      return res.json({ Status: "Success", data: data });
+    } else {
+      return res.json({ Status: "Error", Message: "Uploads not found" });
+    }
+  });
+});
 
 export default router;

@@ -6,8 +6,24 @@ const router = express.Router();
 router.get("/test", (req, res) => {
   res.send("It works!");
 });
-
-<<<<<<< Updated upstream
+router.get("/fetchRequestedDocuments", (req, res) => {
+  const query = "SELECT * FROM requested_documents";
+  db.query(query, (err, data) => {
+    if (err)
+      return res.json({
+        Status: "Error",
+        Message: "Error fetching Requested Documents data.",
+      });
+    if (data.length > 0) {
+      return res.json({ Status: "Success", data: data });
+    } else {
+      return res.json({
+        Status: "Error",
+        Message: "Requested Documents not found",
+      });
+    }
+  });
+});
 router.post("/sendRequest", (req, res) => {
   const query = `
     INSERT INTO requested_documents 
@@ -66,24 +82,6 @@ router.post("/sendRequest", (req, res) => {
         .json({ Error: "Inserting data error.", Details: err });
     }
     return res.json({ Status: "Success", InsertedID: result.insertId });
-=======
-router.get("/fetchRequestedDocuments", (req, res) => {
-  const query = "SELECT * FROM requested_documents";
-  db.query(query, (err, data) => {
-    if (err)
-      return res.json({
-        Status: "Error",
-        Message: "Error fetching Requested Documents data.",
-      });
-    if (data.length > 0) {
-      return res.json({ Status: "Success", data: data });
-    } else {
-      return res.json({
-        Status: "Error",
-        Message: "Requested Documents not found",
-      });
-    }
->>>>>>> Stashed changes
   });
 });
 

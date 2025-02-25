@@ -7,6 +7,67 @@ router.get("/test", (req, res) => {
   res.send("It works!");
 });
 
+router.post("/sendRequest", (req, res) => {
+  const query = `
+    INSERT INTO requested_documents 
+    (requestID, userID, agree, email, firstName, middleName, lastName, studentID, dateOfBirth, sex, mobileNum, classification, schoolYearAttended, yearGraduated, yearLevel, program, purpose) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  // Extract data from request body
+  const {
+    requestID,
+    userID,
+    agree,
+    email,
+    firstName,
+    middleName,
+    lastName,
+    studentID,
+    dateOfBirth,
+    sex,
+    mobileNum,
+    classification,
+    schoolYearAttended,
+    yearGraduated,
+    yearLevel,
+    program,
+    purpose,
+  } = req.body;
+
+  // Ensure all values are passed in the same order as in the query
+  const values = [
+    requestID,
+    userID,
+    agree,
+    email,
+    firstName,
+    middleName,
+    lastName,
+    studentID,
+    dateOfBirth,
+    sex,
+    mobileNum,
+    classification,
+    schoolYearAttended,
+    yearGraduated,
+    yearLevel,
+    program,
+    purpose,
+  ];
+
+  // Execute query
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error("Database Insert Error:", err);
+      return res
+        .status(500)
+        .json({ Error: "Inserting data error.", Details: err });
+    }
+    return res.json({ Status: "Success", InsertedID: result.insertId });
+  });
+});
+
 router.get("/fetchPrograms", (req, res) => {
   const query = "SELECT * FROM program_course";
   db.query(query, (err, data) => {

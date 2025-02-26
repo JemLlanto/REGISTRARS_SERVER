@@ -1,7 +1,17 @@
 import express from "express";
 import { db } from "../connect.js";
+import multer from "multer";
 
 const router = express.Router();
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    return cb(null, "../public/uploads");
+  },
+  filename: function (req, file, cb) {
+    return cb(null, `${Date.now()}_${file.originalname}`);
+  },
+});
+const upload = multer({ storage });
 
 router.get("/test", (req, res) => {
   res.send("It works!");
@@ -27,8 +37,8 @@ router.get("/fetchRequestedDocuments", (req, res) => {
 router.post("/sendRequest", (req, res) => {
   const query = `
     INSERT INTO requested_documents 
-    (requestID, userID, agree, email, firstName, middleName, lastName, studentID, dateOfBirth, sex, mobileNum, classification, schoolYearAttended, yearGraduated, yearLevel, program, purpose) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (requestID, userID, agree, email, firstName, middleName, lastName, studentID, dateOfBirth, sex, mobileNum, classification, schoolYearAttended, yearGraduated, yearLevel, program, purpose, type) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   // Extract data from request body
@@ -50,6 +60,7 @@ router.post("/sendRequest", (req, res) => {
     yearLevel,
     program,
     purpose,
+    selection,
   } = req.body;
 
   // Ensure all values are passed in the same order as in the query
@@ -71,7 +82,9 @@ router.post("/sendRequest", (req, res) => {
     yearLevel,
     program,
     purpose,
+    selection,
   ];
+  console.log("request ID for overall: ", requestID);
 
   // Execute query
   db.query(query, values, (err, result) => {
@@ -84,7 +97,113 @@ router.post("/sendRequest", (req, res) => {
     return res.json({ Status: "Success", InsertedID: result.insertId });
   });
 });
+router.post("/insertInputs", (req, res) => {
+  const inputCount = req.body.inputsLength;
+  const requestID = req.body.requestID;
 
+  // Track completed inserts
+  let completedInserts = 0;
+  let errors = [];
+  let successfulInserts = [];
+
+  const query = `
+    INSERT INTO requested_document_input (requestID, inputValue) 
+    VALUES (?, ?)
+  `;
+
+  // If no inputs to insert, send success response
+  if (!inputCount || inputCount <= 0) {
+    console.log("No inputs to insert");
+    return res.json({ Status: "Success", Message: "No inputs to insert" });
+  }
+
+  for (let i = 1; i <= inputCount; i++) {
+    // Get the input value using the correct property name format
+    const inputValue = req.body[`inputValue${i}`];
+    console.log(`Attempting to insert inputValue${i}:`, inputValue);
+
+    const values = [requestID, inputValue];
+    console.log("Values for insert:", values);
+
+    // Execute query
+    db.query(query, values, (err, result) => {
+      completedInserts++;
+
+      if (err) {
+        console.error(`Database Insert Error for input ${i}:`, err);
+        errors.push({ input: i, error: err.message });
+      } else {
+        console.log(`Successfully inserted input ${i}:`, result);
+        successfulInserts.push({
+          input: i,
+          value: inputValue,
+          insertId: result.insertId,
+        });
+      }
+
+      // Only send response when all inserts are completed
+      if (completedInserts === inputCount) {
+        console.log("All inserts completed:", {
+          total: inputCount,
+          successful: successfulInserts.length,
+          failed: errors.length,
+        });
+
+        if (errors.length > 0) {
+          return res.status(500).json({
+            Error: "Some inserts failed",
+            Details: errors,
+            Successful: successfulInserts,
+          });
+        } else {
+          return res.json({
+            Status: "Success",
+            Message: `Successfully inserted ${inputCount} inputs`,
+            InsertedData: successfulInserts,
+          });
+        }
+      }
+    });
+  }
+});
+// router.post("/uploadDocuments", upload.single("file"), (req, res) => {
+//   const { requestID } = req.body;
+//   const file = req.file;
+
+//   console.log("Request ID: ", requestID);
+//   console.log("File: ", file);
+
+//   if (!requestID || !file) {
+//     return res.status(400).json({ Error: "Missing requestID or file." });
+//   }
+
+//   // Use the filename instead of the path
+//   const fileName = file.originalname; // Get the original filename
+
+//   const query = `INSERT INTO requested_document_file (requestID, image_file) VALUES (?, ?)`;
+//   const values = [requestID, fileName]; // Store the filename in the database
+
+//   console.log("Request ID for overall:", requestID);
+
+//   // Execute query
+//   db.query(query, values, (err, result) => {
+//     if (err) {
+//       console.error("Database upload Error:", err);
+//       return res
+//         .status(500)
+//         .json({ Error: "Uploading documents error.", Details: err });
+//     }
+//     return res.json({
+//       Status: "Success",
+//       InsertedID: result.insertId,
+//       fileName, // Return the filename instead of filePath
+//     });
+//   });
+// });
+router.post("/uploadDocuments", upload.single("file"), (req, res) => {
+  console.log(req.body);
+  console.log(req.body);
+});
 router.get("/fetchPrograms", (req, res) => {
   const query = "SELECT * FROM program_course";
   db.query(query, (err, data) => {

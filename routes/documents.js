@@ -5,7 +5,7 @@ import multer from "multer";
 const router = express.Router();
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    return cb(null, "../public/uploads");
+    return cb(null, "./public/uploads");
   },
   filename: function (req, file, cb) {
     return cb(null, `${Date.now()}_${file.originalname}`);
@@ -123,6 +123,7 @@ router.post("/insertInputs", (req, res) => {
     console.log(`Attempting to insert inputValue${i}:`, inputValue);
 
     const values = [requestID, inputValue];
+    console.log("Request ID for inputValues:", requestID);
     console.log("Values for insert:", values);
 
     // Execute query
@@ -201,8 +202,50 @@ router.post("/insertInputs", (req, res) => {
 //   });
 // });
 router.post("/uploadDocuments", upload.single("file"), (req, res) => {
-  console.log(req.body);
-  console.log(req.body);
+  try {
+    const { requestID } = req.body;
+    // Save file info to database or perform other operations with req.file
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const query = `
+    INSERT INTO requested_document_file (requestID, image_file) 
+    VALUES (?, ?)
+  `;
+
+    // Example: Save file info to database or process the file
+    const fileInfo = {
+      originalName: req.file.originalname,
+      filename: req.file.filename,
+      path: req.file.path,
+      size: req.file.size,
+      mimetype: req.file.mimetype,
+    };
+    console.log("Request ID for upload: ", requestID);
+    console.log("Filename: ", fileInfo.filename);
+
+    const values = [requestID, fileInfo.filename];
+
+    db.query(query, values, (err, result) => {
+      if (err) {
+        console.error("Database Insert Error:", err);
+        return res
+          .status(500)
+          .json({ Error: "Inserting data error.", Details: err });
+      }
+      return res.json({ Status: "Success", InsertedID: result.insertId });
+    });
+
+    // Send success response
+    return res.status(200).json({
+      message: "File uploaded successfully",
+      file: fileInfo,
+    });
+  } catch (error) {
+    console.error("Error handling file upload:", error);
+    return res.status(500).json({ error: "Failed to process uploaded file" });
+  }
 });
 router.get("/fetchPrograms", (req, res) => {
   const query = "SELECT * FROM program_course";

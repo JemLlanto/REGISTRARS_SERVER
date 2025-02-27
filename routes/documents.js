@@ -16,24 +16,6 @@ const upload = multer({ storage });
 router.get("/test", (req, res) => {
   res.send("It works!");
 });
-router.get("/fetchRequestedDocuments", (req, res) => {
-  const query = "SELECT * FROM requested_documents";
-  db.query(query, (err, data) => {
-    if (err)
-      return res.json({
-        Status: "Error",
-        Message: "Error fetching Requested Documents data.",
-      });
-    if (data.length > 0) {
-      return res.json({ Status: "Success", data: data });
-    } else {
-      return res.json({
-        Status: "Error",
-        Message: "Requested Documents not found",
-      });
-    }
-  });
-});
 router.post("/sendRequest", (req, res) => {
   const query = `
     INSERT INTO requested_documents 
@@ -204,17 +186,13 @@ router.post("/insertInputs", (req, res) => {
 router.post("/uploadDocuments", upload.single("file"), (req, res) => {
   try {
     const { requestID } = req.body;
-    // Save file info to database or perform other operations with req.file
+
+    // Check for file
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    const query = `
-    INSERT INTO requested_document_file (requestID, image_file) 
-    VALUES (?, ?)
-  `;
-
-    // Example: Save file info to database or process the file
+    // File info
     const fileInfo = {
       originalName: req.file.originalname,
       filename: req.file.filename,
@@ -222,25 +200,34 @@ router.post("/uploadDocuments", upload.single("file"), (req, res) => {
       size: req.file.size,
       mimetype: req.file.mimetype,
     };
+
     console.log("Request ID for upload: ", requestID);
     console.log("Filename: ", fileInfo.filename);
 
+    // SQL query
+    const query = `
+      INSERT INTO requested_document_file (requestID, image_file) 
+      VALUES (?, ?)
+    `;
     const values = [requestID, fileInfo.filename];
 
+    // Execute query and send response
     db.query(query, values, (err, result) => {
       if (err) {
         console.error("Database Insert Error:", err);
-        return res
-          .status(500)
-          .json({ Error: "Inserting data error.", Details: err });
+        return res.status(500).json({
+          Error: "Inserting data error.",
+          Details: err,
+        });
       }
-      return res.json({ Status: "Success", InsertedID: result.insertId });
-    });
 
-    // Send success response
-    return res.status(200).json({
-      message: "File uploaded successfully",
-      file: fileInfo,
+      // Only send ONE response here with all the data
+      return res.status(200).json({
+        Status: "Success",
+        message: "File uploaded successfully",
+        InsertedID: result.insertId,
+        file: fileInfo,
+      });
     });
   } catch (error) {
     console.error("Error handling file upload:", error);

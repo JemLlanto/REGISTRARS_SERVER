@@ -1,11 +1,11 @@
 import express, { response } from "express";
-import mysql from "mysql";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/auth.js";
 import docRoutes from "./routes/documents.js";
+import fetchingDocRoutes from "./routes/fetchingDocuments.js";
 
 const app = express();
 app.use(express.json());
@@ -42,6 +42,7 @@ app.get("/", verifyUser, (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", docRoutes);
+app.use("/api/fetchingDocuments", fetchingDocRoutes);
 
 app.listen(5000, () => {
   console.log("running...");

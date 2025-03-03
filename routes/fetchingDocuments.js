@@ -40,11 +40,15 @@ router.get("/fetchRequestedDocumentsDetails/:requestID", (req, res) => {
   const { requestID } = req.params;
   console.log("Request ID for: ", requestID);
   const query = `
-  SELECT *
+  SELECT 
+    requested_documents.*,
+    purposes.purposeID
   FROM 
     requested_documents
+  JOIN
+    purposes ON requested_documents.purpose = purposes.purposeName
   WHERE 
-    requestID = ?
+    requested_documents.requestID = ?
   
   `;
   db.query(query, [requestID], (err, data) => {
@@ -62,6 +66,93 @@ router.get("/fetchRequestedDocumentsDetails/:requestID", (req, res) => {
       return res.json({
         Status: "Error",
         Message: "Detials not found.",
+      });
+    }
+  });
+});
+router.get("/fetchRequestedDocumentTypes/:requestID", (req, res) => {
+  const { requestID } = req.params;
+  const query = `
+  SELECT *
+  FROM 
+    requested_document_type
+  WHERE 
+    requestID = ?
+  
+  `;
+  db.query(query, [requestID], (err, data) => {
+    if (err)
+      return res.json({
+        Status: "Error",
+        Message: "Error fetching types.",
+      });
+    if (data.length > 0) {
+      return res.json({
+        Status: "Success",
+        data: data,
+      });
+    } else {
+      return res.json({
+        Status: "Error",
+        Message: "Types not found.",
+      });
+    }
+  });
+});
+router.get("/fetchRequestedDocumentFiles/:requestID", (req, res) => {
+  const { requestID } = req.params;
+  const query = `
+  SELECT *
+  FROM 
+    requested_document_file
+  WHERE 
+    requestID = ?
+  
+  `;
+  db.query(query, [requestID], (err, data) => {
+    if (err)
+      return res.json({
+        Status: "Error",
+        Message: "Error fetching files.",
+      });
+    if (data.length > 0) {
+      return res.json({
+        Status: "Success",
+        data: data[0],
+      });
+    } else {
+      return res.json({
+        Status: "Error",
+        Message: "Files not found.",
+      });
+    }
+  });
+});
+router.get("/fetchRequestedDocumentInputs/:requestID", (req, res) => {
+  const { requestID } = req.params;
+  const query = `
+  SELECT *
+  FROM 
+    requested_document_input
+  WHERE 
+    requestID = ?
+  
+  `;
+  db.query(query, [requestID], (err, data) => {
+    if (err)
+      return res.json({
+        Status: "Error",
+        Message: "Error fetching inputs.",
+      });
+    if (data.length > 0) {
+      return res.json({
+        Status: "Success",
+        data: data,
+      });
+    } else {
+      return res.json({
+        Status: "Error",
+        Message: "Inputs not found.",
       });
     }
   });

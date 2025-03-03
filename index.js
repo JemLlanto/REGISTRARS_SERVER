@@ -2,12 +2,20 @@ import express, { response } from "express";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
 
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ROUTES
 import authRoutes from "./routes/auth.js";
 import docRoutes from "./routes/documents.js";
 import fetchingDocRoutes from "./routes/fetchingDocuments.js";
 
 const app = express();
+
 app.use(express.json());
 app.use(
   cors({
@@ -17,6 +25,9 @@ app.use(
   })
 );
 app.use(cookieParser());
+
+// Serve images from 'public/uploads' folder
+app.use("/uploads", express.static(path.join(__dirname, "./public/uploads")));
 
 const verifyUser = (req, res, next) => {
   const token = req.cookies.token;

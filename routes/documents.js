@@ -19,8 +19,8 @@ router.get("/test", (req, res) => {
 router.post("/sendRequest", (req, res) => {
   const query = `
     INSERT INTO requested_documents 
-    (requestID, userID, agree, email, firstName, middleName, lastName, studentID, dateOfBirth, sex, mobileNum, classification, schoolYearAttended, yearGraduated, yearLevel, program, purpose, type) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (requestID, userID, agree, email, firstName, middleName, lastName, studentID, dateOfBirth, sex, mobileNum, classification, schoolYearAttended, yearGraduated, yearLevel, program, purpose) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   // Extract data from request body
@@ -42,7 +42,6 @@ router.post("/sendRequest", (req, res) => {
     yearLevel,
     program,
     purpose,
-    selection,
   } = req.body;
 
   // Ensure all values are passed in the same order as in the query
@@ -64,7 +63,6 @@ router.post("/sendRequest", (req, res) => {
     yearLevel,
     program,
     purpose,
-    selection,
   ];
   console.log("request ID for overall: ", requestID);
 
@@ -77,6 +75,64 @@ router.post("/sendRequest", (req, res) => {
         .json({ Error: "Inserting data error.", Details: err });
     }
     return res.json({ Status: "Success", InsertedID: result.insertId });
+  });
+});
+router.post("/insertDocTypes", (req, res) => {
+  const { documentTypes, requestID } = req.body;
+
+  // Track completed inserts
+  let completedInserts = 0;
+  let errors = [];
+  let successfulInserts = [];
+
+  const query = `
+    INSERT INTO requested_document_type (requestID, documentType) 
+    VALUES (?, ?)
+  `;
+
+  // If no inputs to insert, send success response
+  if (!documentTypes || documentTypes.length === 0) {
+    console.log("No document types to insert");
+    return res.json({
+      Status: "Success",
+      Message: "No document types to insert",
+    });
+  }
+
+  documentTypes.forEach((docType, index) => {
+    const values = [requestID, docType];
+
+    // Execute query
+    db.query(query, values, (err, result) => {
+      completedInserts++;
+
+      if (err) {
+        errors.push({ index, error: err.message });
+      } else {
+        successfulInserts.push({
+          index,
+          value: docType,
+          insertId: result.insertId,
+        });
+      }
+
+      // Only send response when all inserts are completed
+      if (completedInserts === documentTypes.length) {
+        if (errors.length > 0) {
+          return res.status(500).json({
+            Error: "Some inserts failed",
+            Details: errors,
+            Successful: successfulInserts,
+          });
+        } else {
+          return res.json({
+            Status: "Success",
+            Message: `Successfully inserted ${documentTypes.length} document types`,
+            InsertedData: successfulInserts,
+          });
+        }
+      }
+    });
   });
 });
 router.post("/insertInputs", (req, res) => {

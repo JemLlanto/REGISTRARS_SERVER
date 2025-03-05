@@ -16,6 +16,7 @@ const upload = multer({ storage });
 router.get("/test", (req, res) => {
   res.send("It works!");
 });
+
 router.get("/fetchRequestedDocuments/:userID", (req, res) => {
   const { userID } = req.params;
   console.log("User ID: ", userID);
@@ -37,6 +38,27 @@ router.get("/fetchRequestedDocuments/:userID", (req, res) => {
     }
   });
 });
+
+router.get("/fetchRequestedDocuments", (req, res) => {
+  const query =
+    "SELECT * FROM requested_documents ORDER BY created DESC";
+  db.query(query,(err, data) => {
+    if (err)
+      return res.json({
+        Status: "Error",
+        Message: "Error fetching Requested Documents data.",
+      });
+    if (data.length > 0) {
+      return res.json({ Status: "Success", data: data });
+    } else {
+      return res.json({
+        Status: "Error",
+        Message: "Requested Documents not found",
+      });
+    }
+  });
+});
+
 router.get("/fetchRequestedDocumentsDetails/:requestID", (req, res) => {
   const { requestID } = req.params;
   console.log("Request ID for: ", requestID);

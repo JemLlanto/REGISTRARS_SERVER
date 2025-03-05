@@ -385,5 +385,100 @@ router.post("/deleteProgram", (req, res) => {
     }
   });
 });
+router.post("/addYear", (req, res) => {
+  const { yearOption } = req.body;
+
+  const check = "SELECT * FROM year_graduated WHERE yearOption = ?";
+
+  db.query(check, yearOption, (err, result) => {
+    if (err) {
+      console.log("Error checking yearOption: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking yearOption", Details: err });
+    }
+    if (result.length > 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Year already exists.",
+      });
+    } else {
+      const query = "INSERT INTO year_graduated (yearOption) Values (?)";
+      db.query(query, yearOption, (err, result) => {
+        if (err) {
+          console.log("Error adding program: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error adding Year", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Year Added" });
+      });
+    }
+  });
+});
+router.post("/updateYear", (req, res) => {
+  const { yearOption, yearGraduatedID } = req.body;
+  const values = [yearOption, yearGraduatedID];
+
+  const check = "SELECT * FROM year_graduated WHERE yearOption = ?";
+
+  db.query(check, yearOption, (err, result) => {
+    if (err) {
+      console.log("Error checking yearOption: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking yearOption", Details: err });
+    }
+    if (result.length > 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Program already exists.",
+      });
+    } else {
+      const query =
+        "UPDATE year_graduated set yearOption = ? WHERE yearGraduatedID = ?";
+      db.query(query, values, (err, result) => {
+        if (err) {
+          console.log("Error updating program: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error updating program", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Program Updated." });
+      });
+    }
+  });
+});
+router.post("/deleteYear", (req, res) => {
+  const { yearGraduatedID } = req.body;
+
+  const check = "SELECT * FROM year_graduated WHERE yearGraduatedID = ?";
+
+  db.query(check, yearGraduatedID, (err, result) => {
+    if (err) {
+      console.log("Error checking yearGraduatedID: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking yearGraduatedID", Details: err });
+    }
+    if (result.length === 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Year does'nt exists.",
+      });
+    } else {
+      const query = "DELETE FROM year_graduated WHERE yearGraduatedID = ?";
+      db.query(query, yearGraduatedID, (err, result) => {
+        if (err) {
+          console.log("Error deleting year: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error deleting year", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Year Deleted." });
+      });
+    }
+  });
+});
 
 export default router;

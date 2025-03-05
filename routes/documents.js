@@ -290,137 +290,611 @@ router.post("/uploadDocuments", upload.single("file"), (req, res) => {
     return res.status(500).json({ error: "Failed to process uploaded file" });
   }
 });
-router.get("/fetchPrograms", (req, res) => {
-  const query = "SELECT * FROM program_course";
-  db.query(query, (err, data) => {
-    if (err)
-      return res.json({
-        Status: "Error",
-        Message: "Error fetching programs data.",
-      });
-    if (data.length > 0) {
-      return res.json({ Status: "Success", data: data });
-    } else {
-      return res.json({ Status: "Error", Message: "Programs not found" });
-    }
-  });
-});
-router.get("/fetchPurposes", (req, res) => {
-  const query = "SELECT * FROM purposes";
-  db.query(query, (err, data) => {
-    if (err)
-      return res.json({
-        Status: "Error",
-        Message: "Error fetching purposes data.",
-      });
-    if (data.length > 0) {
-      return res.json({ Status: "Success", data: data });
-    } else {
-      return res.json({ Status: "Error", Message: "purposes not found" });
-    }
-  });
-});
-router.get("/fetchYearGraduated", (req, res) => {
-  const query = "SELECT * FROM year_graduated";
-  db.query(query, (err, data) => {
-    if (err)
-      return res.json({
-        Status: "Error",
-        Message: "Error fetching purposes data.",
-      });
-    if (data.length > 0) {
-      return res.json({ Status: "Success", data: data });
-    } else {
-      return res.json({ Status: "Error", Message: "purposes not found" });
-    }
-  });
-});
-router.get("/fetchPurposeData", (req, res) => {
-  const { purposeName } = req.query;
+router.post("/addProgram", (req, res) => {
+  const { programName } = req.body;
 
-  if (!purposeName) {
-    return res.json({
-      Status: "Error",
-      Message: "Purpose name is required.",
-    });
-  }
-  const query = "SELECT * FROM purposes WHERE purposeName = ?";
-  db.query(query, [purposeName], (err, data) => {
-    if (err)
+  const check = "SELECT * FROM program_course WHERE programName = ?";
+
+  db.query(check, programName, (err, result) => {
+    if (err) {
+      console.log("Error checking programName: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking programName", Details: err });
+    }
+    if (result.length > 0) {
       return res.json({
-        Status: "Error",
-        Message: "Error fetching selections data.",
+        Status: "Failed",
+        Message: "Program already exists.",
       });
-    if (data.length > 0) {
-      return res.json({ Status: "Success", data: data[0] });
     } else {
-      return res.json({ Status: "Error", Message: "selections not found" });
+      const query = "INSERT INTO program_course (programName) Values (?)";
+      db.query(query, programName, (err, result) => {
+        if (err) {
+          console.log("Error adding program: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error adding program", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Program Added" });
+      });
     }
   });
 });
-router.get("/fetchSelections", (req, res) => {
-  const { purposeID } = req.query;
-  if (!purposeID) {
-    return res.json({
-      Status: "Error",
-      Message: "Purpose ID is required",
-    });
-  }
-  const query = "SELECT * FROM purpose_selection WHERE purposeID = ?";
-  db.query(query, [purposeID], (err, data) => {
-    if (err)
+router.post("/updateProgram", (req, res) => {
+  const { programName, programID } = req.body;
+  const values = [programName, programID];
+
+  const check = "SELECT * FROM program_course WHERE programName = ?";
+
+  db.query(check, programName, (err, result) => {
+    if (err) {
+      console.log("Error checking programName: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking programName", Details: err });
+    }
+    if (result.length > 0) {
       return res.json({
-        Status: "Error",
-        Message: "Error fetching selections data.",
+        Status: "Failed",
+        Message: "Program already exists.",
       });
-    if (data.length > 0) {
-      return res.json({ Status: "Success", data: data });
     } else {
-      return res.json({ Status: "Error", Message: "selections not found" });
+      const query =
+        "UPDATE program_course set programName = ? WHERE programID = ?";
+      db.query(query, values, (err, result) => {
+        if (err) {
+          console.log("Error updating program: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error updating program", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Program Updated." });
+      });
     }
   });
 });
-router.get("/fetchInputs", (req, res) => {
-  const { purposeID } = req.query;
-  if (!purposeID) {
-    return res.json({
-      Status: "Error",
-      Message: "Purpose ID is required",
-    });
-  }
-  const query = "SELECT * FROM purpose_inputs WHERE purposeID = ?";
-  db.query(query, [purposeID], (err, data) => {
-    if (err)
+router.post("/deleteProgram", (req, res) => {
+  const { programID } = req.body;
+
+  const check = "SELECT * FROM program_course WHERE programID = ?";
+
+  db.query(check, programID, (err, result) => {
+    if (err) {
+      console.log("Error checking programID: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking programID", Details: err });
+    }
+    if (result.length === 0) {
       return res.json({
-        Status: "Error",
-        Message: "Error fetching inputs data.",
+        Status: "Failed",
+        Message: "Program does'nt exists.",
       });
-    if (data.length > 0) {
-      return res.json({ Status: "Success", data: data });
     } else {
-      return res.json({ Status: "Error", Message: "Inputs not found" });
+      const query = "DELETE FROM program_course WHERE programID = ?";
+      db.query(query, programID, (err, result) => {
+        if (err) {
+          console.log("Error deleting program: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error deleting program", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Program Deleted." });
+      });
     }
   });
 });
-router.get("/fetchUploads", (req, res) => {
-  const { purposeID } = req.query;
-  if (!purposeID) {
-    return res.json({
-      Status: "Error",
-      Message: "Purpose ID is required",
-    });
-  }
-  const query = "SELECT * FROM purpose_upload WHERE purposeID = ?";
-  db.query(query, [purposeID], (err, data) => {
-    if (err)
+router.post("/addYear", (req, res) => {
+  const { yearOption } = req.body;
+
+  const check = "SELECT * FROM year_graduated WHERE yearOption = ?";
+
+  db.query(check, yearOption, (err, result) => {
+    if (err) {
+      console.log("Error checking yearOption: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking yearOption", Details: err });
+    }
+    if (result.length > 0) {
       return res.json({
-        Status: "Error",
-        Message: "Error fetching uploads data.",
+        Status: "Failed",
+        Message: "Year already exists.",
       });
-    if (data.length > 0) {
-      return res.json({ Status: "Success", data: data });
     } else {
-      return res.json({ Status: "Error", Message: "Uploads not found" });
+      const query = "INSERT INTO year_graduated (yearOption) Values (?)";
+      db.query(query, yearOption, (err, result) => {
+        if (err) {
+          console.log("Error adding program: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error adding Year", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Year Added" });
+      });
+    }
+  });
+});
+router.post("/updateYear", (req, res) => {
+  const { yearOption, yearGraduatedID } = req.body;
+  const values = [yearOption, yearGraduatedID];
+
+  const check = "SELECT * FROM year_graduated WHERE yearOption = ?";
+
+  db.query(check, yearOption, (err, result) => {
+    if (err) {
+      console.log("Error checking yearOption: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking yearOption", Details: err });
+    }
+    if (result.length > 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Program already exists.",
+      });
+    } else {
+      const query =
+        "UPDATE year_graduated set yearOption = ? WHERE yearGraduatedID = ?";
+      db.query(query, values, (err, result) => {
+        if (err) {
+          console.log("Error updating program: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error updating program", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Program Updated." });
+      });
+    }
+  });
+});
+router.post("/deleteYear", (req, res) => {
+  const { yearGraduatedID } = req.body;
+
+  const check = "SELECT * FROM year_graduated WHERE yearGraduatedID = ?";
+
+  db.query(check, yearGraduatedID, (err, result) => {
+    if (err) {
+      console.log("Error checking yearGraduatedID: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking yearGraduatedID", Details: err });
+    }
+    if (result.length === 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Year does'nt exists.",
+      });
+    } else {
+      const query = "DELETE FROM year_graduated WHERE yearGraduatedID = ?";
+      db.query(query, yearGraduatedID, (err, result) => {
+        if (err) {
+          console.log("Error deleting year: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error deleting year", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Year Deleted." });
+      });
+    }
+  });
+});
+router.post("/addPurpose", (req, res) => {
+  const { purposeName } = req.body;
+
+  const check = "SELECT * FROM purposes WHERE purposeName = ?";
+
+  db.query(check, purposeName, (err, result) => {
+    if (err) {
+      console.log("Error checking purposeName: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking purposeName", Details: err });
+    }
+    if (result.length > 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Purpose already exists.",
+      });
+    } else {
+      const query = "INSERT INTO purposes (purposeName) Values (?)";
+      db.query(query, purposeName, (err, result) => {
+        if (err) {
+          console.log("Error adding purpose: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error adding purpose", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Purpose Added" });
+      });
+    }
+  });
+});
+router.post("/updatePurpose", (req, res) => {
+  const { purposeName, purposeID } = req.body;
+  const values = [purposeName, purposeID];
+
+  const check = "SELECT * FROM purposes WHERE purposeName = ?";
+
+  db.query(check, purposeName, (err, result) => {
+    if (err) {
+      console.log("Error checking purposeName: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking purposeName", Details: err });
+    }
+    if (result.length > 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Purpose already exists.",
+      });
+    } else {
+      const query = "UPDATE purposes set purposeName = ? WHERE purposeID = ?";
+      db.query(query, values, (err, result) => {
+        if (err) {
+          console.log("Error updating purpose: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error updating purpose", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Purpose Updated." });
+      });
+    }
+  });
+});
+router.post("/deletePurpose", (req, res) => {
+  const { purposeID } = req.body;
+
+  const check = "SELECT * FROM purposes WHERE purposeID = ?";
+
+  db.query(check, purposeID, (err, result) => {
+    if (err) {
+      console.log("Error checking purposeID: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking purposeID", Details: err });
+    }
+    if (result.length === 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Year does'nt exists.",
+      });
+    } else {
+      const query = "DELETE FROM purposes WHERE purposeID = ?";
+      db.query(query, purposeID, (err, result) => {
+        if (err) {
+          console.log("Error deleting purpose: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error deleting purpose", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Purpose Deleted." });
+      });
+    }
+  });
+});
+router.post("/addSelection", (req, res) => {
+  const { selectionName, purposeID } = req.body;
+  const values = [selectionName, purposeID];
+
+  console.log("Purpose ID: ", purposeID);
+
+  const check =
+    "SELECT * FROM purpose_selection WHERE selectionName = ? AND purposeID = ?";
+
+  db.query(check, values, (err, result) => {
+    if (err) {
+      console.log("Error checking selectionName: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking selectionName", Details: err });
+    }
+    if (result.length > 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Type of Document already exists.",
+      });
+    } else {
+      const query =
+        "INSERT INTO purpose_selection (selectionName, purposeID) VALUES (?, ?)";
+      db.query(query, values, (err, result) => {
+        if (err) {
+          console.log("Error adding document type: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error adding document type", Details: err });
+        }
+        return res.json({ Status: "Success", Message: "Document Type Added." });
+      });
+    }
+  });
+});
+router.post("/updateSelection", (req, res) => {
+  const { selectionName, purposeID, selectionID } = req.body;
+
+  const check =
+    "SELECT * FROM purpose_selection WHERE selectionName = ? AND purposeID = ?";
+
+  db.query(check, [selectionName, purposeID], (err, result) => {
+    if (err) {
+      console.log("Error checking selectionName: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking selectionName", Details: err });
+    }
+    if (result.length > 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Document type already exists.",
+      });
+    } else {
+      const query =
+        "UPDATE purpose_selection set selectionName = ? WHERE selectionID = ?";
+      db.query(query, [selectionName, selectionID], (err, result) => {
+        if (err) {
+          console.log("Error updating document type: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error updating document type", Details: err });
+        }
+        return res.json({
+          Status: "Success",
+          Message: "Document Type Updated.",
+        });
+      });
+    }
+  });
+});
+router.post("/deleteSelection", (req, res) => {
+  const { selectionID } = req.body;
+
+  const check = "SELECT * FROM purpose_selection WHERE selectionID = ?";
+
+  db.query(check, selectionID, (err, result) => {
+    if (err) {
+      console.log("Error checking selectionID: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking selectionID", Details: err });
+    }
+    if (result.length === 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Document type does'nt exists.",
+      });
+    } else {
+      const query = "DELETE FROM purpose_selection WHERE selectionID = ?";
+      db.query(query, selectionID, (err, result) => {
+        if (err) {
+          console.log("Error deleting document type: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error deleting document type", Details: err });
+        }
+        return res.json({
+          Status: "Success",
+          Message: "Document Type Deleted.",
+        });
+      });
+    }
+  });
+});
+router.post("/addInput", (req, res) => {
+  const { inputDescription, purposeID } = req.body;
+  const values = [inputDescription, purposeID];
+
+  console.log("Purpose ID: ", purposeID);
+
+  const check =
+    "SELECT * FROM purpose_inputs WHERE inputDescription = ? AND purposeID = ?";
+
+  db.query(check, values, (err, result) => {
+    if (err) {
+      console.log("Error checking inputDescription: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking inputDescription", Details: err });
+    }
+    if (result.length > 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Document question already exists.",
+      });
+    } else {
+      const query =
+        "INSERT INTO purpose_inputs (inputDescription, purposeID) VALUES (?, ?)";
+      db.query(query, values, (err, result) => {
+        if (err) {
+          console.log("Error adding document question: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error adding document question", Details: err });
+        }
+        return res.json({
+          Status: "Success",
+          Message: "Document Question Added.",
+        });
+      });
+    }
+  });
+});
+router.post("/updateInput", (req, res) => {
+  const { inputDescription, purposeID, inputID } = req.body;
+
+  const check =
+    "SELECT * FROM purpose_inputs WHERE inputDescription = ? AND purposeID = ?";
+
+  db.query(check, [inputDescription, purposeID], (err, result) => {
+    if (err) {
+      console.log("Error checking inputDescription: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking inputDescription", Details: err });
+    }
+    if (result.length > 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Document question already exists.",
+      });
+    } else {
+      const query =
+        "UPDATE purpose_inputs set inputDescription = ? WHERE inputID = ?";
+      db.query(query, [inputDescription, inputID], (err, result) => {
+        if (err) {
+          console.log("Error updating document type: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error updating document type", Details: err });
+        }
+        return res.json({
+          Status: "Success",
+          Message: "Document Question Updated.",
+        });
+      });
+    }
+  });
+});
+router.post("/deleteInput", (req, res) => {
+  const { inputID } = req.body;
+
+  const check = "SELECT * FROM purpose_inputs WHERE inputID = ?";
+
+  db.query(check, inputID, (err, result) => {
+    if (err) {
+      console.log("Error checking inputID: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking inputID", Details: err });
+    }
+    if (result.length === 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Document question does'nt exists.",
+      });
+    } else {
+      const query = "DELETE FROM purpose_inputs WHERE inputID = ?";
+      db.query(query, inputID, (err, result) => {
+        if (err) {
+          console.log("Error deleting document question: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error deleting document question", Details: err });
+        }
+        return res.json({
+          Status: "Success",
+          Message: "Document Question Deleted.",
+        });
+      });
+    }
+  });
+});
+router.post("/addUpload", (req, res) => {
+  const { uploadDescription, purposeID } = req.body;
+  const values = [uploadDescription, purposeID];
+
+  console.log("Purpose ID: ", purposeID);
+
+  const check =
+    "SELECT * FROM purpose_upload WHERE uploadDescription = ? AND purposeID = ?";
+
+  db.query(check, values, (err, result) => {
+    if (err) {
+      console.log("Error checking uploadDescription: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking uploadDescription", Details: err });
+    }
+    if (result.length > 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Document upload already exists.",
+      });
+    } else {
+      const query =
+        "INSERT INTO purpose_upload (uploadDescription, purposeID) VALUES (?, ?)";
+      db.query(query, values, (err, result) => {
+        if (err) {
+          console.log("Error adding document upload: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error adding document upload", Details: err });
+        }
+        return res.json({
+          Status: "Success",
+          Message: "Document upload added.",
+        });
+      });
+    }
+  });
+});
+router.post("/updateInput", (req, res) => {
+  const { inputDescription, purposeID, inputID } = req.body;
+
+  const check =
+    "SELECT * FROM purpose_inputs WHERE inputDescription = ? AND purposeID = ?";
+
+  db.query(check, [inputDescription, purposeID], (err, result) => {
+    if (err) {
+      console.log("Error checking inputDescription: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking inputDescription", Details: err });
+    }
+    if (result.length > 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Document question already exists.",
+      });
+    } else {
+      const query =
+        "UPDATE purpose_inputs set inputDescription = ? WHERE inputID = ?";
+      db.query(query, [inputDescription, inputID], (err, result) => {
+        if (err) {
+          console.log("Error updating document type: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error updating document type", Details: err });
+        }
+        return res.json({
+          Status: "Success",
+          Message: "Document Question Updated.",
+        });
+      });
+    }
+  });
+});
+router.post("/deleteInput", (req, res) => {
+  const { inputID } = req.body;
+
+  const check = "SELECT * FROM purpose_inputs WHERE inputID = ?";
+
+  db.query(check, inputID, (err, result) => {
+    if (err) {
+      console.log("Error checking inputID: ", err);
+      return res
+        .status(500)
+        .json({ Error: "Error checking inputID", Details: err });
+    }
+    if (result.length === 0) {
+      return res.json({
+        Status: "Failed",
+        Message: "Document question does'nt exists.",
+      });
+    } else {
+      const query = "DELETE FROM purpose_inputs WHERE inputID = ?";
+      db.query(query, inputID, (err, result) => {
+        if (err) {
+          console.log("Error deleting document question: ", err);
+          return res
+            .status(500)
+            .json({ Error: "Error deleting document question", Details: err });
+        }
+        return res.json({
+          Status: "Success",
+          Message: "Document Question Deleted.",
+        });
+      });
     }
   });
 });

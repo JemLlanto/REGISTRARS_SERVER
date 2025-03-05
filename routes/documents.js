@@ -828,71 +828,71 @@ router.post("/addUpload", (req, res) => {
     }
   });
 });
-router.post("/updateInput", (req, res) => {
-  const { inputDescription, purposeID, inputID } = req.body;
+router.post("/updateUpload", (req, res) => {
+  const { uploadDescription, purposeID, uploadID } = req.body;
 
   const check =
-    "SELECT * FROM purpose_inputs WHERE inputDescription = ? AND purposeID = ?";
+    "SELECT * FROM purpose_upload WHERE uploadDescription = ? AND purposeID = ?";
 
-  db.query(check, [inputDescription, purposeID], (err, result) => {
+  db.query(check, [uploadDescription, purposeID], (err, result) => {
     if (err) {
-      console.log("Error checking inputDescription: ", err);
+      console.log("Error checking uploadDescription: ", err);
       return res
         .status(500)
-        .json({ Error: "Error checking inputDescription", Details: err });
+        .json({ Error: "Error checking uploadDescription", Details: err });
     }
     if (result.length > 0) {
       return res.json({
         Status: "Failed",
-        Message: "Document question already exists.",
+        Message: "Document upload already exists.",
       });
     } else {
       const query =
-        "UPDATE purpose_inputs set inputDescription = ? WHERE inputID = ?";
-      db.query(query, [inputDescription, inputID], (err, result) => {
+        "UPDATE purpose_upload set uploadDescription = ? WHERE uploadID = ?";
+      db.query(query, [uploadDescription, uploadID], (err, result) => {
         if (err) {
-          console.log("Error updating document type: ", err);
+          console.log("Error updating document upload: ", err);
           return res
             .status(500)
-            .json({ Error: "Error updating document type", Details: err });
+            .json({ Error: "Error updating document upload", Details: err });
         }
         return res.json({
           Status: "Success",
-          Message: "Document Question Updated.",
+          Message: "Document upload updated.",
         });
       });
     }
   });
 });
-router.post("/deleteInput", (req, res) => {
-  const { inputID } = req.body;
+router.post("/deleteUpload", (req, res) => {
+  const { uploadID } = req.body;
 
-  const check = "SELECT * FROM purpose_inputs WHERE inputID = ?";
+  const check = "SELECT * FROM purpose_upload WHERE uploadID = ?";
 
-  db.query(check, inputID, (err, result) => {
+  db.query(check, uploadID, (err, result) => {
     if (err) {
-      console.log("Error checking inputID: ", err);
+      console.log("Error checking uploadID: ", err);
       return res
         .status(500)
-        .json({ Error: "Error checking inputID", Details: err });
+        .json({ Error: "Error checking uploadID", Details: err });
     }
     if (result.length === 0) {
       return res.json({
         Status: "Failed",
-        Message: "Document question does'nt exists.",
+        Message: "Document upload does'nt exists.",
       });
     } else {
-      const query = "DELETE FROM purpose_inputs WHERE inputID = ?";
-      db.query(query, inputID, (err, result) => {
+      const query = "DELETE FROM purpose_upload WHERE uploadID = ?";
+      db.query(query, uploadID, (err, result) => {
         if (err) {
-          console.log("Error deleting document question: ", err);
+          console.log("Error deleting document upload: ", err);
           return res
             .status(500)
-            .json({ Error: "Error deleting document question", Details: err });
+            .json({ Error: "Error deleting document upload", Details: err });
         }
         return res.json({
           Status: "Success",
-          Message: "Document Question Deleted.",
+          Message: "Document upload deleted.",
         });
       });
     }

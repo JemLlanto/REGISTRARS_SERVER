@@ -13,6 +13,7 @@ const __dirname = path.dirname(__filename);
 import authRoutes from "./routes/auth.js";
 import docRoutes from "./routes/documents.js";
 import fetchingDocRoutes from "./routes/fetchingDocuments.js";
+import dashboard from "./routes/dashboard.js";
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.get("/", verifyUser, (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", docRoutes);
 app.use("/api/fetchingDocuments", fetchingDocRoutes);
+app.use("/api/dashboard", dashboard);
 
 app.listen(5000, () => {
   console.log("running...");

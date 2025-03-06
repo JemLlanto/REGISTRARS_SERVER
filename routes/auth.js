@@ -30,18 +30,19 @@ router.get("/fetchUserData", (req, res) => {
 
 router.post("/register", (req, res) => {
   const query =
-    "INSERT INTO users (`firstName`, `lastName`, `email`, `password`) VALUES (?)";
+    "INSERT INTO users (`firstName`, `middleName`, `lastName`, `email`, `password`) VALUES (?)";
   bcrypt.hash(req.body.password.toString(), salt, (err, hashedPassword) => {
     if (err) return res.json({ Error: "Error hashing password" });
     const values = [
       req.body.firstName,
+      req.body.middleName,
       req.body.lastName,
       req.body.email,
       hashedPassword,
     ];
     db.query(query, [values], (err, result) => {
       if (err) return res.json({ Error: "Inserting data error." });
-      return res.json({ Status: "Success" });
+      return res.json({ Status: "Success", Message: "User registered." });
     });
   });
 });

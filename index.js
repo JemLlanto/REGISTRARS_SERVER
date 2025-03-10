@@ -15,6 +15,7 @@ import docRoutes from "./routes/documents.js";
 import fetchingDocRoutes from "./routes/fetchingDocuments.js";
 import dashboard from "./routes/dashboard.js";
 import manageAccount from "./routes/manageAccount.js";
+import managingRequestRoutes from "./routes/managingRequest.js";
 
 const app = express();
 
@@ -56,6 +57,7 @@ app.get("/", verifyUser, (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", docRoutes);
 app.use("/api/fetchingDocuments", fetchingDocRoutes);
+app.use("/api/managingRequest", managingRequestRoutes);
 app.use("/api/manageAccount", manageAccount);
 app.use("/api/dashboard", dashboard);
 

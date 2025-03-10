@@ -1,5 +1,5 @@
 import express from "express";
-
+// import { io } from "../index.js";
 import { db } from "../connect.js";
 
 const router = express.Router();
@@ -26,6 +26,11 @@ router.post("/cancelRequest", (req, res) => {
 router.post("/changeStatus", (req, res) => {
   const query = "UPDATE requested_documents set status = ? WHERE requestID = ?";
   const values = [req.body.newStatus, req.body.requestID];
+  const notifValues = [
+    req.body.userID,
+    "Theres an update to your request.",
+    req.body.requestID,
+  ];
 
   console.log("SQL values:", values);
 
@@ -33,8 +38,20 @@ router.post("/changeStatus", (req, res) => {
     if (err) {
       return res.json({ Error: "Inserting data error." });
     }
+
     console.log("Query result:", result);
     console.log("Status updated to ", req.body.newStatus);
+
+    const notifQuery =
+      "INSERT INTO notification (receiver, message, requestID) VALUES (?, ?, ?)";
+    const notifValues = [
+      req.body.userID,
+      "There's an update to your request.",
+      req.body.requestID,
+    ];
+
+    db.query(notifQuery, notifValues);
+
     return res.json({
       Status: "Success",
       Message: "Request status updated.",

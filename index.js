@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
+import http from "http";
+import { Server } from "socket.io";
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -16,10 +18,18 @@ import fetchingDocRoutes from "./routes/fetchingDocuments.js";
 import dashboard from "./routes/dashboard.js";
 import manageAccount from "./routes/manageAccount.js";
 import managingRequestRoutes from "./routes/managingRequest.js";
+import notificationRoutes from "./routes/notification.js";
 
 const app = express();
 
 app.use(express.json());
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000", // Adjust this to match your frontend URL
+    methods: ["GET", "POST"],
+  },
+});
 app.use(
   cors({
     origin: ["http://localhost:5173"],
@@ -60,6 +70,7 @@ app.use("/api/fetchingDocuments", fetchingDocRoutes);
 app.use("/api/managingRequest", managingRequestRoutes);
 app.use("/api/manageAccount", manageAccount);
 app.use("/api/dashboard", dashboard);
+app.use("/api/notification", notificationRoutes);
 
 app.listen(5000, () => {
   console.log("running...");

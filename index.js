@@ -18,6 +18,7 @@ import fetchingDocRoutes from "./routes/fetchingDocuments.js";
 import dashboard from "./routes/dashboard.js";
 import manageAccount from "./routes/manageAccount.js";
 import managingRequestRoutes from "./routes/managingRequest.js";
+import managingAdminRoutes from "./routes/manageAdmin.js";
 import notificationRoutes from "./routes/notification.js";
 
 const app = express();
@@ -88,6 +89,7 @@ app.use("/api/documents", docRoutes);
 app.use("/api/fetchingDocuments", fetchingDocRoutes);
 app.use("/api/managingRequest", managingRequestRoutes);
 app.use("/api/manageAccount", manageAccount);
+app.use("/api/manageAdmin", managingAdminRoutes);
 app.use("/api/dashboard", dashboard);
 app.use("/api/notifications", notificationRoutes);
 

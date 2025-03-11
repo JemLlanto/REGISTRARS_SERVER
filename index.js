@@ -26,10 +26,29 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000", // Adjust this to match your frontend URL
+    origin: "http://localhost:5173", // Adjust this to match your frontend URL
     methods: ["GET", "POST"],
   },
 });
+
+// Export io so it can be imported in route files
+export { io };
+
+// Socket.IO connection handling
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  // User joins their own room based on their userID
+  socket.on("join_user", (userID) => {
+    socket.join(userID);
+    console.log(`User ${userID} joined their room`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
+
 app.use(
   cors({
     origin: ["http://localhost:5173"],
@@ -70,8 +89,8 @@ app.use("/api/fetchingDocuments", fetchingDocRoutes);
 app.use("/api/managingRequest", managingRequestRoutes);
 app.use("/api/manageAccount", manageAccount);
 app.use("/api/dashboard", dashboard);
-app.use("/api/notification", notificationRoutes);
+app.use("/api/notifications", notificationRoutes);
 
-app.listen(5000, () => {
+server.listen(5000, () => {
   console.log("running...");
 });

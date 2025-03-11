@@ -1,5 +1,5 @@
 import express from "express";
-// import { io } from "../index.js";
+import { io } from "../index.js";
 import { db } from "../connect.js";
 
 const router = express.Router();
@@ -50,7 +50,21 @@ router.post("/changeStatus", (req, res) => {
       req.body.requestID,
     ];
 
-    db.query(notifQuery, notifValues);
+    db.query(notifQuery, notifValues, (err, notifResult) => {
+      if (err) {
+        console.error("Error creating notification:", err);
+      } else {
+        // Emit socket event with the new notification
+        io.to(req.body.userID).emit("new_notification", {
+          id: notifResult.insertId,
+          receiver: req.body.userID,
+          message: "There's an update to your request.",
+          requestID: req.body.requestID,
+          created: new Date(),
+          isRead: false,
+        });
+      }
+    });
 
     return res.json({
       Status: "Success",

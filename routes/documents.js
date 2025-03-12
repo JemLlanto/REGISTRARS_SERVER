@@ -1,4 +1,5 @@
 import express from "express";
+import { io } from "../index.js";
 import { db } from "../connect.js";
 import multer from "multer";
 
@@ -74,6 +75,96 @@ router.post("/sendRequest", (req, res) => {
         .status(500)
         .json({ Error: "Inserting data error.", Details: err });
     }
+
+    // FOR FETCHING USERID'S OF THE SUPER ADMINS
+    const superAdminIDQuery = "SELECT userID FROM users WHERE isAdmin = 2";
+    db.query(superAdminIDQuery, (err, result) => {
+      if (err) {
+        console.error("Database query error:", err);
+        return;
+      }
+
+      // Extract userIDs into an array
+      const superAdminIDs = result.map((row) => row.userID);
+
+      // If no super admins found, exit
+      if (superAdminIDs.length === 0) {
+        console.log("No super admins found.");
+        return;
+      }
+
+      // Insert notification for each super admin
+      const notifQuery =
+        "INSERT INTO notification (receiver, message, requestID) VALUES ?";
+      const notifValues = superAdminIDs.map((id) => [
+        id,
+        `${lastName}, ${firstName} requested a document.`,
+        requestID,
+      ]);
+
+      db.query(notifQuery, [notifValues], (err, notifResult) => {
+        if (err) {
+          console.error("Error creating notifications:", err);
+          return;
+        }
+
+        // Emit notification to each super admin
+        superAdminIDs.forEach((adminID) => {
+          console.log("Super admin ID: ", adminID, requestID);
+          io.to(adminID).emit("new_notification", {
+            id: notifResult.insertId,
+            receiver: adminID,
+            message: `${lastName}, ${firstName} requested a document.`,
+            requestID: requestID,
+            created: new Date(),
+            isRead: false,
+          });
+        });
+      });
+    });
+
+    // FOR FETCHING USERID'S OF THE ADMINS
+    const adminIDQuery =
+      "SELECT adminID FROM program_course WHERE programName = ?";
+    db.query(adminIDQuery, program, (err, result) => {
+      if (err) {
+        console.error("Database query error:", err);
+        return;
+      }
+      if (result.length === 0) {
+        console.log("No admins found in this program.");
+        return;
+      }
+      const adminID = result[0].adminID;
+
+      // Insert notification for each super admin
+      const notifQuery =
+        "INSERT INTO notification (receiver, message, requestID) VALUES (?, ?, ?)";
+      const notifValues = [
+        adminID,
+        `${lastName}, ${firstName} requested a document.`,
+        requestID,
+      ];
+      db.query(notifQuery, notifValues, (err, notifResult) => {
+        if (err) {
+          console.error("Error creating notifications:", err);
+          return;
+        }
+
+        console.log("Admin ID: ", adminID);
+        // Emit notification to each admin
+
+        io.to(adminID).emit("new_notification", {
+          id: notifResult.insertId,
+          receiver: adminID,
+          message: `${lastName}, ${firstName} requested a document.`,
+          requestID: requestID,
+          created: new Date(),
+          isRead: false,
+        });
+      });
+    });
+
     return res.json({ Status: "Success", InsertedID: result.insertId });
   });
 });

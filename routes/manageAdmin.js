@@ -8,6 +8,35 @@ router.get("/test", (req, res) => {
   res.send("It works!");
 });
 
+router.post("/addAdmin/:userID", (req, res) => {
+  const { userID } = req.params;
+  const query = `UPDATE users SET isAdmin = 1 WHERE userID = ?`;
+  db.query(query, [userID], (err, result) => {
+    if (err) {
+      return res.json({
+        Status: "Failed",
+        Message: err,
+      });
+    }
+    return res.json({
+      Status: "Success",
+      Message: "Admin added successfully.",
+    });
+  });
+});
+router.post("/removeAdmin/:userID", (req, res) => {
+  const { userID } = req.params;
+  const query = `UPDATE users SET isAdmin = 0 WHERE userID = ?`;
+  db.query(query, [userID], (err, result) => {
+    if (err) {
+      return res.json({ Status: "Failed", Message: "Error removing admin." });
+    }
+    return res.json({
+      Status: "Success",
+      Message: "Admin removed successfully.",
+    });
+  });
+});
 router.get("/fetchAdmin", (req, res) => {
   const query = "SELECT * FROM users WHERE isAdmin = 1 ";
 

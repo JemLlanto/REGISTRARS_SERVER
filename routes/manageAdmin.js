@@ -24,6 +24,36 @@ router.post("/addAdmin/:userID", (req, res) => {
     });
   });
 });
+router.post("/addProgramAdmin", (req, res) => {
+  const { programID, userID } = req.body;
+  const query = "UPDATE program_course SET adminID = ? WHERE programID = ?";
+  const values = [userID, programID];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.json({ Status: "Failed", Message: err });
+    }
+    return res.json({
+      Status: "Success",
+      Message: "Program admin added.",
+    });
+  });
+});
+router.post("/removeProgramAdmin", (req, res) => {
+  const { programID } = req.body;
+  const query = "UPDATE program_course SET adminID = 0 WHERE programID = ?";
+
+  db.query(query, [programID], (err, result) => {
+    if (err) {
+      return res.json({ Status: "Falied", Message: "Removing admin failed." });
+    }
+    return res.json({
+      Status: "Success",
+      Message: "Removed admin successfully.",
+    });
+  });
+});
 router.post("/removeAdmin/:userID", (req, res) => {
   const { userID } = req.params;
   const query = `UPDATE users SET isAdmin = 0 WHERE userID = ?`;
@@ -69,6 +99,32 @@ router.get("/fetchUser", (req, res) => {
         Message: "No Users.",
       });
     }
+  });
+});
+router.get("/fetchProgramAdmins", (req, res) => {
+  const query = `
+  SELECT 
+    p.programID,
+    p.programName,
+    p.adminID,
+    u.firstName,
+    u.lastName
+  FROM
+    program_course p
+  LEFT JOIN
+    users u ON p.adminID = u.userID
+    `;
+
+  db.query(query, (err, result) => {
+    if (err) {
+      // console.error("Database error:", err);
+      return res.json({
+        Status: "Failed",
+        Message: "Error fetching program admins.",
+      });
+    }
+    // console.log(result);
+    return res.json({ Status: "Success", result: result });
   });
 });
 

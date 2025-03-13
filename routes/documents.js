@@ -296,40 +296,6 @@ router.post("/insertInputs", (req, res) => {
     });
   }
 });
-// router.post("/uploadDocuments", upload.single("file"), (req, res) => {
-//   const { requestID } = req.body;
-//   const file = req.file;
-
-//   console.log("Request ID: ", requestID);
-//   console.log("File: ", file);
-
-//   if (!requestID || !file) {
-//     return res.status(400).json({ Error: "Missing requestID or file." });
-//   }
-
-//   // Use the filename instead of the path
-//   const fileName = file.originalname; // Get the original filename
-
-//   const query = `INSERT INTO requested_document_file (requestID, image_file) VALUES (?, ?)`;
-//   const values = [requestID, fileName]; // Store the filename in the database
-
-//   console.log("Request ID for overall:", requestID);
-
-//   // Execute query
-//   db.query(query, values, (err, result) => {
-//     if (err) {
-//       console.error("Database upload Error:", err);
-//       return res
-//         .status(500)
-//         .json({ Error: "Uploading documents error.", Details: err });
-//     }
-//     return res.json({
-//       Status: "Success",
-//       InsertedID: result.insertId,
-//       fileName, // Return the filename instead of filePath
-//     });
-//   });
-// });
 router.post("/uploadDocuments", upload.single("file"), (req, res) => {
   try {
     const { requestID } = req.body;

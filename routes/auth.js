@@ -40,6 +40,7 @@ router.post("/register", (req, res) => {
       req.body.email,
       hashedPassword,
     ];
+
     db.query(query, [values], (err, result) => {
       if (err) return res.json({ Error: "Inserting data error." });
       return res.json({ Status: "Success", Message: "User registered." });

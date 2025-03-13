@@ -10,7 +10,7 @@ router.get("/test", (req, res) => {
 
 router.post("/cancelRequest", (req, res) => {
   const query =
-    "UPDATE requested_documents set status = 'canceled', reason = ? WHERE requestID = ?";
+    "UPDATE requested_documents set status = 'cancelled', reason = ? WHERE requestID = ?";
   const values = [req.body.reason, req.body.requestID];
 
   console.log("SQL values:", values);
@@ -24,7 +24,7 @@ router.post("/cancelRequest", (req, res) => {
       "INSERT INTO notification (receiver, message, requestID) VALUES (?, ?, ?)";
     const notifValues = [
       req.body.userID,
-      "Your request has been canceled.",
+      "Your request has been cancelled.",
       req.body.requestID,
     ];
 
@@ -36,7 +36,7 @@ router.post("/cancelRequest", (req, res) => {
         io.to(req.body.userID).emit("new_notification", {
           id: notifResult.insertId,
           receiver: req.body.userID,
-          message: "Your request has been canceled.",
+          message: "Your request has been cancelled.",
           requestID: req.body.requestID,
           created: new Date(),
           isRead: false,
@@ -45,7 +45,7 @@ router.post("/cancelRequest", (req, res) => {
     });
 
     console.log("Query result:", result);
-    return res.json({ Status: "Success", Message: "Request canceled." });
+    return res.json({ Status: "Success", Message: "Request cancelled." });
   });
 });
 router.post("/changeStatus", (req, res) => {

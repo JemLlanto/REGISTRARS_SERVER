@@ -9,13 +9,22 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const sendStatusUpdateEmail = async (to, subject, text) => {
+const sendStatusUpdateEmail = async (
+  receiverEmail,
+  requestID,
+  newStatus,
+  message
+) => {
+  console.log("Receiver email n:", receiverEmail);
+
   const statusUpdate = path.join(
     __dirname,
     "./emailTemplates/statusUpdateEmail.ejs"
   );
   const html = ejs.render(fs.readFileSync(statusUpdate, "utf-8"), {
-    message: text,
+    requestID,
+    newStatus,
+    message,
   });
 
   try {
@@ -29,8 +38,8 @@ const sendStatusUpdateEmail = async (to, subject, text) => {
 
     let mailOptions = {
       from: process.env.EMAIL_USER,
-      to,
-      subject,
+      to: receiverEmail,
+      subject: `CvSU-CCAT Registrar's Office`,
       html,
     };
 

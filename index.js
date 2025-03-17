@@ -6,6 +6,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import http from "http";
 import { Server } from "socket.io";
+import { db } from "./connect.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -68,13 +71,14 @@ const verifyUser = (req, res, next) => {
   if (!token) {
     return res.json({ Error: "Not authenticated." });
   } else {
-    jwt.verify(token, "RegistrarsOnlineRequestSystem2025", (err, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
       if (err) {
         return res.status(403).json({ Error: "Invalid Token" });
       } else {
-        console.log("Decoded Token:", decoded); // 🔍 Debug log
+        // console.log("Decoded Token:", decoded);
+        // 🔍 Debug log
         req.userID = decoded.userID; // ✅ Correct property
-        console.log("Extracted userID:", req.userID);
+        // console.log("Extracted userID:", req.userID);
         next();
       }
     });
@@ -82,7 +86,20 @@ const verifyUser = (req, res, next) => {
 };
 
 app.get("/", verifyUser, (req, res) => {
-  return res.json({ Status: "Success", userID: req.userID });
+  const userID = req.userID;
+
+  if (!userID) return res.json({ Error: "Missing userID" });
+
+  const query = " SELECT * FROM users WHERE userID = ?";
+  db.query(query, [userID], (err, data) => {
+    if (err) return res.json({ Error: "Error fetching user data." });
+    if (data.length > 0) {
+      return res.json({ Status: "Success", data: data[0] });
+    } else {
+      return res.json({ Error: "User not found" });
+    }
+  });
+  // return res.json({ Status: "Success", userID: req.userID });
 });
 
 app.use("/api/auth", authRoutes);

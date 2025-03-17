@@ -55,4 +55,34 @@ router.post("/sendRegistrationOTP", async (req, res) => {
   }
 });
 
+router.post("/sendForgotPasswordOTP", async (req, res) => {
+  try {
+    const { receiverEmail, firstName, otp } = req.body;
+
+    // Convert db.query to a Promise
+    const queryEmail = "SELECT * FROM users WHERE email = ?";
+    const existingUsers = await new Promise((resolve, reject) => {
+      db.query(queryEmail, [receiverEmail], (err, result) => {
+        if (err) return reject(err);
+        resolve(result);
+      });
+    });
+
+    // Check if email exists
+    if (existingUsers.length === 0) {
+      return res
+        .status(404)
+        .json({ Message: "This email address is not registered." });
+    }
+
+    // Send email if user does not exist
+    await sendRegistrationOTPEmail(receiverEmail, firstName, otp);
+
+    res.status(200).json({ message: "Email sent successfully!" });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ error: error.message || "Internal Server Error" });
+  }
+});
+
 export default router;

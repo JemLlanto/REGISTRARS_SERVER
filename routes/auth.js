@@ -1,11 +1,11 @@
 import express from "express";
-import mysql from "mysql";
+import dotenv from "dotenv";
+dotenv.config();
 import bcrypt from "bcrypt";
 import { db } from "../connect.js";
 import jwt from "jsonwebtoken";
 
 const router = express.Router();
-const JWT_SECRET = "RegistrarOffice";
 const salt = 10;
 
 router.get("/test", (req, res) => {
@@ -29,23 +29,28 @@ router.get("/fetchUserData", (req, res) => {
 });
 
 router.post("/register", (req, res) => {
+  const saltRounds = parseInt(process.env.SALT);
   const query =
     "INSERT INTO users (`firstName`, `middleName`, `lastName`, `email`, `password`) VALUES (?)";
-  bcrypt.hash(req.body.password.toString(), salt, (err, hashedPassword) => {
-    if (err) return res.json({ Error: "Error hashing password" });
-    const values = [
-      req.body.firstName,
-      req.body.middleName,
-      req.body.lastName,
-      req.body.email,
-      hashedPassword,
-    ];
+  bcrypt.hash(
+    req.body.password.toString(),
+    saltRounds,
+    (err, hashedPassword) => {
+      if (err) return res.json({ Error: "Error hashing password" });
+      const values = [
+        req.body.firstName,
+        req.body.middleName,
+        req.body.lastName,
+        req.body.email,
+        hashedPassword,
+      ];
 
-    db.query(query, [values], (err, result) => {
-      if (err) return res.json({ Error: "Inserting data error." });
-      return res.json({ Status: "Success", Message: "User registered." });
-    });
-  });
+      db.query(query, [values], (err, result) => {
+        if (err) return res.json({ Error: "Inserting data error." });
+        return res.json({ Status: "Success", Message: "User registered." });
+      });
+    }
+  );
 });
 
 router.post("/login", (req, res) => {
@@ -63,7 +68,7 @@ router.post("/login", (req, res) => {
             console.log("User ID from DB:", userID);
             const token = jwt.sign(
               { userID }, // ✅ Store correctly
-              "RegistrarsOnlineRequestSystem2025",
+              process.env.JWT_SECRET_KEY,
               { expiresIn: "1d" }
             );
             res.cookie("token", token);

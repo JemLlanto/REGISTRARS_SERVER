@@ -19,7 +19,7 @@ router.get("/test", (req, res) => {
 
 router.get("/fetchRequestedDocuments/:userID", (req, res) => {
   const { userID } = req.params;
-  console.log("User ID: ", userID);
+  // console.log("User ID: ", userID);
   const query =
     "SELECT * FROM requested_documents WHERE userID = ? ORDER BY created DESC";
   db.query(query, [userID], (err, data) => {
@@ -40,9 +40,8 @@ router.get("/fetchRequestedDocuments/:userID", (req, res) => {
 });
 
 router.get("/fetchRequestedDocuments", (req, res) => {
-  const query =
-    "SELECT * FROM requested_documents ORDER BY created DESC";
-  db.query(query,(err, data) => {
+  const query = "SELECT * FROM requested_documents ORDER BY created DESC";
+  db.query(query, (err, data) => {
     if (err)
       return res.json({
         Status: "Error",

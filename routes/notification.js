@@ -13,7 +13,7 @@ router.get("/fetchNotification/:userID", (req, res) => {
     "SELECT * FROM notification WHERE receiver = ? ORDER BY created DESC";
   const { userID } = req.params;
 
-  console.log("User ID notifs:", userID);
+  // console.log("User ID notifs:", userID);
 
   db.query(query, [userID], (err, data) => {
     if (err) {

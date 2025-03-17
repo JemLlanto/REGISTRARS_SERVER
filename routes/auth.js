@@ -66,14 +66,22 @@ router.post("/login", (req, res) => {
           if (err) return res.json({ Error: "Compare error." });
           if (response) {
             const userID = data[0].userID; // ✅ Correct variable name
-            console.log("User ID from DB:", userID);
+            // console.log("User ID from DB:", userID);
             const token = jwt.sign(
               { userID }, // ✅ Store correctly
               process.env.JWT_SECRET_KEY,
               { expiresIn: "1d" }
             );
-            res.cookie("token", token);
-            return res.json({ Status: "Success" });
+
+            const queryIsAdmin = "SELECT isAdmin FROM users WHERE userID = ?";
+
+            db.query(queryIsAdmin, [userID], (err, result) => {
+              if (err) return res.json({ Error: "Error occured." });
+              const isAdmin = result[0].isAdmin;
+              res.cookie("token", token);
+              console.log("Is Admin: ", isAdmin);
+              return res.json({ Status: "Success", isAdmin: isAdmin });
+            });
           } else {
             return res.json({ Error: "Invalid credentials." });
           }

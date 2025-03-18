@@ -128,7 +128,10 @@ router.post("/forgotPassword", async (req, res) => {
         updateQuery,
         [hashedPassword, receiverEmail],
         (updateErr, updateResult) => {
-          if (updateErr) return res.status(500).json({ error: "Server error" });
+          if (updateErr) {
+            console.log(updateErr);
+            return res.status(500).json({ error: "Server error" });
+          }
           return res.json({
             status: "Success",
             message: "Password updated successfully.",

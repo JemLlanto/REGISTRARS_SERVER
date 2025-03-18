@@ -24,6 +24,7 @@ import managingRequestRoutes from "./routes/managingRequest.js";
 import managingAdminRoutes from "./routes/manageAdmin.js";
 import notificationRoutes from "./routes/notification.js";
 import emailNotificationRoutes from "./routes/emailNotification.js";
+import updateProfileRoutes from "./routes/updateProfile.js";
 
 const app = express();
 
@@ -111,6 +112,7 @@ app.use("/api/manageAdmin", managingAdminRoutes);
 app.use("/api/dashboard", dashboard);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/emailNotification", emailNotificationRoutes);
+app.use("/api/updateProfile", updateProfileRoutes);
 
 server.listen(5000, () => {
   console.log("running...");

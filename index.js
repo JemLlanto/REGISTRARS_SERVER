@@ -25,6 +25,7 @@ import managingAdminRoutes from "./routes/manageAdmin.js";
 import notificationRoutes from "./routes/notification.js";
 import emailNotificationRoutes from "./routes/emailNotification.js";
 import updateProfileRoutes from "./routes/updateProfile.js";
+import feedbackFormRoutes from "./routes/feedbackForm.js";
 
 const app = express();
 
@@ -66,6 +67,10 @@ app.use(cookieParser());
 
 // Serve images from 'public/uploads' folder
 app.use("/uploads", express.static(path.join(__dirname, "./public/uploads")));
+app.use(
+  "/scheduleSlipUploads",
+  express.static(path.join(__dirname, "./public/uploads/scheduleSlip"))
+);
 
 const verifyUser = (req, res, next) => {
   const token = req.cookies.token;
@@ -113,6 +118,7 @@ app.use("/api/dashboard", dashboard);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/emailNotification", emailNotificationRoutes);
 app.use("/api/updateProfile", updateProfileRoutes);
+app.use("/api/feedbackForm", feedbackFormRoutes);
 
 server.listen(5000, () => {
   console.log("running...");

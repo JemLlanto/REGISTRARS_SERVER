@@ -376,6 +376,7 @@ router.post(
 
       console.log("Request ID for upload: ", requestID);
       console.log("Filename: ", fileInfo.filename);
+      console.log("FeedbackType: ", feedbackType);
 
       // SQL query
       const query = `

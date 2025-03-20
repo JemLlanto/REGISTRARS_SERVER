@@ -12,7 +12,16 @@ const storage = multer.diskStorage({
     return cb(null, `${Date.now()}_${file.originalname}`);
   },
 });
+const storageScheduleSlip = multer.diskStorage({
+  destination: function (req, file, cb) {
+    return cb(null, "./public/uploads/scheduleSlip");
+  },
+  filename: function (req, file, cb) {
+    return cb(null, `${Date.now()}_${file.originalname}`);
+  },
+});
 const upload = multer({ storage });
+const uploadScheduleSlip = multer({ storage: storageScheduleSlip });
 
 router.get("/test", (req, res) => {
   res.send("It works!");
@@ -347,6 +356,57 @@ router.post("/uploadDocuments", upload.single("file"), (req, res) => {
     return res.status(500).json({ error: "Failed to process uploaded file" });
   }
 });
+router.post(
+  "/uploadScheduleSlip",
+  uploadScheduleSlip.single("file"),
+  (req, res) => {
+    try {
+      const { requestID, feedbackType } = req.body;
+
+      // Check for file
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      // File info
+      const fileInfo = {
+        originalName: req.file.originalname,
+        filename: req.file.filename,
+      };
+
+      console.log("Request ID for upload: ", requestID);
+      console.log("Filename: ", fileInfo.filename);
+
+      // SQL query
+      const query = `
+      UPDATE requested_documents set feedbackType = ?, scheduleSlip = ? WHERE requestID = ?
+    `;
+      const values = [feedbackType, fileInfo.filename, requestID];
+
+      // Execute query and send response
+      db.query(query, values, (err, result) => {
+        if (err) {
+          console.error("Database Insert Error:", err);
+          return res.status(500).json({
+            Error: "Inserting data error.",
+            Details: err,
+          });
+        }
+        console.log("Uploaded schedule slip successfully.");
+        // Only send ONE response here with all the data
+        return res.status(200).json({
+          Status: "Success",
+          message: "File uploaded successfully",
+          InsertedID: result.insertId,
+          file: fileInfo,
+        });
+      });
+    } catch (error) {
+      console.error("Error handling file upload:", error);
+      return res.status(500).json({ error: "Failed to process uploaded file" });
+    }
+  }
+);
 router.post("/addProgram", (req, res) => {
   const { programName } = req.body;
 

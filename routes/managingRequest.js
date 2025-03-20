@@ -54,6 +54,8 @@ router.post("/changeStatus", (req, res) => {
   const notifMessage =
     req.body.newStatus === "processing"
       ? "Your request is currently being processed."
+      : req.body.newStatus === "ready to pickup"
+      ? "Your request is ready for pickup."
       : req.body.newStatus === "completed"
       ? "Your request has been completed."
       : null;

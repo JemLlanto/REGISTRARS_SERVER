@@ -50,4 +50,21 @@ router.post("/markAsRead/:requestID", (req, res) => {
   });
 });
 
+router.post("/markAllAsRead/:userID", (req, res) => {
+  const query = "UPDATE notification SET isRead = 1 WHERE receiver = ?";
+  const { userID } = req.params;
+
+  console.log("Notif ID to update: ", userID);
+
+  db.query(query, [userID], (err, result) => {
+    if (err) {
+      return res.json({ Error: "Updating data error." });
+    }
+    console.log("isRead updated");
+    return res.status(200).json({
+      message: "All notifications have been marked as read.",
+    });
+  });
+});
+
 export default router;

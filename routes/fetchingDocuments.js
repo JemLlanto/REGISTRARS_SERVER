@@ -60,7 +60,7 @@ router.get("/fetchRequestedDocuments", (req, res) => {
 
 router.get("/fetchRequestedDocumentsDetails/:requestID", (req, res) => {
   const { requestID } = req.params;
-  console.log("Request ID for: ", requestID);
+  // console.log("Request ID for: ", requestID);
   const query = `
   SELECT 
     requested_documents.*,

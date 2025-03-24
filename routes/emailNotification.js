@@ -1,5 +1,6 @@
 import express from "express";
 import { db } from "../connect.js";
+import { io } from "../index.js";
 import sendRegistrationOTPEmail from "../sendingEmailMessage/sendRegistrationOTPEmail.js";
 import sendStatusUpdateEmail from "../sendingEmailMessage/sendStatusUpdateEmail.js";
 import sendNewRequestEmail from "../sendingEmailMessage/sendNewRequestEmail.js";
@@ -146,17 +147,154 @@ router.post("/sendNewRequestEmail", async (req, res) => {
       try {
         sendNewRequestEmail(admin.email, requestID, message);
         console.log("Email sent to admin successfully!");
-        res
-          .status(200)
-          .json({
-            message: "Email sent to admin and super admin successfully!",
-          });
+        res.status(200).json({
+          message: "Email sent to admin and super admin successfully!",
+        });
       } catch (error) {
         console.log(error);
         res.status(500).json({ error: "Failed to send email" });
       }
     });
   });
+});
+router.post("/sendFeedbackResponseEmail", async (req, res) => {
+  try {
+    const { requestID, firstName, lastName, program } = req.body;
+    const message = `${firstName} ${lastName} has submitted a response to the feedback form.`;
+    let emailsSent = false;
+
+    // Query super admins
+    const superAdminQuery = "SELECT email, userID FROM users WHERE isAdmin = 2";
+    db.query(superAdminQuery, async (err, superAdmins) => {
+      if (err) {
+        console.error("Database query error (super admins):", err);
+        return res
+          .status(500)
+          .json({ error: "Database error when querying super admins" });
+      }
+
+      // Process super admins if found
+      if (superAdmins.length > 0) {
+        for (const admin of superAdmins) {
+          // Send email
+          try {
+            await sendNewRequestEmail(admin.email, requestID, message);
+            console.log(
+              `Email sent to super admin ${admin.email} successfully!`
+            );
+            emailsSent = true;
+          } catch (error) {
+            console.error(
+              `Failed to send email to super admin ${admin.email}:`,
+              error
+            );
+            // Continue with other admins even if one email fails
+          }
+
+          // Insert notification
+          const notifQuery =
+            "INSERT INTO notification (receiver, message, requestID) VALUES ?";
+          const notifValues = [[admin.userID, message, requestID]]; // Correctly nested array
+
+          db.query(notifQuery, [notifValues], (notifErr, notifResult) => {
+            if (notifErr) {
+              console.error(
+                `Error creating notification for super admin ${admin.userID}:`,
+                notifErr
+              );
+              return;
+            }
+
+            // Emit notification
+            io.to(admin.userID).emit("new_notification", {
+              id: notifResult.insertId,
+              receiver: admin.userID,
+              message: message,
+              requestID: requestID,
+              created: new Date(),
+              isRead: false,
+            });
+          });
+        }
+      } else {
+        console.log("No super admins found.");
+      }
+
+      // Query program admins
+      const adminQuery = `
+        SELECT u.email, u.userID 
+        FROM users u 
+        LEFT JOIN program_course p ON u.userID = p.adminID
+        WHERE p.programName = ?
+      `;
+
+      db.query(adminQuery, [program], async (progErr, programAdmins) => {
+        if (progErr) {
+          console.error("Database query error (program admins):", progErr);
+          return res
+            .status(500)
+            .json({ error: "Database error when querying program admins" });
+        }
+
+        // Process program admins if found
+        if (programAdmins.length > 0) {
+          for (const admin of programAdmins) {
+            // Send email
+            try {
+              await sendNewRequestEmail(admin.email, requestID, message);
+              console.log(
+                `Email sent to program admin ${admin.email} successfully!`
+              );
+              emailsSent = true;
+            } catch (error) {
+              console.error(
+                `Failed to send email to program admin ${admin.email}:`,
+                error
+              );
+              // Continue with other admins even if one email fails
+            }
+
+            // Insert notification
+            const notifQuery =
+              "INSERT INTO notification (receiver, message, requestID) VALUES ?";
+            const notifValues = [[admin.userID, message, requestID]]; // Correctly nested array
+
+            db.query(notifQuery, [notifValues], (notifErr, notifResult) => {
+              if (notifErr) {
+                console.error(
+                  `Error creating notification for program admin ${admin.userID}:`,
+                  notifErr
+                );
+                return;
+              }
+
+              // Emit notification
+              io.to(admin.userID).emit("new_notification", {
+                id: notifResult.insertId,
+                receiver: admin.userID,
+                message: message,
+                requestID: requestID,
+                created: new Date(),
+                isRead: false,
+              });
+            });
+          }
+        } else {
+          console.log("No program admins found for program:", program);
+        }
+
+        // Send final response after both queries complete
+        if (emailsSent) {
+          return res.status(200).json({ message: "Emails sent successfully" });
+        } else {
+          return res.status(404).json({ message: "No admins found to notify" });
+        }
+      });
+    });
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 export default router;

@@ -54,6 +54,46 @@ router.post("/sendRequest", (req, res) => {
     purpose,
   } = req.body;
 
+  const requiredFields = {
+    requestID,
+    userID,
+    agree,
+    email,
+    firstName,
+    middleName,
+    lastName,
+    studentID,
+    dateOfBirth,
+    sex,
+    mobileNum,
+    classification,
+    schoolYearAttended,
+    program,
+    purpose,
+  };
+
+  // Conditionally add either yearGraduated or yearLevel
+  if (classification === "graduated") {
+    requiredFields.yearGraduated = yearGraduated;
+  } else {
+    requiredFields.yearLevel = yearLevel;
+  }
+
+  // Find any missing required fields
+  const missingFields = Object.keys(requiredFields).filter(
+    (field) =>
+      requiredFields[field] === undefined ||
+      requiredFields[field] === null ||
+      requiredFields[field] === ""
+  );
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      error: "Required fields are missing",
+      missingFields: missingFields,
+    });
+  }
+
   // Ensure all values are passed in the same order as in the query
   const values = [
     requestID,
@@ -119,7 +159,7 @@ router.post("/sendRequest", (req, res) => {
 
         // Emit notification to each super admin
         superAdminIDs.forEach((adminID) => {
-          console.log("Super admin ID: ", adminID, requestID);
+          // console.log("Super admin ID: ", adminID, requestID);
           io.to(adminID).emit("new_notification", {
             id: notifResult.insertId,
             receiver: adminID,

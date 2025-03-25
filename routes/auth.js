@@ -30,28 +30,42 @@ router.get("/fetchUserData", (req, res) => {
 });
 
 router.post("/register", (req, res) => {
+  const { firstName, middleName, lastName, email, password } = req.body;
+
+  const requiredFields = {
+    firstName,
+    lastName,
+    email,
+    password,
+  };
+
+  // Find any missing required fields
+  const missingFields = Object.keys(requiredFields).filter(
+    (field) =>
+      requiredFields[field] === undefined ||
+      requiredFields[field] === null ||
+      requiredFields[field] === ""
+  );
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      error: "Required fields are missing",
+      missingFields: missingFields,
+    });
+  }
+
   const saltRounds = parseInt(process.env.SALT);
   const query =
     "INSERT INTO users (`firstName`, `middleName`, `lastName`, `email`, `password`) VALUES (?)";
-  bcrypt.hash(
-    req.body.password.toString(),
-    saltRounds,
-    (err, hashedPassword) => {
-      if (err) return res.json({ Error: "Error hashing password" });
-      const values = [
-        req.body.firstName,
-        req.body.middleName,
-        req.body.lastName,
-        req.body.email,
-        hashedPassword,
-      ];
+  bcrypt.hash(password.toString(), saltRounds, (err, hashedPassword) => {
+    if (err) return res.json({ Error: "Error hashing password" });
+    const values = [firstName, middleName, lastName, email, hashedPassword];
 
-      db.query(query, [values], (err, result) => {
-        if (err) return res.json({ Error: "Inserting data error." });
-        return res.json({ Status: "Success", Message: "User registered." });
-      });
-    }
-  );
+    db.query(query, [values], (err, result) => {
+      if (err) return res.json({ Error: "Inserting data error." });
+      return res.json({ Status: "Success", Message: "User registered." });
+    });
+  });
 });
 
 router.post("/login", (req, res) => {
@@ -101,6 +115,27 @@ router.get("/logout", (req, res) => {
 router.post("/forgotPassword", async (req, res) => {
   try {
     const { token, password, receiverEmail } = req.body;
+
+    const requiredFields = {
+      token,
+      password,
+      receiverEmail,
+    };
+
+    // Find any missing required fields
+    const missingFields = Object.keys(requiredFields).filter(
+      (field) =>
+        requiredFields[field] === undefined ||
+        requiredFields[field] === null ||
+        requiredFields[field] === ""
+    );
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        error: "Required fields are missing",
+        missingFields: missingFields,
+      });
+    }
 
     // Verify the token exists and hasn't expired
     const tokenQuery =

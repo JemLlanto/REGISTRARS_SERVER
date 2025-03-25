@@ -239,6 +239,7 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
         // Process program admins if found
         if (programAdmins.length > 0) {
           for (const admin of programAdmins) {
+            console.log(admin.userID);
             // Send email
             try {
               await sendNewRequestEmail(admin.email, requestID, message);

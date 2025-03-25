@@ -1,4 +1,4 @@
-<div style="font-family: Arial, sans-serif; text-align: center; padding: 20px">
+<!-- <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px">
   <h2 style="color: #007bff">Request #<%= requestID %></h2>
   <p><%= message %></p>
 
@@ -31,4 +31,48 @@
     Check Your Request
   </a>
   <% } %>
+</div> -->
+<div style="background-color: #001838 !important; color: white; padding: 30px; border-radius: 10px;">
+<div style="
+  font-family: 'Poppins', sans-serif; 
+  text-align: center; 
+  padding: 30px; 
+  background-color: #001838; 
+  border-radius: 10px; 
+  max-width: 500px; 
+  margin: auto; 
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+">
+
+  <div>
+    <img src="https://i.postimg.cc/R0t0Wmfh/Registrar.png" alt="CVSU Logo" width="300px">
+  </div>
+
+
+
+
+  <h2 style="color: #ffffff; margin-bottom: 15px;">
+    Request No. <%= requestID %>
+  </h2>
+  <p style="color: #ffffff; font-size: 16px; margin-bottom: 20px;">
+    <%= message %>
+  </p>
+
+  <a 
+    href="http://localhost:5173/request-details/<%= requestID %>" 
+    style="
+      display: inline-block;
+      padding: 12px 25px;
+      background-color: #000e91;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: background 0.3s ease-in-out;
+    "
+    onmouseover="this.style.backgroundColor='#031086'"
+    onmouseout="this.style.backgroundColor=' #18248f'"
+  >
+    Check Your Request
+  </a>
 </div>

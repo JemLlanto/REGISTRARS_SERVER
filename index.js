@@ -96,7 +96,14 @@ app.get("/", verifyUser, (req, res) => {
 
   if (!userID) return res.json({ Error: "Missing userID" });
 
-  const query = " SELECT * FROM users WHERE userID = ?";
+  const query = `  
+  SELECT 
+    u.*,
+    fs.isAutomatic,
+    fs.isOn
+  FROM users u
+  LEFT JOIN form_switch fs ON fs.switchID = 1
+  WHERE u.userID = ?`;
   db.query(query, [userID], (err, data) => {
     if (err) return res.json({ Error: "Error fetching user data." });
     if (data.length > 0) {

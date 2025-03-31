@@ -19,6 +19,7 @@ router.post("/updatePersonalInfo", async (req, res) => {
       firstName,
       middleName,
       lastName,
+      program,
       studentID,
       mobileNum,
       dateOfBirth,
@@ -28,6 +29,7 @@ router.post("/updatePersonalInfo", async (req, res) => {
       firstName,
       middleName,
       lastName,
+      program,
       studentID,
       mobileNum,
       dateOfBirth,
@@ -35,7 +37,7 @@ router.post("/updatePersonalInfo", async (req, res) => {
     ];
 
     const updateQuery =
-      "UPDATE users SET  firstName = ?, middleName = ?, lastName = ?, studentID = ?, mobileNum = ?, dateOfBirth = ? WHERE userID = ?";
+      "UPDATE users SET  firstName = ?, middleName = ?, lastName = ?, program = ?, studentID = ?, mobileNum = ?, dateOfBirth = ? WHERE userID = ?";
     db.query(updateQuery, values, (updateErr, updateResult) => {
       if (updateErr) {
         console.error("Update error: ", updateErr);

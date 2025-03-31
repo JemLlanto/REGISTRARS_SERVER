@@ -104,11 +104,22 @@ router.get("/fetchFeedbackInternalData", async (req, res) => {
     return res.status(400).json({ message: "requestID is required" });
   }
 
-  const query = "SELECT * FROM feedback_internal WHERE requestID = ?";
+  const query = `
+  SELECT
+   fi.*, 
+   u.firstName, 
+   u.middleName, 
+   u.lastName, 
+   u.email
+  FROM feedback_internal fi
+  LEFT JOIN
+      users u ON fi.userID = u.userID
+  WHERE fi.requestID = ?
+`;
   db.query(query, [requestID], (err, result) => {
     if (err) {
       // console.log(err);
-      return res.status(500).json({ message: err.message });
+      return res.status(500).json({ message: err });
     }
     if (result.length > 0) {
       console.log("Found data for requestID:", requestID);

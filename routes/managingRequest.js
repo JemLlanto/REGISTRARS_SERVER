@@ -99,5 +99,56 @@ router.post("/changeStatus", (req, res) => {
     });
   });
 });
+router.post("/switchForm", (req, res) => {
+  const { isAdmin, isOn } = req.body;
+
+  const switchTo = isOn === 0 ? 1 : 0;
+
+  if (isAdmin === 0) {
+    return res.status(401).json({ message: "User unauthorized!" });
+  } else {
+    const query = "UPDATE form_switch set isOn = ? WHERE switchID = 1";
+
+    db.query(query, [switchTo], (err, result) => {
+      if (err) {
+        console.log(err);
+        return res.json({ Error: "Updating data error." });
+      }
+
+      return res.status(200).json({
+        message:
+          isOn === 0
+            ? "The request form has been opened."
+            : "The request form has been closed.",
+      });
+    });
+  }
+});
+router.post("/switchFormAutomatic", (req, res) => {
+  const { isAdmin, isAutomatic } = req.body;
+
+  const switchTo = isAutomatic === 0 ? 1 : 0;
+
+  if (isAdmin === 0) {
+    return res.status(401).json({ message: "User unauthorized!" });
+  } else {
+    const query =
+      "UPDATE form_switch set isOn = 1, isAutomatic = ? WHERE switchID = 1";
+
+    db.query(query, [switchTo], (err, result) => {
+      if (err) {
+        console.log(err);
+        return res.json({ Error: "Updating data error." });
+      }
+
+      return res.status(200).json({
+        message:
+          isAutomatic === 0
+            ? "The request form has been set to automatic mode."
+            : "The request form has been set to manual mode.",
+      });
+    });
+  }
+});
 
 export default router;

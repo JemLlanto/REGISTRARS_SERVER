@@ -13,21 +13,30 @@ router.get("/test", (req, res) => {
   res.send("It works!");
 });
 
-router.get("/fetchUserData", (req, res) => {
-  const userID = req.query.userID;
+// router.get("/fetchUserData", (req, res) => {
+//   const userID = req.query.userID;
 
-  if (!userID) return res.json({ Error: "Missing userID" });
+//   if (!userID) return res.json({ Error: "Missing userID" });
 
-  const query = " SELECT * FROM users WHERE userID = ?";
-  db.query(query, [userID], (err, data) => {
-    if (err) return res.json({ Error: "Error fetching user data." });
-    if (data.length > 0) {
-      return res.json(data[0]);
-    } else {
-      return res.json({ Error: "User not found" });
-    }
-  });
-});
+//   const query = `
+//   SELECT
+//     u.*,
+//     fs.isOn
+//   FROM users u
+//   LEFT JOIN form_switch fs ON fs.switchID = 1
+//   WHERE u.userID = ?
+// `;
+//   db.query(query, [userID], (err, data) => {
+//     if (err) return res.json({ Error: "Error fetching user data." });
+//     if (data.length > 0) {
+//       console.log(data[0].isOn);
+
+//       return res.json(data[0]);
+//     } else {
+//       return res.json({ Error: "User not found" });
+//     }
+//   });
+// });
 
 router.post("/register", (req, res) => {
   const { firstName, middleName, lastName, email, password } = req.body;
@@ -79,6 +88,8 @@ router.post("/login", (req, res) => {
         (err, response) => {
           if (err) return res.json({ Error: "Compare error." });
           if (response) {
+            console.log(data[0].isOn);
+
             const userID = data[0].userID; // ✅ Correct variable name
             // console.log("User ID from DB:", userID);
             const token = jwt.sign(

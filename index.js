@@ -31,41 +31,46 @@ const app = express();
 
 app.use(express.json());
 
+// Define allowed origins
 const allowedOrigins = [
   "http://localhost:5173",
   process.env.VITE_REACT_APP_FRONTEND_BASEURL,
 ];
 
 const server = http.createServer(app);
+
+// Configure Socket.IO with CORS
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins, // Adjust this to match your frontend URL
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
+    credentials: true, // Allow credentials (cookies, auth headers)
   },
 });
 
-// Export io so it can be imported in route files
+// Export io so it can be used in other files
 export { io };
 
 // Socket.IO connection handling
 io.on("connection", (socket) => {
-  // console.log("User connected:", socket.id);
+  console.log("User connected:", socket.id);
 
   // User joins their own room based on their userID
   socket.on("join_user", (userID) => {
     socket.join(userID);
-    // console.log(`User ${userID} joined their room`);
+    console.log(`User ${userID} joined their room`);
   });
 
   socket.on("disconnect", () => {
-    // console.log("User disconnected:", socket.id);
+    console.log("User disconnected:", socket.id);
   });
 });
 
+// Apply CORS middleware for Express routes
 app.use(
   cors({
     origin: allowedOrigins,
-    methods: ["POST", "GET", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );

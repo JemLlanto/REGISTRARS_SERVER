@@ -35,7 +35,7 @@ const io = new Server(server, {
   cors: {
     origin: [
       "http://localhost:5173",
-      "https://vercel.com/jemllantos-projects/registrars-client-bryv",
+      "https://registrars-client-bryv.vercel.app",
     ], // Adjust this to match your frontend URL
     methods: ["GET", "POST"],
   },
@@ -63,7 +63,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://vercel.com/jemllantos-projects/registrars-client-bryv",
+      "https://registrars-client-bryv.vercel.app",
     ],
     methods: ["POST", "GET", "PUT", "DELETE"],
     credentials: true,

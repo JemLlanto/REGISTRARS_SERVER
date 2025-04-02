@@ -1,6 +1,4 @@
 import express from "express";
-import mysql from "mysql";
-import bcrypt from "bcrypt";
 import { db } from "../connect.js";
 import jwt from "jsonwebtoken";
 

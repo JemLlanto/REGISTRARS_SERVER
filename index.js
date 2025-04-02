@@ -33,7 +33,7 @@ app.use(express.json());
 
 const allowedOrigins = [
   "http://localhost:5173",
-  process.env.VITE_REACT_APP_FRONTEND_BASEURL, // Correct way to access env vars in Node.js
+  process.env.VITE_REACT_APP_FRONTEND_BASEURL,
 ];
 
 const server = http.createServer(app);

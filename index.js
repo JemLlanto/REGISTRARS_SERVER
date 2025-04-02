@@ -30,13 +30,16 @@ import feedbackFormRoutes from "./routes/feedbackForm.js";
 const app = express();
 
 app.use(express.json());
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.VITE_REACT_APP_FRONTEND_BASEURL, // Correct way to access env vars in Node.js
+];
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:5173",
-      "https://registrars-client-bryv.vercel.app",
-    ], // Adjust this to match your frontend URL
+    origin: allowedOrigins, // Adjust this to match your frontend URL
     methods: ["GET", "POST"],
   },
 });
@@ -61,10 +64,7 @@ io.on("connection", (socket) => {
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://registrars-client-bryv.vercel.app",
-    ],
+    origin: allowedOrigins,
     methods: ["POST", "GET", "PUT", "DELETE"],
     credentials: true,
   })

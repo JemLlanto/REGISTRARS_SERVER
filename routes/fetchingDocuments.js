@@ -124,25 +124,32 @@ router.get("/fetchRequestedDocumentTypes/:requestID", (req, res) => {
 router.get("/fetchRequestedDocumentFiles/:requestID", (req, res) => {
   const { requestID } = req.params;
   const query = `
-  SELECT *
+  SELECT 
+    *
   FROM 
     requested_document_file
   WHERE 
     requestID = ?
-  
   `;
+
   db.query(query, [requestID], (err, data) => {
-    if (err)
+    if (err) {
+      console.error("Database Error: ", err); // Log the error
       return res.json({
         Status: "Error",
         Message: "Error fetching files.",
+        Error: err.message, // Optionally send error details in response
       });
+    }
+
     if (data.length > 0) {
+      console.log("Files: ", data[0]);
       return res.json({
         Status: "Success",
         data: data[0],
       });
     } else {
+      console.warn(`No files found for requestID: ${requestID}`); // Log warning if no files found
       return res.json({
         Status: "Error",
         Message: "Files not found.",
@@ -150,6 +157,7 @@ router.get("/fetchRequestedDocumentFiles/:requestID", (req, res) => {
     }
   });
 });
+
 router.get("/fetchRequestedDocumentInputs/:requestID", (req, res) => {
   const { requestID } = req.params;
   const query = `

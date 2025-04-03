@@ -2,26 +2,161 @@ import express from "express";
 import { io } from "../index.js";
 import { db } from "../connect.js";
 import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const router = express.Router();
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    return cb(null, "./public/uploads");
-  },
-  filename: function (req, file, cb) {
-    return cb(null, `${Date.now()}_${file.originalname}`);
-  },
-});
-const storageScheduleSlip = multer.diskStorage({
-  destination: function (req, file, cb) {
-    return cb(null, "./public/uploads/scheduleSlip");
-  },
-  filename: function (req, file, cb) {
-    return cb(null, `${Date.now()}_${file.originalname}`);
+
+// Configure Cloudinary storage for regular uploads
+const cloudinaryStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "uploads",
+    allowed_formats: ["jpg", "jpeg", "png", "pdf", "doc", "docx"],
   },
 });
-const upload = multer({ storage });
-const uploadScheduleSlip = multer({ storage: storageScheduleSlip });
+
+// Configure Cloudinary storage for schedule slips
+const cloudinaryStorageScheduleSlip = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "scheduleSlip",
+    allowed_formats: ["jpg", "jpeg", "png", "pdf"],
+  },
+});
+
+const upload = multer({ storage: cloudinaryStorage });
+const uploadScheduleSlip = multer({ storage: cloudinaryStorageScheduleSlip });
+
+router.post("/uploadDocuments", upload.single("file"), (req, res) => {
+  try {
+    const { requestID } = req.body;
+
+    // Check for file
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    // File info from Cloudinary
+    const fileInfo = {
+      originalName: req.file.originalname,
+      filename: req.file.filename,
+      path: req.file.path,
+      url: req.file.path, // Cloudinary URL
+      publicId: req.file.filename, // Cloudinary public ID
+      size: req.file.size,
+      mimetype: req.file.mimetype,
+    };
+
+    console.log("Request ID for upload: ", requestID);
+    console.log("Cloudinary URL: ", fileInfo.url);
+
+    // SQL query - store the URL instead of just the filename
+    const query = `
+      INSERT INTO requested_document_file (requestID, cloudinary_url, cloudinary_public_id) 
+      VALUES (?, ?, ?)
+    `;
+    const values = [
+      requestID,
+      fileInfo.filename,
+      fileInfo.url,
+      fileInfo.publicId,
+    ];
+
+    // Execute query and send response
+    db.query(query, values, (err, result) => {
+      if (err) {
+        console.error("Database Insert Error:", err);
+        return res.status(500).json({
+          Error: "Inserting data error.",
+          Details: err,
+        });
+      }
+
+      return res.status(200).json({
+        Status: "Success",
+        message: "File uploaded successfully to Cloudinary",
+        InsertedID: result.insertId,
+        file: fileInfo,
+      });
+    });
+  } catch (error) {
+    console.error("Error handling file upload:" + error);
+    return res.status(500).json({ error: "Failed to process uploaded file" });
+  }
+});
+
+router.post(
+  "/uploadScheduleSlip",
+  uploadScheduleSlip.single("file"),
+  (req, res) => {
+    try {
+      const { requestID, feedbackType } = req.body;
+
+      // Check for file
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      // File info from Cloudinary
+      const fileInfo = {
+        originalName: req.file.originalname,
+        filename: req.file.filename,
+        url: req.file.path, // Cloudinary URL
+        publicId: req.file.filename, // Cloudinary public ID
+      };
+
+      console.log("Request ID for upload: ", requestID);
+      console.log("Cloudinary URL: ", fileInfo.url);
+      console.log("FeedbackType: ", feedbackType);
+
+      // SQL query - store the URL instead of just the filename
+      const query = `
+      UPDATE requested_documents set feedbackType = ?, scheduleSlip = ?, cloudinary_url = ?, cloudinary_public_id = ? WHERE requestID = ?
+    `;
+      const values = [
+        feedbackType,
+        fileInfo.filename,
+        fileInfo.url,
+        fileInfo.publicId,
+        requestID,
+      ];
+
+      // Execute query and send response
+      db.query(query, values, (err, result) => {
+        if (err) {
+          console.error("Database Insert Error:", err);
+          return res.status(500).json({
+            error: "Inserting data error.",
+            Details: err,
+          });
+        }
+        console.log("Uploaded schedule slip successfully to Cloudinary.");
+
+        return res.status(200).json({
+          Status: "Success",
+          message: "File uploaded successfully to Cloudinary",
+          InsertedID: result.insertId,
+          file: fileInfo,
+        });
+      });
+    } catch (error) {
+      console.error("Error handling file upload:", error);
+      return res.status(500).json({ error: "Failed to process uploaded file" });
+    }
+  }
+);
 
 router.get("/test", (req, res) => {
   res.send("It works!");
@@ -345,109 +480,109 @@ router.post("/insertInputs", (req, res) => {
     });
   }
 });
-router.post("/uploadDocuments", upload.single("file"), (req, res) => {
-  try {
-    const { requestID } = req.body;
+// router.post("/uploadDocuments", upload.single("file"), (req, res) => {
+//   try {
+//     const { requestID } = req.body;
 
-    // Check for file
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
+//     // Check for file
+//     if (!req.file) {
+//       return res.status(400).json({ error: "No file uploaded" });
+//     }
 
-    // File info
-    const fileInfo = {
-      originalName: req.file.originalname,
-      filename: req.file.filename,
-      path: req.file.path,
-      size: req.file.size,
-      mimetype: req.file.mimetype,
-    };
+//     // File info
+//     const fileInfo = {
+//       originalName: req.file.originalname,
+//       filename: req.file.filename,
+//       path: req.file.path,
+//       size: req.file.size,
+//       mimetype: req.file.mimetype,
+//     };
 
-    console.log("Request ID for upload: ", requestID);
-    console.log("Filename: ", fileInfo.filename);
+//     console.log("Request ID for upload: ", requestID);
+//     console.log("Filename: ", fileInfo.filename);
 
-    // SQL query
-    const query = `
-      INSERT INTO requested_document_file (requestID, image_file) 
-      VALUES (?, ?)
-    `;
-    const values = [requestID, fileInfo.filename];
+//     // SQL query
+//     const query = `
+//       INSERT INTO requested_document_file (requestID, image_file)
+//       VALUES (?, ?)
+//     `;
+//     const values = [requestID, fileInfo.filename];
 
-    // Execute query and send response
-    db.query(query, values, (err, result) => {
-      if (err) {
-        console.error("Database Insert Error:", err);
-        return res.status(500).json({
-          Error: "Inserting data error.",
-          Details: err,
-        });
-      }
+//     // Execute query and send response
+//     db.query(query, values, (err, result) => {
+//       if (err) {
+//         console.error("Database Insert Error:", err);
+//         return res.status(500).json({
+//           Error: "Inserting data error.",
+//           Details: err,
+//         });
+//       }
 
-      // Only send ONE response here with all the data
-      return res.status(200).json({
-        Status: "Success",
-        message: "File uploaded successfully",
-        InsertedID: result.insertId,
-        file: fileInfo,
-      });
-    });
-  } catch (error) {
-    console.error("Error handling file upload:", error);
-    return res.status(500).json({ error: "Failed to process uploaded file" });
-  }
-});
-router.post(
-  "/uploadScheduleSlip",
-  uploadScheduleSlip.single("file"),
-  (req, res) => {
-    try {
-      const { requestID, feedbackType } = req.body;
+//       // Only send ONE response here with all the data
+//       return res.status(200).json({
+//         Status: "Success",
+//         message: "File uploaded successfully",
+//         InsertedID: result.insertId,
+//         file: fileInfo,
+//       });
+//     });
+//   } catch (error) {
+//     console.error("Error handling file upload:", error);
+//     return res.status(500).json({ error: "Failed to process uploaded file" });
+//   }
+// });
+// router.post(
+//   "/uploadScheduleSlip",
+//   uploadScheduleSlip.single("file"),
+//   (req, res) => {
+//     try {
+//       const { requestID, feedbackType } = req.body;
 
-      // Check for file
-      if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
-      }
+//       // Check for file
+//       if (!req.file) {
+//         return res.status(400).json({ error: "No file uploaded" });
+//       }
 
-      // File info
-      const fileInfo = {
-        originalName: req.file.originalname,
-        filename: req.file.filename,
-      };
+//       // File info
+//       const fileInfo = {
+//         originalName: req.file.originalname,
+//         filename: req.file.filename,
+//       };
 
-      console.log("Request ID for upload: ", requestID);
-      console.log("Filename: ", fileInfo.filename);
-      console.log("FeedbackType: ", feedbackType);
+//       console.log("Request ID for upload: ", requestID);
+//       console.log("Filename: ", fileInfo.filename);
+//       console.log("FeedbackType: ", feedbackType);
 
-      // SQL query
-      const query = `
-      UPDATE requested_documents set feedbackType = ?, scheduleSlip = ? WHERE requestID = ?
-    `;
-      const values = [feedbackType, fileInfo.filename, requestID];
+//       // SQL query
+//       const query = `
+//       UPDATE requested_documents set feedbackType = ?, scheduleSlip = ? WHERE requestID = ?
+//     `;
+//       const values = [feedbackType, fileInfo.filename, requestID];
 
-      // Execute query and send response
-      db.query(query, values, (err, result) => {
-        if (err) {
-          console.error("Database Insert Error:", err);
-          return res.status(500).json({
-            Error: "Inserting data error.",
-            Details: err,
-          });
-        }
-        console.log("Uploaded schedule slip successfully.");
-        // Only send ONE response here with all the data
-        return res.status(200).json({
-          Status: "Success",
-          message: "File uploaded successfully",
-          InsertedID: result.insertId,
-          file: fileInfo,
-        });
-      });
-    } catch (error) {
-      console.error("Error handling file upload:", error);
-      return res.status(500).json({ error: "Failed to process uploaded file" });
-    }
-  }
-);
+//       // Execute query and send response
+//       db.query(query, values, (err, result) => {
+//         if (err) {
+//           console.error("Database Insert Error:", err);
+//           return res.status(500).json({
+//             Error: "Inserting data error.",
+//             Details: err,
+//           });
+//         }
+//         console.log("Uploaded schedule slip successfully.");
+//         // Only send ONE response here with all the data
+//         return res.status(200).json({
+//           Status: "Success",
+//           message: "File uploaded successfully",
+//           InsertedID: result.insertId,
+//           file: fileInfo,
+//         });
+//       });
+//     } catch (error) {
+//       console.error("Error handling file upload:", error);
+//       return res.status(500).json({ error: "Failed to process uploaded file" });
+//     }
+//   }
+// );
 router.post("/addProgram", (req, res) => {
   const { programName } = req.body;
 

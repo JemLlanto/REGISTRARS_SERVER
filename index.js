@@ -53,16 +53,16 @@ export { io };
 
 // Socket.IO connection handling
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+  // console.log("User connected:", socket.id);
 
   // User joins their own room based on their userID
   socket.on("join_user", (userID) => {
     socket.join(userID);
-    console.log(`User ${userID} joined their room`);
+    // console.log(`User ${userID} joined their room`);
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+    // console.log("User disconnected:", socket.id);
   });
 });
 
@@ -75,6 +75,13 @@ app.use(
   })
 );
 app.use(cookieParser());
+
+document.cookie = "cookieName=value; SameSite=None; Secure; Partitioned";
+// res.cookie("cookieName", "value", {
+//   sameSite: "none",
+//   secure: true,
+//   partitioned: true,
+// });
 
 // Serve images from 'public/uploads' folder
 app.use("/uploads", express.static(path.join(__dirname, "./public/uploads")));

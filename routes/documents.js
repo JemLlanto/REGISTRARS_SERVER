@@ -123,15 +123,9 @@ router.post(
 
       // SQL query - store the URL instead of just the filename
       const query = `
-      UPDATE requested_documents set feedbackType = ?, scheduleSlip = ?, cloudinary_url = ?, cloudinary_public_id = ? WHERE requestID = ?
+      UPDATE requested_documents set feedbackType = ?, cloudinary_url = ?, cloudinary_public_id = ? WHERE requestID = ?
     `;
-      const values = [
-        feedbackType,
-        fileInfo.filename,
-        fileInfo.url,
-        fileInfo.publicId,
-        requestID,
-      ];
+      const values = [feedbackType, fileInfo.url, fileInfo.publicId, requestID];
 
       // Execute query and send response
       db.query(query, values, (err, result) => {

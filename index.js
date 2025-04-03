@@ -76,7 +76,7 @@ app.use(
 );
 app.use(cookieParser());
 
-document.cookie = "cookieName=value; SameSite=None; Secure; Partitioned";
+// document.cookie = "cookieName=value; SameSite=None; Secure; Partitioned";
 // res.cookie("cookieName", "value", {
 //   sameSite: "none",
 //   secure: true,

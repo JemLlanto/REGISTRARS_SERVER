@@ -1,24 +1,51 @@
-<div style="background-color: #001838 !important; color: white; padding: 30px; border-radius: 10px;">
-  <div style="
-    font-family: 'Poppins', sans-serif; 
-  text-align: center; 
-  padding: 30px; 
-  background-color: #001838; 
-  max-width: 500px; 
-  margin: auto; 
-  ">
-  
-
-  <div>
-    <img src="https://i.postimg.cc/mDpTGsb8/Registrar.png" alt="CVSU Logo" width="300px">
-  </div>
-
-  <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px">
-    <h2 style="color: #ffffff">Good day <%= firstName %>!</h2>
-    <p style="color: #ffffff">This is your One-Time-Password(OTP)</p>
-    <h4><%= otp %></h4>
-  </div>
-  
-
-  </div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Notification</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            padding: 30px;
+            margin: auto;
+            max-width: 400px;
+            background-color: #001838;
+            border-radius: 10px;
+        }
+        .logo img {
+            width: 300px;
+            height: auto;
+        }
+        .content {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        h2, p, h4 {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://i.postimg.cc/mDpTGsb8/Registrar.png" alt="CVSU Logo">
+        </div>
+        <div class="content">
+            <h2>Good day <%= firstName %>!</h2>
+            <p>This is your One-Time-Password (OTP)</p>
+            <h4><%= otp %></h4>
+        </div>
+    </div>
+</body>
+</html>

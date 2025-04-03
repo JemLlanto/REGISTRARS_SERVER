@@ -1,79 +1,92 @@
-<!-- <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px">
-  <h2 style="color: #007bff">Request #<%= requestID %></h2>
-  <p><%= message %></p>
-
-  <% if (newStatus === "cancelled") { %>
-  <a
-    href="http://localhost:5173/request-details/<%= requestID %>"
-    style="
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-    "
-  >
-    Check Your Request
-  </a>
-  <% } else { %>
-  <a
-    href="http://localhost:5173/request-details/<%= requestID %>"
-    style="
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-    "
-  >
-    Check Your Request
-  </a>
-  <% } %>
-</div> -->
-<div style="color: white; padding: 30px; border-radius: 10px;">
-  <div style="
-    font-family: 'Poppins', sans-serif; 
-    padding: 30px; 
-    background-color: #001838; 
-    border-radius: 10px; 
-    max-width: 500px; 
-    margin: auto; 
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  ">
-  
-  <div>
-    <img src="https://i.postimg.cc/mDpTGsb8/Registrar.png" alt="CVSU Logo" width="300px">
-  </div>
-  <p style="color: #ffffff; font-size: 14px; margin-top: 20px;">
-    We are from the Registrar's Office, and we are happy to assist you! If you have any concerns regarding your request, feel free to reach out to us. Your satisfaction is our priority, and we appreciate the opportunity to help you.
-  </p>
-    <h2 style="color: #ffffff; margin-bottom: 15px;">
-      Request No. <%= requestID %>
-    </h2>
-    <p style="color: #ffffff; font-size: 16px; margin-bottom: 20px;">
-      <%= message %>
-    </p>
-  
-    <a 
-      href="http://localhost:5173/request-details/<%= requestID %>" 
-      style="
-        display: inline-block;
-        padding: 12px 25px;
-        background-color: #ffffff;
-        color: #001838;
-        text-decoration: none;
-        font-weight: 500;
-        border-radius: 8px;
-        transition: background 0.3s ease-in-out;
-      "
-      onmouseover="this.style.backgroundColor='#031086'"
-      onmouseout="this.style.backgroundColor=' #18248f'"
-    >
-      Check Your Request
-    </a>
-
-  
-  </div>
-  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Notification</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
+            padding: 30px;
+            margin: auto;
+            width: 100%;
+            max-width: 450px;
+            background-color:  #031086;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .logo img {
+            width: 100%;
+            height: auto;
+        }
+        .content {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            color: #ffffff;
+        }
+        h2 {
+            color: #ffffff;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        p {
+          margin: 0;
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #ffffff;
+            color: #031086;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s ease-in-out;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            h2 {
+                font-size: 18px;
+            }
+            p {
+                font-size: 14px;
+            }
+            .button {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://i.postimg.cc/mDpTGsb8/Registrar.png" alt="CVSU Logo">
+        </div>
+        <div class="content">
+            <h2>Request #<%= requestID %></h2>
+            <p><%= message %></p>
+        </div>
+        <a href="http://localhost:5173/request-details/<%= requestID %>" class="button">Check Request</a>
+    </div>
+</body>
+</html>

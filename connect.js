@@ -1,10 +1,10 @@
 import mysql from "mysql";
 
 export const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "registrar_database",
+  host: "bhg08f9mpxdeqhdstoan-mysql.services.clever-cloud.com",
+  user: "uy6ws8mamw33lvzb",
+  password: "Ir0PJpilZGY4bCoUxKFj",
+  database: "bhg08f9mpxdeqhdstoan",
 });
 
 db.connect((err) => {

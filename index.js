@@ -76,13 +76,6 @@ app.use(
 );
 app.use(cookieParser());
 
-// document.cookie = "cookieName=value; SameSite=None; Secure; Partitioned";
-// res.cookie("cookieName", "value", {
-//   sameSite: "none",
-//   secure: true,
-//   partitioned: true,
-// });
-
 // Serve images from 'public/uploads' folder
 app.use("/uploads", express.static(path.join(__dirname, "./public/uploads")));
 app.use(

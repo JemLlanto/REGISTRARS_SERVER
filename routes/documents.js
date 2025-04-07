@@ -67,12 +67,7 @@ router.post("/uploadDocuments", upload.single("file"), (req, res) => {
       INSERT INTO requested_document_file (requestID, cloudinary_url, cloudinary_public_id) 
       VALUES (?, ?, ?)
     `;
-    const values = [
-      requestID,
-      fileInfo.filename,
-      fileInfo.url,
-      fileInfo.publicId,
-    ];
+    const values = [requestID, fileInfo.url, fileInfo.publicId];
 
     // Execute query and send response
     db.query(query, values, (err, result) => {
@@ -189,7 +184,6 @@ router.post("/sendRequest", (req, res) => {
     agree,
     email,
     firstName,
-    middleName,
     lastName,
     studentID,
     dateOfBirth,

@@ -72,6 +72,7 @@ app.use(
     origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
+    allowedHeaders: ["Authorization", "Content-Type"],
   })
 );
 app.use(cookieParser());
@@ -84,13 +85,20 @@ app.use(
 );
 
 const verifyUser = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
+  const authHeader = req.headers["Authorization"];
+  console.log("Auth header:", authHeader); // 👈 Debug log
   const token = authHeader && authHeader.split(" ")[1];
 
-  if (!token) return res.status(401).json({ Error: "Not authenticated." });
+  if (!token) {
+    console.log("No token found");
+    return res.status(401).json({ Error: "Not authenticated." });
+  }
 
   jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-    if (err) return res.status(403).json({ Error: "Invalid Token" });
+    if (err) {
+      console.log("Token verification failed:", err.message); // 👈 Debug log
+      return res.status(403).json({ Error: "Invalid Token" });
+    }
 
     req.userID = decoded.userID;
     next();

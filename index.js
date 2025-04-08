@@ -72,7 +72,7 @@ app.use(
     origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
-    allowedHeaders: ["Authorization", "Content-Type"],
+    allowedHeaders: ["authorization", "Content-Type"],
   })
 );
 app.use(cookieParser());
@@ -85,8 +85,11 @@ app.use(
 );
 
 const verifyUser = (req, res, next) => {
-  const authHeader = req.headers["Authorization"];
-  console.log("Auth header:", authHeader); // 👈 Debug log
+  const authHeader = req.headers.authorization || req.headers["authorization"];
+  // console.log("Request Headers:", req.headers);
+  // console.log("Auth header:", authHeader);
+  // console.log("All headers:", req.headers);
+  // console.log("Authorization header:", req.headers.authorization);
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {

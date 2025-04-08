@@ -93,7 +93,10 @@ router.post("/login", (req, res) => {
             const userID = data[0].userID; // ✅ Correct variable name
             // console.log("User ID from DB:", userID);
             const token = jwt.sign(
-              { userID }, // ✅ Store correctly
+              {
+                userID,
+                issuedAt: new Date().toISOString(), // Add the current date
+              },
               process.env.JWT_SECRET_KEY,
               { expiresIn: "1d" }
             );
@@ -104,13 +107,17 @@ router.post("/login", (req, res) => {
               if (err) return res.json({ Error: "Error occured." });
               const isAdmin = result[0].isAdmin;
               // res.cookie("token", token);
-              res.cookie("token", token, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "None",
-              });
+              // res.cookie("token", token, {
+              //   httpOnly: true,
+              //   secure: true,
+              //   sameSite: "None",
+              // });
               console.log("Is Admin: ", isAdmin);
-              return res.json({ Status: "Success", isAdmin: isAdmin });
+              return res.json({
+                Status: "Success",
+                isAdmin: isAdmin,
+                token: token,
+              });
             });
           } else {
             return res.json({ Error: "Invalid credentials." });

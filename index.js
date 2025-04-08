@@ -84,22 +84,17 @@ app.use(
 );
 
 const verifyUser = (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token) {
-    return res.json({ Error: "Not authenticated." });
-  } else {
-    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-      if (err) {
-        return res.status(403).json({ Error: "Invalid Token" });
-      } else {
-        // console.log("Decoded Token:", decoded);
-        // 🔍 Debug log
-        req.userID = decoded.userID; // ✅ Correct property
-        // console.log("Extracted userID:", req.userID);
-        next();
-      }
-    });
-  }
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) return res.status(401).json({ Error: "Not authenticated." });
+
+  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+    if (err) return res.status(403).json({ Error: "Invalid Token" });
+
+    req.userID = decoded.userID;
+    next();
+  });
 };
 
 app.get("/", verifyUser, (req, res) => {

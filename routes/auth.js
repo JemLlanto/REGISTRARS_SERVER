@@ -5,12 +5,120 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { db } from "../connect.js";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const router = express.Router();
 const salt = 10;
 
 router.get("/test", (req, res) => {
   res.send("It works!");
+});
+
+// Google login route
+router.post("/google-login", async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Verify the Google token
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const email = payload.email;
+
+    // Check if user already exists in your database
+    const query = "SELECT * FROM users WHERE email = ?";
+
+    db.query(query, [email], (err, data) => {
+      if (err) return res.json({ Error: "Database error" });
+
+      if (data.length > 0) {
+        // User exists - log them in
+        const userID = data[0].userID;
+
+        const token = jwt.sign(
+          {
+            userID,
+            issuedAt: new Date().toISOString(),
+          },
+          process.env.JWT_SECRET_KEY,
+          { expiresIn: "1d" }
+        );
+
+        const queryIsAdmin = "SELECT isAdmin FROM users WHERE userID = ?";
+
+        db.query(queryIsAdmin, [userID], (err, result) => {
+          if (err) return res.json({ Error: "Error occurred." });
+          const isAdmin = result[0].isAdmin;
+
+          return res.json({
+            Status: "Success",
+            isAdmin: isAdmin,
+            token: token,
+            message: "User logged in successfully",
+          });
+        });
+      } else {
+        // User doesn't exist - register them
+        // Extract name parts from Google profile
+        const fullName = payload.name || "";
+        const nameParts = fullName.split(" ");
+        const firstName = nameParts[0] || "";
+        const lastName =
+          nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
+        const middleName =
+          nameParts.length > 2 ? nameParts.slice(1, -1).join(" ") : "";
+
+        // Generate a random password for the user (they'll login via Google, not with this password)
+        const randomPassword = Math.random().toString(36).slice(-10);
+        const saltRounds = parseInt(process.env.SALT);
+
+        bcrypt.hash(randomPassword, saltRounds, (err, hashedPassword) => {
+          if (err) return res.json({ Error: "Error hashing password" });
+
+          const insertQuery =
+            "INSERT INTO users (`firstName`, `middleName`, `lastName`, `email`, `password`, `isGoogleUser`) VALUES (?)";
+          const values = [
+            firstName,
+            middleName,
+            lastName,
+            email,
+            hashedPassword,
+            1,
+          ]; // isGoogleUser flag is set to 1
+
+          db.query(insertQuery, [values], (err, result) => {
+            if (err) return res.json({ Error: "Error registering user" });
+
+            // Now get the newly created user ID and create a token
+            const userID = result.insertId;
+
+            const token = jwt.sign(
+              {
+                userID,
+                issuedAt: new Date().toISOString(),
+              },
+              process.env.JWT_SECRET_KEY,
+              { expiresIn: "1d" }
+            );
+
+            return res.json({
+              Status: "Success",
+              isAdmin: 0, // New users are not admins by default
+              token: token,
+              message: "User registered and logged in successfully",
+            });
+          });
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Authentication error:", error);
+    res.status(401).json({ Error: "Authentication failed" });
+  }
 });
 
 // router.get("/fetchUserData", (req, res) => {

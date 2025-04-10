@@ -32,5 +32,15 @@ router.post("/setUpAccount", (req, res) => {
     return res.json({ Status: "Success", Message: "Profile set-up complete." });
   });
 });
+router.post("/dontEditProfile", (req, res) => {
+  const query = "UPDATE users set isNewAccount = 0 WHERE userID = ?";
 
+  db.query(query, [req.body.userID], (err, result) => {
+    if (err) {
+      return res.json({ Error: "Inserting data error." });
+    }
+    console.log("Query result:", result);
+    return res.json({ Status: "Success", Message: "Profile set-up complete." });
+  });
+});
 export default router;

@@ -88,74 +88,103 @@ router.post("/sendForgotPasswordOTP", async (req, res) => {
 });
 
 router.post("/sendNewRequestEmail", async (req, res) => {
-  const { requestID, firstName, lastName, program } = req.body;
-  const message = `${lastName}, ${firstName} requested a document.`;
+  try {
+    const { requestID, firstName, lastName, program } = req.body;
+    const message = `${lastName}, ${firstName} requested a document.`;
+    let emailsSent = 0;
 
-  const superAdminIDQuery = "SELECT email FROM users WHERE isAdmin = 2";
-  db.query(superAdminIDQuery, (err, result) => {
-    if (err) {
-      console.error("Database query error:", err);
-      return;
-    }
-
-    const superAdminEmails = result.map((row) => row.email);
-
-    // If no super admins found, exit
-    if (superAdminEmails.length === 0) {
-      console.log("No super admins found.");
-      return;
-    }
-    // Emit notification to each super admin
-    result.forEach((admin) => {
-      console.log("Super admin email:", admin.email, requestID);
-
-      try {
-        sendNewRequestEmail(admin.email, requestID, message);
-        console.log("Email sent to super admin successfully!");
-      } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: "Failed to send email" });
-      }
-    });
-  });
-
-  const adminIDQuery = `
-    SELECT
-      u.email 
-    FROM users u 
-    LEFT JOIN
-      program_course p ON u.userID = p.adminID
-    WHERE p.programName = ?
-    `;
-  db.query(adminIDQuery, program, (err, result) => {
-    if (err) {
-      console.error("Database query error:", err);
-      return;
-    }
-
-    const adminEmails = result.map((row) => row.email);
-
-    // If no super admins found, exit
-    if (adminEmails.length === 0) {
-      console.log("No super admins found.");
-      return;
-    }
-
-    result.forEach((admin) => {
-      console.log("Super admin email:", admin.email, requestID);
-
-      try {
-        sendNewRequestEmail(admin.email, requestID, message);
-        console.log("Email sent to admin successfully!");
-        res.status(200).json({
-          message: "Email sent to admin and super admin successfully!",
+    // Get super admin emails
+    const getSuperAdmins = () => {
+      return new Promise((resolve, reject) => {
+        const superAdminIDQuery = "SELECT email FROM users WHERE isAdmin = 2";
+        db.query(superAdminIDQuery, (err, result) => {
+          if (err) {
+            console.error("Database query error:", err);
+            reject(err);
+            return;
+          }
+          resolve(result);
         });
-      } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: "Failed to send email" });
+      });
+    };
+
+    // Get admin emails for program
+    const getAdmins = () => {
+      return new Promise((resolve, reject) => {
+        const adminIDQuery = `
+          SELECT u.email 
+          FROM users u 
+          LEFT JOIN program_course p ON u.userID = p.adminID
+          WHERE p.programName = ?
+        `;
+        db.query(adminIDQuery, program, (err, result) => {
+          if (err) {
+            console.error("Database query error:", err);
+            reject(err);
+            return;
+          }
+          resolve(result);
+        });
+      });
+    };
+
+    // Get both admin groups in parallel
+    const [superAdmins, admins] = await Promise.all([
+      getSuperAdmins(),
+      getAdmins(),
+    ]);
+
+    // Send emails to super admins
+    const superAdminEmails = superAdmins.map((admin) => admin.email);
+    if (superAdminEmails.length > 0) {
+      console.log(`Sending emails to ${superAdminEmails.length} super admins`);
+      for (const admin of superAdmins) {
+        try {
+          await sendNewRequestEmail(admin.email, requestID, message);
+          emailsSent++;
+          console.log(`Email sent to super admin ${admin.email} successfully!`);
+        } catch (error) {
+          console.log(`Failed to send email to ${admin.email}:`, error);
+        }
       }
+    } else {
+      console.log("No super admins found.");
+    }
+
+    // Send emails to program admins
+    if (admins.length > 0) {
+      console.log(`Sending emails to ${admins.length} program admins`);
+      for (const admin of admins) {
+        try {
+          await sendNewRequestEmail(admin.email, requestID, message);
+          emailsSent++;
+          console.log(`Email sent to admin ${admin.email} successfully!`);
+        } catch (error) {
+          console.log(`Failed to send email to ${admin.email}:`, error);
+        }
+      }
+    } else {
+      console.log("No program admins found.");
+    }
+
+    // Send one response after all emails are handled
+    if (emailsSent > 0) {
+      console.log(`Email sent to ${emailsSent} recipients!`),
+        res.status(200).json({
+          message: `Email sent successfully to ${emailsSent} recipients!`,
+        });
+    } else {
+      res.status(404).json({
+        message: "No recipients found to send emails to.",
+      });
+    }
+  } catch (error) {
+    console.error("Error in email sending route:", error);
+    res.status(500).json({
+      error: "Failed to send email",
+      details: error.message,
     });
-  });
+  }
 });
 router.post("/sendFeedbackResponseEmail", async (req, res) => {
   try {

@@ -343,17 +343,7 @@ router.post("/sendRequest", (req, res) => {
 router.post("/insertDocTypes", (req, res) => {
   const { documentTypes, requestID } = req.body;
 
-  // Track completed inserts
-  let completedInserts = 0;
-  let errors = [];
-  let successfulInserts = [];
-
-  const query = `
-    INSERT INTO requested_document_type (requestID, documentType) 
-    VALUES (?, ?)
-  `;
-
-  // If no inputs to insert, send success response
+  // If no document types to insert, send success response immediately
   if (!documentTypes || documentTypes.length === 0) {
     console.log("No document types to insert");
     return res.json({
@@ -362,41 +352,70 @@ router.post("/insertDocTypes", (req, res) => {
     });
   }
 
-  documentTypes.forEach((docType, index) => {
-    const values = [requestID, docType];
+  // Create an array of promises for each insert operation
+  const insertPromises = documentTypes.map((docType, index) => {
+    return new Promise((resolve, reject) => {
+      const query = `
+        INSERT INTO requested_document_type (requestID, documentType) 
+        VALUES (?, ?)
+      `;
+      const values = [requestID, docType];
 
-    // Execute query
-    db.query(query, values, (err, result) => {
-      completedInserts++;
-
-      if (err) {
-        errors.push({ index, error: err.message });
-      } else {
-        successfulInserts.push({
-          index,
-          value: docType,
-          insertId: result.insertId,
-        });
-      }
-
-      // Only send response when all inserts are completed
-      if (completedInserts === documentTypes.length) {
-        if (errors.length > 0) {
-          return res.status(500).json({
-            Error: "Some inserts failed",
-            Details: errors,
-            Successful: successfulInserts,
-          });
+      db.query(query, values, (err, result) => {
+        if (err) {
+          console.error(
+            `Error inserting document type at index ${index}:`,
+            err
+          );
+          reject({ index, docType, error: err.message });
         } else {
-          return res.json({
-            Status: "Success",
-            Message: `Successfully inserted ${documentTypes.length} document types`,
-            InsertedData: successfulInserts,
-          });
+          resolve({ index, docType, insertId: result.insertId });
         }
-      }
+      });
     });
   });
+
+  // Wait for all insert operations to complete
+  Promise.allSettled(insertPromises)
+    .then((results) => {
+      const successful = results
+        .filter((result) => result.status === "fulfilled")
+        .map((result) => result.value);
+
+      const failed = results
+        .filter((result) => result.status === "rejected")
+        .map((result) => result.reason);
+
+      if (failed.length > 0) {
+        console.log(
+          `${successful.length} inserts succeeded, ${failed.length} failed`
+        );
+        return res.status(207).json({
+          // 207 Multi-Status
+          Status: "Partial Success",
+          Message: `${successful.length} document types inserted, ${failed.length} failed`,
+          Successful: successful,
+          Failed: failed,
+        });
+      } else {
+        console.log(
+          `All ${successful.length} document types inserted successfully`
+        );
+        return res.json({
+          Status: "Success",
+          Message: `Successfully inserted ${successful.length} document types`,
+          InsertedData: successful,
+        });
+      }
+    })
+    .catch((error) => {
+      console.error("Unexpected error in insertDocTypes:", error);
+      return res.status(500).json({
+        Status: "Error",
+        Message: "An unexpected error occurred while processing document types",
+        Error: error.message,
+      });
+    });
 });
 router.post("/insertInputs", (req, res) => {
   const inputCount = req.body.inputsLength;

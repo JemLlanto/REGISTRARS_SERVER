@@ -7,28 +7,45 @@ const router = express.Router();
 router.get("/test", (req, res) => {
   res.send("It works!");
 });
-
-router.get("/fetchNotification/:userID", (req, res) => {
-  const query =
-    "SELECT * FROM notification WHERE receiver = ? ORDER BY created DESC";
+router.get("/fetchNotification/:userID", async (req, res) => {
   const { userID } = req.params;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
 
-  // console.log("User ID notifs:", userID);
+  try {
+    // For standard MySQL package
+    db.query(
+      `SELECT * FROM notification
+       WHERE receiver = ?
+       ORDER BY created DESC 
+       LIMIT ? OFFSET ?`,
+      [userID, limit, offset],
+      (error, results) => {
+        if (error) {
+          console.error("Database error:", error);
+          return res.status(500).json({
+            Status: "Error",
+            Message: error.message,
+          });
+        }
 
-  db.query(query, [userID], (err, data) => {
-    if (err) {
-      return res.json({ Error: "Fetching data error." });
-    }
-    if (data.length > 0) {
-      // console.log("Query result:", data);
-      return res.json({ Status: "Success", data: data });
-    } else {
-      return res.json({
-        Status: "Error",
-        Message: "No notification.",
-      });
-    }
-  });
+        // Now results is the array of notifications
+        console.log("Query returned", results.length, "results");
+
+        res.status(200).json({
+          Status: "Success",
+          data: results,
+        });
+      }
+    );
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    res.status(500).json({
+      Status: "Error",
+      Message: error.message,
+    });
+  }
 });
 
 // Add route to mark notification as read

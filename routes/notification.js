@@ -31,7 +31,7 @@ router.get("/fetchNotification/:userID", async (req, res) => {
         }
 
         // Now results is the array of notifications
-        console.log("Query returned", results.length, "results");
+        // console.log("Query returned", results.length, "results");
 
         res.status(200).json({
           Status: "Success",

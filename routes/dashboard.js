@@ -21,7 +21,7 @@ router.get("/fetchRequestedDocuments", (req, res) => {
     const query = `
       SELECT * FROM requested_documents
       WHERE DATE(created) BETWEEN ? AND ?
-      ORDER BY created AND status`;
+      ORDER BY created, status`;
 
     // console.log("Executing query:", query, "with values:", values);
 
@@ -60,7 +60,7 @@ router.get("/fetchRequestedDocuments", (req, res) => {
 });
 router.get("/fetchAdminPrograms", (req, res) => {
   const { adminID } = req.query;
-  console.log("Admin ID:", adminID);
+  // console.log("Admin ID:", adminID);
   const query = "SELECT * FROM program_course WHERE adminID = ?";
 
   db.query(query, [adminID], (err, data) => {

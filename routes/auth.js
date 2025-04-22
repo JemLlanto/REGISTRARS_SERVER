@@ -220,7 +220,7 @@ router.post("/login", (req, res) => {
               //   secure: true,
               //   sameSite: "None",
               // });
-              console.log("Is Admin: ", isAdmin);
+              // console.log("Is Admin: ", isAdmin);
               return res.json({
                 Status: "Success",
                 isAdmin: isAdmin,

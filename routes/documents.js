@@ -323,7 +323,7 @@ router.post("/sendRequest", (req, res) => {
           return;
         }
 
-        console.log("Admin ID: ", adminID);
+        // console.log("Admin ID: ", adminID);
         // Emit notification to each admin
 
         io.to(adminID).emit("new_notification", {

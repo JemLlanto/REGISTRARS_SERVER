@@ -33,3 +33,6 @@ dist-ssr
 .env.development
 .env.test
 .env.production
+
+package-lock.json
+package.json

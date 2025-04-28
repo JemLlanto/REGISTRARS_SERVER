@@ -5,34 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OTP Notification</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f4f4f4;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 15px;
         }
         .container {
             text-align: center;
-            padding: 30px;
+            padding: 25px 20px;
             margin: auto;
-            max-width: 400px;
+            width: 100%;
+            max-width: 350px;
             background-color: #001838;
-            border-radius: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .logo {
+            margin-bottom: 15px;
         }
         .logo img {
-            width: 300px;
+            width: 100%;
+            max-width: 300px;
             height: auto;
         }
         .content {
             font-family: Arial, sans-serif;
             text-align: center;
-            padding: 20px;
-        }
-        h2, p, h4 {
+            padding: 15px 10px;
             color: #ffffff;
+        }
+        h2 {
+            color: #ffffff;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        p {
+            margin: 0;
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #ffffff;
+            word-wrap: break-word;
+        }
+        h4 {
+            color: #ffffff;
+            font-size: 24px;
+            margin: 15px 0;
+            letter-spacing: 2px;
+        }
+        
+        /* Extra small devices */
+        @media screen and (max-width: 320px) {
+            .container {
+                padding: 15px 10px;
+            }
+            .content {
+                padding: 10px 5px;
+            }
+            h2 {
+                font-size: 18px;
+            }
+            p {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+            h4 {
+                font-size: 20px;
+            }
+        }
+        
+        /* Small devices */
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 18px 15px;
+            }
+            h2 {
+                font-size: 18px;
+            }
+            p {
+                font-size: 14px;
+            }
+            h4 {
+                font-size: 22px;
+            }
         }
     </style>
 </head>

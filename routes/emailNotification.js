@@ -13,6 +13,8 @@ router.post("/sendStatusUpdate", async (req, res) => {
   const message =
     newStatus === "processing"
       ? "Your request is currently being processed. Please wait while we complete it."
+      : newStatus === "ready to pickup"
+      ? "Your request is ready for pickup. Please download your schedule slip and present it to our transaction window."
       : newStatus === "completed"
       ? "Your request has been successfully completed."
       : newStatus === "cancelled"

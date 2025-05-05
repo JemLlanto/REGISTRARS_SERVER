@@ -5,34 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Notification</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f4f4f4;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
         }
         .container {
             text-align: center;
-            padding: 30px;
+            padding: 25px 20px;
             margin: auto;
             width: 100%;
-            max-width: 450px;
-            background-color:  #031086;
+            max-width: 350px;
+            background-color: #0a1042;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
+        .logo {
+            margin-bottom: 15px;
+        }
+
         .logo img {
-            width: 100%;
+            width: 100px;
+            height: 100px;
+        }
+
+        .logo2 img {
+            width: 50%;
             height: auto;
         }
         .content {
             font-family: Arial, sans-serif;
             text-align: center;
-            padding: 20px;
+            padding: 15px 10px;
             color: #ffffff;
         }
         h2 {
@@ -41,28 +55,55 @@
             margin-bottom: 10px;
         }
         p {
-          margin: 0;
+            margin: 0;
             font-size: 16px;
             margin-bottom: 15px;
             color: #ffffff;
+            word-wrap: break-word;
         }
         .button {
             display: inline-block;
             padding: 12px 20px;
-            background-color: #ffffff;
-            color: #031086;
+            background-color: #0066ff;
+            color: #ffffff;
             text-decoration: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: bold;
             transition: background 0.3s ease-in-out;
+            width: 100%;
+            max-width: 200px;
         }
         .button:hover {
-            background-color: #0056b3;
+            background-color: #f0f0f0;
+            color: #031086;
         }
+        
+        /* Extra small devices */
+        @media screen and (max-width: 320px) {
+            .container {
+                padding: 15px 10px;
+            }
+            .content {
+                padding: 10px 5px;
+            }
+            h2 {
+                font-size: 18px;
+            }
+            p {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+            .button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+        
+        /* Small devices */
         @media screen and (max-width: 480px) {
             .container {
-                padding: 20px;
+                padding: 18px 15px;
             }
             h2 {
                 font-size: 18px;
@@ -80,13 +121,16 @@
 <body>
     <div class="container">
         <div class="logo">
-            <img src="https://i.postimg.cc/mDpTGsb8/Registrar.png" alt="CVSU Logo">
+            <img src="https://collection.cloudinary.com/dhgpir5ae/8efb421da19721ae73d381d4a66ec552" alt="CVSU Logo">
+        </div>
+        <div class="logo2">
+            <img src="https://collection.cloudinary.com/dhgpir5ae/2008eb531db72848abdb9d887a26ee1b" alt="CVSU Logo">
         </div>
         <div class="content">
             <h2>Request #<%= requestID %></h2>
             <p><%= message %></p>
         </div>
-        <a href="http://localhost:5173/request-details/<%= requestID %>" class="button">Check Request</a>
+        <a href="https://registrars-client.onrender.com/request-details/<%= requestID %>" class="button">Check Request</a>
     </div>
 </body>
 </html>

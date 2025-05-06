@@ -35,6 +35,7 @@ app.use(express.json());
 const allowedOrigins = [
   "http://localhost:5173",
   process.env.VITE_REACT_APP_FRONTEND_BASEURL,
+  "https://registrars-client.onrender.com",
 ];
 
 const server = http.createServer(app);
@@ -70,7 +71,6 @@ io.on("connection", (socket) => {
 app.use(
   cors({
     origin: allowedOrigins,
-    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["authorization", "Content-Type"],
   })

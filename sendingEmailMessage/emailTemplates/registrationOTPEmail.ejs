@@ -1,122 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OTP Notification</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 15px;
-        }
-        .container {
-            text-align: center;
-            padding: 25px 20px;
-            margin: auto;
-            width: 100%;
-            max-width: 350px;
-            background-color: #001838;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        .logo {
-            margin-bottom: 15px;
-        }
-        .logo img {
-            width: 100px;
-            height: 100px;
-        }
+      * {
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      body {
+        font-family: "Poppins", sans-serif !important;
+        background-color: #f4f4f4 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        min-height: 100vh !important;
+        margin: 0 !important;
+        padding: 15px !important;
+        color: #ffffff !important;
+      }
+      .container {
+        text-align: center !important;
+        padding: 25px 20px !important;
+        margin: auto !important;
+        width: clamp(350px, 80%, 500px) !important;
+        background-color: #0a1042 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+      }
+      .logo {
+        /* margin-bottom: 5px !important; */
+      }
 
-        .logo2 img {
-            width: 50%;
-            height: auto;
+      .logo img {
+        width: 100px !important;
+        height: 100px !important;
+      }
+
+      .logo2 img {
+        width: 50% !important;
+        height: auto !important;
+        margin-bottom: 15px !important;
+      }
+      .content {
+        font-family: Arial, sans-serif !important;
+        text-align: center !important;
+        padding: 15px 10px !important;
+        color: #ffffff !important;
+      }
+      h2 {
+        color: #ffffff !important;
+        font-size: 20px !important;
+        margin-bottom: 10px !important;
+      }
+      p {
+        margin: 0 !important;
+        font-size: 16px !important;
+        margin-bottom: 15px !important;
+        color: #ffffff !important;
+        word-wrap: break-word !important;
+      }
+      .button {
+        display: inline-block !important;
+        padding: 12px 20px !important;
+        background-color: #f0f0f0 !important;
+        color: #27272c !important;
+        text-decoration: none !important;
+        border-radius: 8px !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        transition: all 0.3s ease-in-out !important;
+        width: 100% !important;
+        max-width: 200px !important;
+      }
+      .button:hover {
+        background-color: #c1c1c1 !important;
+        color: #27272c !important;
+      }
+
+      footer p {
+        margin-top: 20px !important;
+        color: #cccccc !important;
+      }
+
+      hr {
+        margin-top: 40px !important;
+        border: 1px solid #ffffff !important;
+      }
+
+      /* Extra small devices */
+      @media screen and (max-width: 320px) {
+        .container {
+          padding: 15px 10px !important;
         }
         .content {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 15px 10px;
-            color: #ffffff;
+          padding: 10px 5px !important;
         }
         h2 {
-            color: #ffffff;
-            font-size: 20px;
-            margin-bottom: 10px;
+          font-size: 18px !important;
         }
         p {
-            margin: 0;
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #ffffff;
-            word-wrap: break-word;
+          font-size: 14px !important;
+          margin-bottom: 12px !important;
         }
-        h4 {
-            color: #ffffff;
-            font-size: 24px;
-            margin: 15px 0;
-            letter-spacing: 2px;
+        .button {
+          padding: 10px 15px !important;
+          font-size: 14px !important;
         }
-        
-        /* Extra small devices */
-        @media screen and (max-width: 320px) {
-            .container {
-                padding: 15px 10px;
-            }
-            .content {
-                padding: 10px 5px;
-            }
-            h2 {
-                font-size: 18px;
-            }
-            p {
-                font-size: 14px;
-                margin-bottom: 12px;
-            }
-            h4 {
-                font-size: 20px;
-            }
+      }
+
+      /* Small devices */
+      @media screen and (max-width: 480px) {
+        .container {
+          padding: 18px 15px !important;
         }
-        
-        /* Small devices */
-        @media screen and (max-width: 480px) {
-            .container {
-                padding: 18px 15px;
-            }
-            h2 {
-                font-size: 18px;
-            }
-            p {
-                font-size: 14px;
-            }
-            h4 {
-                font-size: 22px;
-            }
+        h2 {
+          font-size: 18px !important;
         }
+        p {
+          font-size: 14px !important;
+        }
+        .button {
+          padding: 10px 16px !important;
+          font-size: 14px !important;
+        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="logo">
-            <img src="https://res.cloudinary.com/dhgpir5ae/image/upload/v1746423700/cvsu-logo_iydkt9.png" alt="CVSU Logo">
-        </div>
-        <div class="logo2">
-            <img src="https://res.cloudinary.com/dhgpir5ae/image/upload/v1746423699/cvsu_x9udii.png" alt="CVSU Logo">
-        </div>
-        <div class="content">
-            <h2>Good day <%= firstName %>!</h2>
-            <p>This is your One-Time-Password (OTP)</p>
-            <h4><%= otp %></h4>
-        </div>
+      <div class="logo">
+        <img
+          src="https://res.cloudinary.com/dhgpir5ae/image/upload/v1746423700/cvsu-logo_iydkt9.png"
+          alt="CVSU Logo"
+        />
+      </div>
+      <div class="logo2">
+        <img
+          src="https://res.cloudinary.com/dhgpir5ae/image/upload/v1746423699/cvsu_x9udii.png"
+          alt="CVSU Logo"
+        />
+      </div>
+      <div class="content">
+        <h2>Greetings from CvSU-CCAT Campus Registrar's Office!</h2>
+        <p>This is your One-Time-Password (OTP)</p>
+        <h1><%= otp %></h1>
+      </div>
+      <div>
+        <hr />
+        <footer>
+          <p>
+            &copy; <%= new Date().getFullYear() %> CvSU-CCAT Campus. All rights
+            reserved.
+          </p>
+        </footer>
+      </div>
     </div>
-</body>
+  </body>
 </html>

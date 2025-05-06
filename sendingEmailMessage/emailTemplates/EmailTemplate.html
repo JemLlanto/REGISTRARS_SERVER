@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Request Notification</title>
+    <title>OTP Notification</title>
     <style>
       * {
         box-sizing: border-box !important;
@@ -144,14 +144,10 @@
         />
       </div>
       <div class="content">
-        <h2>Request #<%= requestID %></h2>
-        <p><%= message %></p>
+        <h2>Greetings from CvSU-CCAT Campus Registrar's Office!</h2>
+        <p>This is your One-Time-Password (OTP)</p>
+        <h4><%= otp %></h4>
       </div>
-      <a
-        href="https://registrars-client.onrender.com/request-details/<%= requestID %>"
-        class="button"
-        >Check Request</a
-      >
       <div>
         <hr />
         <footer>

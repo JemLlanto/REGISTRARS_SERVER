@@ -8,7 +8,7 @@ import sendNewRequestEmail from "../sendingEmailMessage/sendNewRequestEmail.js";
 const router = express.Router();
 
 router.post("/sendStatusUpdate", async (req, res) => {
-  const { receiverEmail, requestID, newStatus } = req.body;
+  const { receiverEmail, requestID, newStatus, reason } = req.body;
 
   const message =
     newStatus === "processing"
@@ -18,7 +18,7 @@ router.post("/sendStatusUpdate", async (req, res) => {
       : newStatus === "completed"
       ? "Your request has been successfully completed."
       : newStatus === "cancelled"
-      ? "Your request has been cancelled."
+      ? `Your request has been cancelled. Reason: ${reason}. Please contact us if you have any questions.`
       : null;
 
   try {
@@ -59,7 +59,7 @@ router.post("/sendRegistrationOTP", async (req, res) => {
   }
 });
 
-router.post("/sendForgotPasswordOTP", async (req, res) => {
+router.post("/resetPassword", async (req, res) => {
   try {
     const { receiverEmail, firstName, otp } = req.body;
 
@@ -92,7 +92,7 @@ router.post("/sendForgotPasswordOTP", async (req, res) => {
 router.post("/sendNewRequestEmail", async (req, res) => {
   try {
     const { requestID, firstName, lastName, program } = req.body;
-    const message = `${lastName}, ${firstName} requested a document.`;
+    const message = `New request from ${lastName}, ${firstName}. Please check the system for more details.`;
     let emailsSent = 0;
 
     // Get super admin emails

@@ -8,7 +8,7 @@ import sendNewRequestEmail from "../sendingEmailMessage/sendNewRequestEmail.js";
 const router = express.Router();
 
 router.post("/sendStatusUpdate", async (req, res) => {
-  const { receiverEmail, requestID, newStatus } = req.body;
+  const { receiverEmail, requestID, newStatus, reason } = req.body;
 
   const message =
     newStatus === "processing"
@@ -18,7 +18,7 @@ router.post("/sendStatusUpdate", async (req, res) => {
       : newStatus === "completed"
       ? "Your request has been successfully completed."
       : newStatus === "cancelled"
-      ? "Your request has been cancelled."
+      ? `Your request has been cancelled. Reason: ${reason}. Please contact us if you have any questions.`
       : null;
 
   try {

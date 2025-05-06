@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Request Notification</title>
+    <title>OTP Notification</title>
     <style>
       * {
         box-sizing: border-box !important;
@@ -25,13 +25,13 @@
         text-align: center !important;
         padding: 25px 20px !important;
         margin: auto !important;
-        width: clamp(300px, 80%, 500px) !important;
+        width: clamp(350px, 80%, 500px) !important;
         background-color: #0a1042 !important;
         border-radius: 12px !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
       }
       .logo {
-        margin-bottom: 5px !important;
+        /* margin-bottom: 5px !important; */
       }
 
       .logo img {
@@ -81,13 +81,13 @@
       }
 
       footer p {
-        margin-top: 15px !important;
+        margin-top: 20px !important;
         color: #cccccc !important;
       }
 
       hr {
         margin-top: 40px !important;
-        border: 1px solid #444 !important;
+        border: 1px solid #ffffff !important;
       }
 
       /* Extra small devices */
@@ -144,15 +144,10 @@
         />
       </div>
       <div class="content">
-        <p>Greetings from CvSU-CCAT Campus Registrar's Office!</p>
-        <h2>Request #<%= requestID %></h2>
-        <p><%= message %></p>
+        <h2>Greetings from CvSU-CCAT Campus Registrar's Office!</h2>
+        <p>This is your One-Time-Password (OTP)</p>
+        <h4><%= otp %></h4>
       </div>
-      <a
-        href="https://registrars-client.onrender.com/request-details/<%= requestID %>"
-        class="button"
-        >Check Request</a
-      >
       <div>
         <hr />
         <footer>

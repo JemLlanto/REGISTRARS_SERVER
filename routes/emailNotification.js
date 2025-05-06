@@ -59,7 +59,7 @@ router.post("/sendRegistrationOTP", async (req, res) => {
   }
 });
 
-router.post("/sendForgotPasswordOTP", async (req, res) => {
+router.post("/resetPassword", async (req, res) => {
   try {
     const { receiverEmail, firstName, otp } = req.body;
 
@@ -92,7 +92,7 @@ router.post("/sendForgotPasswordOTP", async (req, res) => {
 router.post("/sendNewRequestEmail", async (req, res) => {
   try {
     const { requestID, firstName, lastName, program } = req.body;
-    const message = `${lastName}, ${firstName} requested a document.`;
+    const message = `New request from ${lastName}, ${firstName}. Please check the system for more details.`;
     let emailsSent = 0;
 
     // Get super admin emails

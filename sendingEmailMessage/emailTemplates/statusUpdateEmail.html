@@ -6,115 +6,125 @@
     <title>Request Notification</title>
     <style>
       * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
       body {
-        font-family: "Poppins", sans-serif;
-        background-color: #f4f4f4;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-        padding: 15px;
+        font-family: "Poppins", sans-serif !important;
+        background-color: #f4f4f4 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        min-height: 100vh !important;
+        margin: 0 !important;
+        padding: 15px !important;
+        color: #ffffff !important;
       }
       .container {
-        text-align: center;
-        padding: 25px 20px;
-        margin: auto;
-        width: clamp(300px, 80%, 500px);
-        /* max-width: 350px; */
-        background-color: #0a1042;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        text-align: center !important;
+        padding: 25px 20px !important;
+        margin: auto !important;
+        width: clamp(300px, 80%, 500px) !important;
+        background-color: #0a1042 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
       }
       .logo {
-        margin-bottom: 5px;
+        margin-bottom: 5px !important;
       }
 
       .logo img {
-        width: 100px;
-        height: 100px;
+        width: 100px !important;
+        height: 100px !important;
       }
 
       .logo2 img {
-        width: 50%;
-        height: auto;
-        margin-bottom: 15px;
+        width: 50% !important;
+        height: auto !important;
+        margin-bottom: 15px !important;
       }
       .content {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        padding: 15px 10px;
-        color: #ffffff;
+        font-family: Arial, sans-serif !important;
+        text-align: center !important;
+        padding: 15px 10px !important;
+        color: #ffffff !important;
       }
       h2 {
-        color: #ffffff;
-        font-size: 20px;
-        margin-bottom: 10px;
+        color: #ffffff !important;
+        font-size: 20px !important;
+        margin-bottom: 10px !important;
       }
       p {
-        margin: 0;
-        font-size: 16px;
-        margin-bottom: 15px;
-        color: #ffffff;
-        word-wrap: break-word;
+        margin: 0 !important;
+        font-size: 16px !important;
+        margin-bottom: 15px !important;
+        color: #ffffff !important;
+        word-wrap: break-word !important;
       }
       .button {
-        display: inline-block;
-        padding: 12px 20px;
+        display: inline-block !important;
+        padding: 12px 20px !important;
         background-color: #f0f0f0 !important;
         color: #27272c !important;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: bold;
+        text-decoration: none !important;
+        border-radius: 8px !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
         transition: all 0.3s ease-in-out !important;
-        width: 100%;
-        max-width: 200px;
+        width: 100% !important;
+        max-width: 200px !important;
       }
       .button:hover {
         background-color: #c1c1c1 !important;
         color: #27272c !important;
       }
 
+      footer p {
+        margin-top: 15px !important;
+        color: #cccccc !important;
+      }
+
+      hr {
+        margin-top: 40px !important;
+        border: 1px solid #444 !important;
+      }
+
       /* Extra small devices */
       @media screen and (max-width: 320px) {
         .container {
-          padding: 15px 10px;
+          padding: 15px 10px !important;
         }
         .content {
-          padding: 10px 5px;
+          padding: 10px 5px !important;
         }
         h2 {
-          font-size: 18px;
+          font-size: 18px !important;
         }
         p {
-          font-size: 14px;
-          margin-bottom: 12px;
+          font-size: 14px !important;
+          margin-bottom: 12px !important;
         }
         .button {
-          padding: 10px 15px;
-          font-size: 14px;
+          padding: 10px 15px !important;
+          font-size: 14px !important;
         }
       }
 
       /* Small devices */
       @media screen and (max-width: 480px) {
         .container {
-          padding: 18px 15px;
+          padding: 18px 15px !important;
         }
         h2 {
-          font-size: 18px;
+          font-size: 18px !important;
         }
         p {
-          font-size: 14px;
+          font-size: 14px !important;
         }
         .button {
-          padding: 10px 16px;
-          font-size: 14px;
+          padding: 10px 16px !important;
+          font-size: 14px !important;
         }
       }
     </style>
@@ -144,17 +154,9 @@
         >Check Request</a
       >
       <div>
-        <hr style="margin-top: 40px; border: 1px solid #ccc" />
-
-        <footer
-          style="
-            text-align: center;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            color: #666;
-          "
-        >
-          <p style="margin-top: 10px">
+        <hr />
+        <footer>
+          <p>
             &copy; <%= new Date().getFullYear() %> CvSU-CCAT Campus. All rights
             reserved.
           </p>

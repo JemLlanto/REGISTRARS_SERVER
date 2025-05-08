@@ -58,6 +58,26 @@ router.get("/fetchRequestedDocuments", (req, res) => {
     });
   });
 });
+router.get("/fetchDocumentTypes", (req, res) => {
+  const { requestID } = req.query;
+  const query = "SELECT * FROM requested_document_type WHERE requestID = ?";
+  db.query(query, [requestID], (err, data) => {
+    if (err) {
+      console.error("Error fetching document types:", err);
+      return res.json({ Error: "Error fetching document types." });
+    }
+    if (data.length > 0) {
+      console.log("Document Types:", data);
+      return res.status(200).json({ data: data });
+    } else {
+      console.log("No Document Types found for request ID:", requestID);
+      return res.json({
+        Status: "Error",
+        Message: "No Document Types found.",
+      });
+    }
+  });
+});
 router.get("/fetchAdminPrograms", (req, res) => {
   const { adminID } = req.query;
   // console.log("Admin ID:", adminID);

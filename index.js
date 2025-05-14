@@ -15,6 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ROUTES
+import aboutRoutes from "./routes/about.js";
 import authRoutes from "./routes/auth.js";
 import docRoutes from "./routes/documents.js";
 import fetchingDocRoutes from "./routes/fetchingDocuments.js";
@@ -132,6 +133,7 @@ app.get("/", verifyUser, (req, res) => {
   // return res.json({ Status: "Success", userID: req.userID });
 });
 
+app.use("/api/about", aboutRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", docRoutes);
 app.use("/api/fetchingDocuments", fetchingDocRoutes);

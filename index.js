@@ -55,16 +55,16 @@ export { io };
 
 // Socket.IO connection handling
 io.on("connection", (socket) => {
-  // console.log("User connected:", socket.id);
+  // // console.log("User connected:", socket.id);
 
   // User joins their own room based on their userID
   socket.on("join_user", (userID) => {
     socket.join(userID);
-    // console.log(`User ${userID} joined their room`);
+    // // console.log(`User ${userID} joined their room`);
   });
 
   socket.on("disconnect", () => {
-    // console.log("User disconnected:", socket.id);
+    // // console.log("User disconnected:", socket.id);
   });
 });
 
@@ -87,20 +87,20 @@ app.use(
 
 const verifyUser = (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers["authorization"];
-  // console.log("Request Headers:", req.headers);
-  // console.log("Auth header:", authHeader);
-  // console.log("All headers:", req.headers);
-  // console.log("Authorization header:", req.headers.authorization);
+  // // console.log("Request Headers:", req.headers);
+  // // console.log("Auth header:", authHeader);
+  // // console.log("All headers:", req.headers);
+  // // console.log("Authorization header:", req.headers.authorization);
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
-    console.log("No token found");
+    // console.log("No token found");
     return res.status(401).json({ Error: "Not authenticated." });
   }
 
   jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
     if (err) {
-      console.log("Token verification failed:", err.message); // 👈 Debug log
+      // console.log("Token verification failed:", err.message); // 👈 Debug log
       return res.status(403).json({ Error: "Invalid Token" });
     }
 

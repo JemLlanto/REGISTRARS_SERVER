@@ -15,7 +15,7 @@ const sendStatusUpdateEmail = async (
   newStatus,
   message
 ) => {
-  console.log("Receiver email n:", receiverEmail);
+  // console.log("Receiver email n:", receiverEmail);
 
   const statusUpdate = path.join(
     __dirname,
@@ -44,7 +44,7 @@ const sendStatusUpdateEmail = async (
     };
 
     let info = await transporter.sendMail(mailOptions);
-    console.log("Email sent:", info.response);
+    // console.log("Email sent:", info.response);
     return info;
   } catch (error) {
     console.error("Error sending email:", error);

@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const sendNewRequestEmail = async (email, requestID, message) => {
-  console.log("Receiver email n:", email);
+  // console.log("Receiver email n:", email);
 
   const statusUpdate = path.join(
     __dirname,
@@ -38,7 +38,7 @@ const sendNewRequestEmail = async (email, requestID, message) => {
     };
 
     let info = await transporter.sendMail(mailOptions);
-    console.log("Email sent:", info.response);
+    // console.log("Email sent:", info.response);
     return info;
   } catch (error) {
     console.error("Error sending email:", error);

@@ -139,42 +139,42 @@ router.post("/sendNewRequestEmail", async (req, res) => {
     // Send emails to super admins
     const superAdminEmails = superAdmins.map((admin) => admin.email);
     if (superAdminEmails.length > 0) {
-      console.log(`Sending emails to ${superAdminEmails.length} super admins`);
+      // // console.log(`Sending emails to ${superAdminEmails.length} super admins`);
       for (const admin of superAdmins) {
         try {
           await sendNewRequestEmail(admin.email, requestID, message);
           emailsSent++;
-          console.log(`Email sent to super admin ${admin.email} successfully!`);
+          // // console.log(`Email sent to super admin ${admin.email} successfully!`);
         } catch (error) {
-          console.log(`Failed to send email to ${admin.email}:`, error);
+          // // console.log(`Failed to send email to ${admin.email}:`, error);
         }
       }
     } else {
-      console.log("No super admins found.");
+      // console.log("No super admins found.");
     }
 
     // Send emails to program admins
     if (admins.length > 0) {
-      console.log(`Sending emails to ${admins.length} program admins`);
+      // // console.log(`Sending emails to ${admins.length} program admins`);
       for (const admin of admins) {
         try {
           await sendNewRequestEmail(admin.email, requestID, message);
           emailsSent++;
-          console.log(`Email sent to admin ${admin.email} successfully!`);
+          // // console.log(`Email sent to admin ${admin.email} successfully!`);
         } catch (error) {
-          console.log(`Failed to send email to ${admin.email}:`, error);
+          // // console.log(`Failed to send email to ${admin.email}:`, error);
         }
       }
     } else {
-      console.log("No program admins found.");
+      // console.log("No program admins found.");
     }
 
     // Send one response after all emails are handled
     if (emailsSent > 0) {
-      console.log(`Email sent to ${emailsSent} recipients!`),
-        res.status(200).json({
-          message: `Email sent successfully to ${emailsSent} recipients!`,
-        });
+      // // console.log(`Email sent to ${emailsSent} recipients!`),
+      res.status(200).json({
+        message: `Email sent successfully to ${emailsSent} recipients!`,
+      });
     } else {
       res.status(404).json({
         message: "No recipients found to send emails to.",
@@ -210,15 +210,15 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
           // Send email
           try {
             await sendNewRequestEmail(admin.email, requestID, message);
-            console.log(
-              `Email sent to super admin ${admin.email} successfully!`
-            );
+            // // console.log(
+            //   `Email sent to super admin ${admin.email} successfully!`
+            // );
             emailsSent = true;
           } catch (error) {
-            console.error(
-              `Failed to send email to super admin ${admin.email}:`,
-              error
-            );
+            // console.error(
+            //   `Failed to send email to super admin ${admin.email}:`,
+            //   error
+            // );
             // Continue with other admins even if one email fails
           }
 
@@ -248,7 +248,7 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
           });
         }
       } else {
-        console.log("No super admins found.");
+        // console.log("No super admins found.");
       }
 
       // Query program admins
@@ -270,19 +270,19 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
         // Process program admins if found
         if (programAdmins.length > 0) {
           for (const admin of programAdmins) {
-            console.log(admin.userID);
+            // console.log(admin.userID);
             // Send email
             try {
               await sendNewRequestEmail(admin.email, requestID, message);
-              console.log(
-                `Email sent to program admin ${admin.email} successfully!`
-              );
+              // // console.log(
+              //   `Email sent to program admin ${admin.email} successfully!`
+              // );
               emailsSent = true;
             } catch (error) {
-              console.error(
-                `Failed to send email to program admin ${admin.email}:`,
-                error
-              );
+              // console.error(
+              //   `Failed to send email to program admin ${admin.email}:`,
+              //   error
+              // );
               // Continue with other admins even if one email fails
             }
 
@@ -312,7 +312,7 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
             });
           }
         } else {
-          console.log("No program admins found for program:", program);
+          // console.log("No program admins found for program:", program);
         }
 
         // Send final response after both queries complete

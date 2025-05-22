@@ -11,19 +11,19 @@ router.get("/fetchRequestedDocuments", (req, res) => {
   const { startDate, endDate } = req.query;
   const values = [startDate, endDate];
 
-  // console.log("Start Date:", startDate);
-  // console.log("End Date:", endDate);
+  // // console.log("Start Date:", startDate);
+  // // console.log("End Date:", endDate);
 
   // Let's see if the column actually exists
   db.query("DESCRIBE requested_documents", (descErr, descData) => {
-    // console.log("Table structure:", descData);
+    // // console.log("Table structure:", descData);
 
     const query = `
       SELECT * FROM requested_documents
       WHERE DATE(created) BETWEEN ? AND ?
       ORDER BY created, status`;
 
-    // console.log("Executing query:", query, "with values:", values);
+    // // console.log("Executing query:", query, "with values:", values);
 
     db.query(query, values, (err, data) => {
       if (err) {
@@ -33,7 +33,7 @@ router.get("/fetchRequestedDocuments", (req, res) => {
           Message: "Error fetching Requested Documents data.",
         });
       }
-      // console.log("Query results:", data);
+      // // console.log("Query results:", data);
       if (data.length > 0) {
         return res.json({ Status: "Success", data: data });
       } else {
@@ -41,7 +41,7 @@ router.get("/fetchRequestedDocuments", (req, res) => {
         db.query(
           "SELECT * FROM requested_documents LIMIT 5",
           (fallbackErr, fallbackData) => {
-            // console.log("Fallback query results:", fallbackData);
+            // // console.log("Fallback query results:", fallbackData);
             return res.json({
               Status: "Error",
               Message:
@@ -67,10 +67,10 @@ router.get("/fetchDocumentTypes", (req, res) => {
       return res.json({ Error: "Error fetching document types." });
     }
     if (data.length > 0) {
-      console.log("Document Types:", data);
+      // console.log("Document Types:", data);
       return res.status(200).json({ data: data });
     } else {
-      console.log("No Document Types found for request ID:", requestID);
+      // console.log("No Document Types found for request ID:", requestID);
       return res.json({
         Status: "Error",
         Message: "No Document Types found.",
@@ -80,7 +80,7 @@ router.get("/fetchDocumentTypes", (req, res) => {
 });
 router.get("/fetchAdminPrograms", (req, res) => {
   const { adminID } = req.query;
-  // console.log("Admin ID:", adminID);
+  // // console.log("Admin ID:", adminID);
   const query = "SELECT * FROM program_course WHERE adminID = ?";
 
   db.query(query, [adminID], (err, data) => {

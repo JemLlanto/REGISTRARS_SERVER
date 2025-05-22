@@ -31,7 +31,7 @@ router.post("/addProgramAdmin", (req, res) => {
 
   db.query(query, values, (err, result) => {
     if (err) {
-      console.log(err);
+      // console.log(err);
       return res.json({ Status: "Failed", Message: err });
     }
     return res.json({
@@ -123,7 +123,7 @@ router.get("/fetchProgramAdmins", (req, res) => {
         Message: "Error fetching program admins.",
       });
     }
-    // console.log(result);
+    // // console.log(result);
     return res.json({ Status: "Success", result: result });
   });
 });

@@ -121,31 +121,6 @@ router.post("/google-login", async (req, res) => {
   }
 });
 
-// router.get("/fetchUserData", (req, res) => {
-//   const userID = req.query.userID;
-
-//   if (!userID) return res.json({ Error: "Missing userID" });
-
-//   const query = `
-//   SELECT
-//     u.*,
-//     fs.isOn
-//   FROM users u
-//   LEFT JOIN form_switch fs ON fs.switchID = 1
-//   WHERE u.userID = ?
-// `;
-//   db.query(query, [userID], (err, data) => {
-//     if (err) return res.json({ Error: "Error fetching user data." });
-//     if (data.length > 0) {
-//       // console.log(data[0].isOn);
-
-//       return res.json(data[0]);
-//     } else {
-//       return res.json({ Error: "User not found" });
-//     }
-//   });
-// });
-
 router.post("/register", (req, res) => {
   const { firstName, middleName, lastName, email, password } = req.body;
 

@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const sendNewRequestEmail = async (email, requestID, message) => {
+const sendNewRequestEmail = async (email, URL, requestID, message) => {
   console.log("Receiver email n:", email);
 
   const statusUpdate = path.join(
@@ -18,6 +18,7 @@ const sendNewRequestEmail = async (email, requestID, message) => {
   );
   const html = ejs.render(fs.readFileSync(statusUpdate, "utf-8"), {
     requestID,
+    URL,
     message,
   });
 

@@ -1,6 +1,8 @@
 import express from "express";
 import { db } from "../connect.js";
 import { io } from "../index.js";
+import dotenv from "dotenv";
+dotenv.config();
 import sendRegistrationOTPEmail from "../sendingEmailMessage/sendRegistrationOTPEmail.js";
 import sendStatusUpdateEmail from "../sendingEmailMessage/sendStatusUpdateEmail.js";
 import sendNewRequestEmail from "../sendingEmailMessage/sendNewRequestEmail.js";
@@ -21,8 +23,17 @@ router.post("/sendStatusUpdate", async (req, res) => {
       ? `Your request has been cancelled. Reason: ${reason}. Please contact us if you have any questions.`
       : null;
 
+  const URL = `${process.env.VITE_REACT_APP_FRONTEND_BASEURL}/request-details/${requestID}`;
+  // console.log(URL);
+
   try {
-    await sendStatusUpdateEmail(receiverEmail, requestID, newStatus, message);
+    await sendStatusUpdateEmail(
+      receiverEmail,
+      URL,
+      requestID,
+      newStatus,
+      message
+    );
     res.status(200).json({ message: "Email sent successfully!" });
   } catch (error) {
     res.status(500).json({ error: "Failed to send email" });
@@ -93,6 +104,7 @@ router.post("/sendNewRequestEmail", async (req, res) => {
   try {
     const { requestID, firstName, lastName, program } = req.body;
     const message = `New request from ${lastName}, ${firstName}. Please check the system for more details.`;
+    const URL = `${process.env.VITE_REACT_APP_FRONTEND_BASEURL}/request-details/${requestID}`;
     let emailsSent = 0;
 
     // Get super admin emails
@@ -142,7 +154,7 @@ router.post("/sendNewRequestEmail", async (req, res) => {
       console.log(`Sending emails to ${superAdminEmails.length} super admins`);
       for (const admin of superAdmins) {
         try {
-          await sendNewRequestEmail(admin.email, requestID, message);
+          await sendNewRequestEmail(admin.email, URL, requestID, message);
           emailsSent++;
           console.log(`Email sent to super admin ${admin.email} successfully!`);
         } catch (error) {
@@ -158,7 +170,7 @@ router.post("/sendNewRequestEmail", async (req, res) => {
       console.log(`Sending emails to ${admins.length} program admins`);
       for (const admin of admins) {
         try {
-          await sendNewRequestEmail(admin.email, requestID, message);
+          await sendNewRequestEmail(admin.email, URL, requestID, message);
           emailsSent++;
           console.log(`Email sent to admin ${admin.email} successfully!`);
         } catch (error) {

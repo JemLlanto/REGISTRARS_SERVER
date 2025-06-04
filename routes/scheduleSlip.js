@@ -32,7 +32,7 @@ router.post("/sendScheduleSlipDetails", (req, res) => {
     timeRelease,
     processedBy,
   ];
-
+  console.log("requestID: ", requestID);
   // Step 1: Check if controlNum already exists
   const checkQuery = "SELECT * FROM scheduleSlip WHERE controlNum = ?";
 
@@ -42,10 +42,10 @@ router.post("/sendScheduleSlipDetails", (req, res) => {
       return res.status(500).json({ error: "Database error", details: err });
     }
 
-    if (result.length > 0) {
-      // Control number already exists
-      return res.status(409).json({ error: "Control number already exists." });
-    }
+    // if (result.length > 0) {
+    //   // Control number already exists
+    //   return res.status(409).json({ error: "Control number already exists." });
+    // }
 
     // Step 2: Insert if it doesn't exist
     const insertQuery =
@@ -59,6 +59,18 @@ router.post("/sendScheduleSlipDetails", (req, res) => {
           .json({ error: "Error inserting data", details: insertErr });
       }
 
+      const updateQuery =
+        "UPDATE requested_documents SET isScheduled = 1 WHERE requestID = ?";
+      db.query(updateQuery, [requestID], (updateErr, updateResult) => {
+        if (updateErr) {
+          console.log("Error updating data: ", updateErr);
+          return res
+            .status(500)
+            .json({ error: "Error updating data", details: updateErr });
+        }
+        console.log("Marked document as scheduled.");
+      });
+
       return res.status(200).json({ message: "Data inserted successfully." });
     });
   });
@@ -66,6 +78,7 @@ router.post("/sendScheduleSlipDetails", (req, res) => {
 
 router.post("/sendScheduleSlipDocTypes", (req, res) => {
   const { requestID, documentTypes } = req.body;
+  console.log("sendScheduleSlipDocTypes requestID: ", requestID);
 
   if (
     !requestID ||
@@ -84,20 +97,21 @@ router.post("/sendScheduleSlipDocTypes", (req, res) => {
       return res.status(500).json({ error: "Database error", details: err });
     }
 
-    if (result.length > 0) {
-      // RequestID already exists
-      return res.status(409).json({ error: "RequestID already exists." });
-    }
+    // if (result.length > 0) {
+    //   // RequestID already exists
+    //   return res.status(409).json({ error: "RequestID already exists." });
+    // }
 
     // Step 2: Insert if it doesn't exist
     const docValues = documentTypes.map((doc) => [
       requestID,
       doc.documentType,
+      doc.page,
       doc.amount,
     ]);
 
     const insertQuery =
-      "INSERT INTO scheduleSlipDocTypes (requestID, documentName, price) VALUES ?";
+      "INSERT INTO scheduleSlipDocTypes (requestID, documentName, page, price) VALUES ?";
 
     db.query(insertQuery, [docValues], (err) => {
       if (err) {
@@ -114,6 +128,7 @@ router.post("/sendScheduleSlipDocTypes", (req, res) => {
 
 router.post("/sendScheduleSlipRequirements", (req, res) => {
   const { requestID, requirements } = req.body;
+  console.log("requestID: ", requestID);
 
   if (!requestID || !Array.isArray(requirements) || requirements.length === 0) {
     return res.status(400).json({ error: "Invalid input." });
@@ -129,10 +144,10 @@ router.post("/sendScheduleSlipRequirements", (req, res) => {
       return res.status(500).json({ error: "Database error", details: err });
     }
 
-    if (result.length > 0) {
-      // RequestID already exists
-      return res.status(409).json({ error: "RequestID already exists." });
-    }
+    // if (result.length > 0) {
+    //   // RequestID already exists
+    //   return res.status(409).json({ error: "RequestID already exists." });
+    // }
 
     // Step 2: Insert if it doesn't exist
     const reqValues = requirements.map((doc) => [requestID, doc]);
@@ -175,7 +190,6 @@ router.get("/fetchScheduleSlipDetails/:requestID", (req, res) => {
 router.get("/fetchScheduleSlipDocTypes/:requestID", (req, res) => {
   const { requestID } = req.params;
   const query = "SELECT * FROM scheduleSlipDocTypes WHERE requestID = ?";
-  ``;
   db.query(query, [requestID], (err, result) => {
     if (err) {
       console.log("Error fetching schedule slip document types: ", err);
@@ -184,11 +198,7 @@ router.get("/fetchScheduleSlipDocTypes/:requestID", (req, res) => {
         Details: err,
       });
     }
-    if (result.length > 0) {
-      return res.status(200).json({ result: result });
-    } else {
-      return res.status(404).json("Cannot find any data");
-    }
+    return res.status(200).json({ result: result });
   });
 });
 router.get("/fetchScheduleSlipRequirements/:requestID", (req, res) => {

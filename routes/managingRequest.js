@@ -49,8 +49,13 @@ router.post("/cancelRequest", (req, res) => {
   });
 });
 router.post("/changeStatus", (req, res) => {
-  const query = "UPDATE requested_documents set status = ? WHERE requestID = ?";
-  const values = [req.body.newStatus, req.body.requestID];
+  const query =
+    "UPDATE requested_documents set status = ?, feedbackType = ? WHERE requestID = ?";
+  const values = [
+    req.body.newStatus,
+    req.body.feedbackType,
+    req.body.requestID,
+  ];
   const notifMessage =
     req.body.newStatus === "processing"
       ? "Your request is currently being processed."

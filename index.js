@@ -27,6 +27,7 @@ import notificationRoutes from "./routes/notification.js";
 import emailNotificationRoutes from "./routes/emailNotification.js";
 import updateProfileRoutes from "./routes/updateProfile.js";
 import feedbackFormRoutes from "./routes/feedbackForm.js";
+import scheduleSlipRoutes from "./routes/scheduleSLip.js";
 
 const app = express();
 
@@ -145,6 +146,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/emailNotification", emailNotificationRoutes);
 app.use("/api/updateProfile", updateProfileRoutes);
 app.use("/api/feedbackForm", feedbackFormRoutes);
+app.use("/api/scheduleSlip", scheduleSlipRoutes);
 
 server.listen(5000, () => {
   console.log("running...");

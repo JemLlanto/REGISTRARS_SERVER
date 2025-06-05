@@ -59,8 +59,8 @@ router.post("/uploadDocuments", upload.single("file"), (req, res) => {
       mimetype: req.file.mimetype,
     };
 
-    console.log("Request ID for upload: ", requestID);
-    console.log("Cloudinary URL: ", fileInfo.url);
+    // console.log("Request ID for upload: ", requestID);
+    // console.log("Cloudinary URL: ", fileInfo.url);
 
     // SQL query - store the URL instead of just the filename
     const query = `
@@ -112,9 +112,9 @@ router.post(
         publicId: req.file.filename, // Cloudinary public ID
       };
 
-      console.log("Request ID for upload: ", requestID);
-      console.log("Cloudinary URL: ", fileInfo.url);
-      console.log("FeedbackType: ", feedbackType);
+      // console.log("Request ID for upload: ", requestID);
+      // console.log("Cloudinary URL: ", fileInfo.url);
+      // console.log("FeedbackType: ", feedbackType);
 
       // SQL query - store the URL instead of just the filename
       const query = `
@@ -131,7 +131,7 @@ router.post(
             Details: err,
           });
         }
-        console.log("Uploaded schedule slip successfully to Cloudinary.");
+        // console.log("Uploaded schedule slip successfully to Cloudinary.");
 
         return res.status(200).json({
           Status: "Success",
@@ -237,7 +237,7 @@ router.post("/sendRequest", (req, res) => {
     program,
     purpose,
   ];
-  console.log("request ID for overall: ", requestID);
+  // console.log("request ID for overall: ", requestID);
 
   // Execute query
   db.query(query, values, (err, result) => {
@@ -261,7 +261,7 @@ router.post("/sendRequest", (req, res) => {
 
       // If no super admins found, exit
       if (superAdminIDs.length === 0) {
-        console.log("No super admins found.");
+        // console.log("No super admins found.");
         return;
       }
 
@@ -282,7 +282,7 @@ router.post("/sendRequest", (req, res) => {
 
         // Emit notification to each super admin
         superAdminIDs.forEach((adminID) => {
-          // console.log("Super admin ID: ", adminID, requestID);
+          // // console.log("Super admin ID: ", adminID, requestID);
           io.to(adminID).emit("new_notification", {
             id: notifResult.insertId,
             receiver: adminID,
@@ -304,7 +304,7 @@ router.post("/sendRequest", (req, res) => {
         return;
       }
       if (result.length === 0) {
-        console.log("No admins found in this program.");
+        // console.log("No admins found in this program.");
         return;
       }
       const adminID = result[0].adminID;
@@ -323,7 +323,7 @@ router.post("/sendRequest", (req, res) => {
           return;
         }
 
-        // console.log("Admin ID: ", adminID);
+        // // console.log("Admin ID: ", adminID);
         // Emit notification to each admin
 
         io.to(adminID).emit("new_notification", {
@@ -345,7 +345,7 @@ router.post("/insertDocTypes", (req, res) => {
 
   // If no document types to insert, send success response immediately
   if (!documentTypes || documentTypes.length === 0) {
-    console.log("No document types to insert");
+    // console.log("No document types to insert");
     return res.json({
       Status: "Success",
       Message: "No document types to insert",
@@ -387,9 +387,9 @@ router.post("/insertDocTypes", (req, res) => {
         .map((result) => result.reason);
 
       if (failed.length > 0) {
-        console.log(
-          `${successful.length} inserts succeeded, ${failed.length} failed`
-        );
+        // console.log(
+        //   `${successful.length} inserts succeeded, ${failed.length} failed`
+        // );
         return res.status(207).json({
           // 207 Multi-Status
           Status: "Partial Success",
@@ -398,9 +398,9 @@ router.post("/insertDocTypes", (req, res) => {
           Failed: failed,
         });
       } else {
-        console.log(
-          `All ${successful.length} document types inserted successfully`
-        );
+        // console.log(
+        //   `All ${successful.length} document types inserted successfully`
+        // );
         return res.json({
           Status: "Success",
           Message: `Successfully inserted ${successful.length} document types`,
@@ -433,18 +433,18 @@ router.post("/insertInputs", (req, res) => {
 
   // If no inputs to insert, send success response
   if (!inputCount || inputCount <= 0) {
-    console.log("No inputs to insert");
+    // console.log("No inputs to insert");
     return res.json({ Status: "Success", Message: "No inputs to insert" });
   }
 
   for (let i = 1; i <= inputCount; i++) {
     // Get the input value using the correct property name format
     const inputValue = req.body[`inputValue${i}`];
-    console.log(`Attempting to insert inputValue${i}:`, inputValue);
+    // console.log(`Attempting to insert inputValue${i}:`, inputValue);
 
     const values = [requestID, inputValue];
-    console.log("Request ID for inputValues:", requestID);
-    console.log("Values for insert:", values);
+    // console.log("Request ID for inputValues:", requestID);
+    // console.log("Values for insert:", values);
 
     // Execute query
     db.query(query, values, (err, result) => {
@@ -454,7 +454,7 @@ router.post("/insertInputs", (req, res) => {
         console.error(`Database Insert Error for input ${i}:`, err);
         errors.push({ input: i, error: err.message });
       } else {
-        console.log(`Successfully inserted input ${i}:`, result);
+        // console.log(`Successfully inserted input ${i}:`, result);
         successfulInserts.push({
           input: i,
           value: inputValue,
@@ -464,11 +464,11 @@ router.post("/insertInputs", (req, res) => {
 
       // Only send response when all inserts are completed
       if (completedInserts === inputCount) {
-        console.log("All inserts completed:", {
-          total: inputCount,
-          successful: successfulInserts.length,
-          failed: errors.length,
-        });
+        // console.log("All inserts completed:", {
+        //   total: inputCount,
+        //   successful: successfulInserts.length,
+        //   failed: errors.length,
+        // });
 
         if (errors.length > 0) {
           return res.status(500).json({
@@ -505,8 +505,8 @@ router.post("/insertInputs", (req, res) => {
 //       mimetype: req.file.mimetype,
 //     };
 
-//     console.log("Request ID for upload: ", requestID);
-//     console.log("Filename: ", fileInfo.filename);
+//     // console.log("Request ID for upload: ", requestID);
+//     // console.log("Filename: ", fileInfo.filename);
 
 //     // SQL query
 //     const query = `
@@ -556,9 +556,9 @@ router.post("/insertInputs", (req, res) => {
 //         filename: req.file.filename,
 //       };
 
-//       console.log("Request ID for upload: ", requestID);
-//       console.log("Filename: ", fileInfo.filename);
-//       console.log("FeedbackType: ", feedbackType);
+//       // console.log("Request ID for upload: ", requestID);
+//       // console.log("Filename: ", fileInfo.filename);
+//       // console.log("FeedbackType: ", feedbackType);
 
 //       // SQL query
 //       const query = `
@@ -575,7 +575,7 @@ router.post("/insertInputs", (req, res) => {
 //             Details: err,
 //           });
 //         }
-//         console.log("Uploaded schedule slip successfully.");
+//         // console.log("Uploaded schedule slip successfully.");
 //         // Only send ONE response here with all the data
 //         return res.status(200).json({
 //           Status: "Success",
@@ -597,7 +597,7 @@ router.post("/addProgram", (req, res) => {
 
   db.query(check, programName, (err, result) => {
     if (err) {
-      console.log("Error checking programName: ", err);
+      // console.log("Error checking programName: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking programName", Details: err });
@@ -611,7 +611,7 @@ router.post("/addProgram", (req, res) => {
       const query = "INSERT INTO program_course (programName) Values (?)";
       db.query(query, programName, (err, result) => {
         if (err) {
-          console.log("Error adding program: ", err);
+          // console.log("Error adding program: ", err);
           return res
             .status(500)
             .json({ Error: "Error adding program", Details: err });
@@ -629,7 +629,7 @@ router.post("/updateProgram", (req, res) => {
 
   db.query(check, programName, (err, result) => {
     if (err) {
-      console.log("Error checking programName: ", err);
+      // console.log("Error checking programName: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking programName", Details: err });
@@ -644,7 +644,7 @@ router.post("/updateProgram", (req, res) => {
         "UPDATE program_course set programName = ? WHERE programID = ?";
       db.query(query, values, (err, result) => {
         if (err) {
-          console.log("Error updating program: ", err);
+          // console.log("Error updating program: ", err);
           return res
             .status(500)
             .json({ Error: "Error updating program", Details: err });
@@ -661,7 +661,7 @@ router.post("/deleteProgram", (req, res) => {
 
   db.query(check, programID, (err, result) => {
     if (err) {
-      console.log("Error checking programID: ", err);
+      // console.log("Error checking programID: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking programID", Details: err });
@@ -675,7 +675,7 @@ router.post("/deleteProgram", (req, res) => {
       const query = "DELETE FROM program_course WHERE programID = ?";
       db.query(query, programID, (err, result) => {
         if (err) {
-          console.log("Error deleting program: ", err);
+          // console.log("Error deleting program: ", err);
           return res
             .status(500)
             .json({ Error: "Error deleting program", Details: err });
@@ -692,7 +692,7 @@ router.post("/addYear", (req, res) => {
 
   db.query(check, yearOption, (err, result) => {
     if (err) {
-      console.log("Error checking yearOption: ", err);
+      // console.log("Error checking yearOption: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking yearOption", Details: err });
@@ -706,7 +706,7 @@ router.post("/addYear", (req, res) => {
       const query = "INSERT INTO year_graduated (yearOption) Values (?)";
       db.query(query, yearOption, (err, result) => {
         if (err) {
-          console.log("Error adding program: ", err);
+          // console.log("Error adding program: ", err);
           return res
             .status(500)
             .json({ Error: "Error adding Year", Details: err });
@@ -724,7 +724,7 @@ router.post("/updateYear", (req, res) => {
 
   db.query(check, yearOption, (err, result) => {
     if (err) {
-      console.log("Error checking yearOption: ", err);
+      // console.log("Error checking yearOption: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking yearOption", Details: err });
@@ -739,7 +739,7 @@ router.post("/updateYear", (req, res) => {
         "UPDATE year_graduated set yearOption = ? WHERE yearGraduatedID = ?";
       db.query(query, values, (err, result) => {
         if (err) {
-          console.log("Error updating program: ", err);
+          // console.log("Error updating program: ", err);
           return res
             .status(500)
             .json({ Error: "Error updating program", Details: err });
@@ -756,7 +756,7 @@ router.post("/deleteYear", (req, res) => {
 
   db.query(check, yearGraduatedID, (err, result) => {
     if (err) {
-      console.log("Error checking yearGraduatedID: ", err);
+      // console.log("Error checking yearGraduatedID: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking yearGraduatedID", Details: err });
@@ -770,7 +770,7 @@ router.post("/deleteYear", (req, res) => {
       const query = "DELETE FROM year_graduated WHERE yearGraduatedID = ?";
       db.query(query, yearGraduatedID, (err, result) => {
         if (err) {
-          console.log("Error deleting year: ", err);
+          // console.log("Error deleting year: ", err);
           return res
             .status(500)
             .json({ Error: "Error deleting year", Details: err });
@@ -787,7 +787,7 @@ router.post("/addPurpose", (req, res) => {
 
   db.query(check, purposeName, (err, result) => {
     if (err) {
-      console.log("Error checking purposeName: ", err);
+      // console.log("Error checking purposeName: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking purposeName", Details: err });
@@ -801,7 +801,7 @@ router.post("/addPurpose", (req, res) => {
       const query = "INSERT INTO purposes (purposeName) Values (?)";
       db.query(query, purposeName, (err, result) => {
         if (err) {
-          console.log("Error adding purpose: ", err);
+          // console.log("Error adding purpose: ", err);
           return res
             .status(500)
             .json({ Error: "Error adding purpose", Details: err });
@@ -819,7 +819,7 @@ router.post("/updatePurpose", (req, res) => {
 
   db.query(check, purposeName, (err, result) => {
     if (err) {
-      console.log("Error checking purposeName: ", err);
+      // console.log("Error checking purposeName: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking purposeName", Details: err });
@@ -833,7 +833,7 @@ router.post("/updatePurpose", (req, res) => {
       const query = "UPDATE purposes set purposeName = ? WHERE purposeID = ?";
       db.query(query, values, (err, result) => {
         if (err) {
-          console.log("Error updating purpose: ", err);
+          // console.log("Error updating purpose: ", err);
           return res
             .status(500)
             .json({ Error: "Error updating purpose", Details: err });
@@ -850,7 +850,7 @@ router.post("/deletePurpose", (req, res) => {
 
   db.query(check, purposeID, (err, result) => {
     if (err) {
-      console.log("Error checking purposeID: ", err);
+      // console.log("Error checking purposeID: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking purposeID", Details: err });
@@ -864,7 +864,7 @@ router.post("/deletePurpose", (req, res) => {
       const query = "DELETE FROM purposes WHERE purposeID = ?";
       db.query(query, purposeID, (err, result) => {
         if (err) {
-          console.log("Error deleting purpose: ", err);
+          // console.log("Error deleting purpose: ", err);
           return res
             .status(500)
             .json({ Error: "Error deleting purpose", Details: err });
@@ -878,14 +878,14 @@ router.post("/addSelection", (req, res) => {
   const { selectionName, purposeID } = req.body;
   const values = [selectionName, purposeID];
 
-  console.log("Purpose ID: ", purposeID);
+  // // console.log("Purpose ID: ", purposeID);
 
   const check =
     "SELECT * FROM purpose_selection WHERE selectionName = ? AND purposeID = ?";
 
   db.query(check, values, (err, result) => {
     if (err) {
-      console.log("Error checking selectionName: ", err);
+      // console.log("Error checking selectionName: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking selectionName", Details: err });
@@ -900,7 +900,7 @@ router.post("/addSelection", (req, res) => {
         "INSERT INTO purpose_selection (selectionName, purposeID) VALUES (?, ?)";
       db.query(query, values, (err, result) => {
         if (err) {
-          console.log("Error adding document type: ", err);
+          // console.log("Error adding document type: ", err);
           return res
             .status(500)
             .json({ Error: "Error adding document type", Details: err });
@@ -918,7 +918,7 @@ router.post("/updateSelection", (req, res) => {
 
   db.query(check, [selectionName, purposeID], (err, result) => {
     if (err) {
-      console.log("Error checking selectionName: ", err);
+      // console.log("Error checking selectionName: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking selectionName", Details: err });
@@ -933,7 +933,7 @@ router.post("/updateSelection", (req, res) => {
         "UPDATE purpose_selection set selectionName = ? WHERE selectionID = ?";
       db.query(query, [selectionName, selectionID], (err, result) => {
         if (err) {
-          console.log("Error updating document type: ", err);
+          // console.log("Error updating document type: ", err);
           return res
             .status(500)
             .json({ Error: "Error updating document type", Details: err });
@@ -953,7 +953,7 @@ router.post("/deleteSelection", (req, res) => {
 
   db.query(check, selectionID, (err, result) => {
     if (err) {
-      console.log("Error checking selectionID: ", err);
+      // console.log("Error checking selectionID: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking selectionID", Details: err });
@@ -967,7 +967,7 @@ router.post("/deleteSelection", (req, res) => {
       const query = "DELETE FROM purpose_selection WHERE selectionID = ?";
       db.query(query, selectionID, (err, result) => {
         if (err) {
-          console.log("Error deleting document type: ", err);
+          // console.log("Error deleting document type: ", err);
           return res
             .status(500)
             .json({ Error: "Error deleting document type", Details: err });
@@ -984,14 +984,14 @@ router.post("/addInput", (req, res) => {
   const { inputDescription, purposeID } = req.body;
   const values = [inputDescription, purposeID];
 
-  console.log("Purpose ID: ", purposeID);
+  // // console.log("Purpose ID: ", purposeID);
 
   const check =
     "SELECT * FROM purpose_inputs WHERE inputDescription = ? AND purposeID = ?";
 
   db.query(check, values, (err, result) => {
     if (err) {
-      console.log("Error checking inputDescription: ", err);
+      // console.log("Error checking inputDescription: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking inputDescription", Details: err });
@@ -1006,7 +1006,7 @@ router.post("/addInput", (req, res) => {
         "INSERT INTO purpose_inputs (inputDescription, purposeID) VALUES (?, ?)";
       db.query(query, values, (err, result) => {
         if (err) {
-          console.log("Error adding document question: ", err);
+          // console.log("Error adding document question: ", err);
           return res
             .status(500)
             .json({ Error: "Error adding document question", Details: err });
@@ -1027,7 +1027,7 @@ router.post("/updateInput", (req, res) => {
 
   db.query(check, [inputDescription, purposeID], (err, result) => {
     if (err) {
-      console.log("Error checking inputDescription: ", err);
+      // console.log("Error checking inputDescription: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking inputDescription", Details: err });
@@ -1042,7 +1042,7 @@ router.post("/updateInput", (req, res) => {
         "UPDATE purpose_inputs set inputDescription = ? WHERE inputID = ?";
       db.query(query, [inputDescription, inputID], (err, result) => {
         if (err) {
-          console.log("Error updating document type: ", err);
+          // console.log("Error updating document type: ", err);
           return res
             .status(500)
             .json({ Error: "Error updating document type", Details: err });
@@ -1062,7 +1062,7 @@ router.post("/deleteInput", (req, res) => {
 
   db.query(check, inputID, (err, result) => {
     if (err) {
-      console.log("Error checking inputID: ", err);
+      // console.log("Error checking inputID: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking inputID", Details: err });
@@ -1076,7 +1076,7 @@ router.post("/deleteInput", (req, res) => {
       const query = "DELETE FROM purpose_inputs WHERE inputID = ?";
       db.query(query, inputID, (err, result) => {
         if (err) {
-          console.log("Error deleting document question: ", err);
+          // console.log("Error deleting document question: ", err);
           return res
             .status(500)
             .json({ Error: "Error deleting document question", Details: err });
@@ -1093,14 +1093,14 @@ router.post("/addUpload", (req, res) => {
   const { uploadDescription, purposeID } = req.body;
   const values = [uploadDescription, purposeID];
 
-  console.log("Purpose ID: ", purposeID);
+  // // console.log("Purpose ID: ", purposeID);
 
   const check =
     "SELECT * FROM purpose_upload WHERE uploadDescription = ? AND purposeID = ?";
 
   db.query(check, values, (err, result) => {
     if (err) {
-      console.log("Error checking uploadDescription: ", err);
+      // console.log("Error checking uploadDescription: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking uploadDescription", Details: err });
@@ -1115,7 +1115,7 @@ router.post("/addUpload", (req, res) => {
         "INSERT INTO purpose_upload (uploadDescription, purposeID) VALUES (?, ?)";
       db.query(query, values, (err, result) => {
         if (err) {
-          console.log("Error adding document upload: ", err);
+          // console.log("Error adding document upload: ", err);
           return res
             .status(500)
             .json({ Error: "Error adding document upload", Details: err });
@@ -1136,7 +1136,7 @@ router.post("/updateUpload", (req, res) => {
 
   db.query(check, [uploadDescription, purposeID], (err, result) => {
     if (err) {
-      console.log("Error checking uploadDescription: ", err);
+      // console.log("Error checking uploadDescription: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking uploadDescription", Details: err });
@@ -1151,7 +1151,7 @@ router.post("/updateUpload", (req, res) => {
         "UPDATE purpose_upload set uploadDescription = ? WHERE uploadID = ?";
       db.query(query, [uploadDescription, uploadID], (err, result) => {
         if (err) {
-          console.log("Error updating document upload: ", err);
+          // console.log("Error updating document upload: ", err);
           return res
             .status(500)
             .json({ Error: "Error updating document upload", Details: err });
@@ -1171,7 +1171,7 @@ router.post("/deleteUpload", (req, res) => {
 
   db.query(check, uploadID, (err, result) => {
     if (err) {
-      console.log("Error checking uploadID: ", err);
+      // console.log("Error checking uploadID: ", err);
       return res
         .status(500)
         .json({ Error: "Error checking uploadID", Details: err });
@@ -1185,7 +1185,7 @@ router.post("/deleteUpload", (req, res) => {
       const query = "DELETE FROM purpose_upload WHERE uploadID = ?";
       db.query(query, uploadID, (err, result) => {
         if (err) {
-          console.log("Error deleting document upload: ", err);
+          // console.log("Error deleting document upload: ", err);
           return res
             .status(500)
             .json({ Error: "Error deleting document upload", Details: err });

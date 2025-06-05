@@ -31,7 +31,7 @@ router.get("/fetchNotification/:userID", async (req, res) => {
         }
 
         // Now results is the array of notifications
-        // console.log("Query returned", results.length, "results");
+        // // console.log("Query returned", results.length, "results");
 
         res.status(200).json({
           Status: "Success",
@@ -53,13 +53,13 @@ router.post("/markAsRead/:requestID", (req, res) => {
   const query = "UPDATE notification SET isRead = true WHERE requestID = ?";
   const { requestID } = req.params;
 
-  console.log("Notif ID to update: ", requestID);
+  // console.log("Notif ID to update: ", requestID);
 
   db.query(query, [requestID], (err, result) => {
     if (err) {
       return res.json({ Error: "Updating data error." });
     }
-    console.log("isRead updated");
+    // console.log("isRead updated");
     return res.json({
       Status: "Success",
       Message: "Notification marked as read.",
@@ -71,13 +71,13 @@ router.post("/markAllAsRead/:userID", (req, res) => {
   const query = "UPDATE notification SET isRead = 1 WHERE receiver = ?";
   const { userID } = req.params;
 
-  console.log("Notif ID to update: ", userID);
+  // console.log("Notif ID to update: ", userID);
 
   db.query(query, [userID], (err, result) => {
     if (err) {
       return res.json({ Error: "Updating data error." });
     }
-    console.log("isRead updated");
+    // console.log("isRead updated");
     return res.status(200).json({
       message: "All notifications have been marked as read.",
     });

@@ -22,13 +22,13 @@ router.post("/setUpAccount", (req, res) => {
     req.body.userID,
   ];
 
-  console.log("SQL values:", values);
+  // // console.log("SQL values:", values);
 
   db.query(query, values, (err, result) => {
     if (err) {
       return res.json({ Error: "Inserting data error." });
     }
-    console.log("Query result:", result);
+    // console.log("Query result:", result);
     return res.json({ Status: "Success", Message: "Profile set-up complete." });
   });
 });
@@ -39,7 +39,7 @@ router.post("/dontEditProfile", (req, res) => {
     if (err) {
       return res.json({ Error: "Inserting data error." });
     }
-    console.log("Query result:", result);
+    // console.log("Query result:", result);
     return res.json({ Status: "Success", Message: "Profile set-up complete." });
   });
 });

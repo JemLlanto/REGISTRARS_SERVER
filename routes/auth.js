@@ -121,31 +121,6 @@ router.post("/google-login", async (req, res) => {
   }
 });
 
-// router.get("/fetchUserData", (req, res) => {
-//   const userID = req.query.userID;
-
-//   if (!userID) return res.json({ Error: "Missing userID" });
-
-//   const query = `
-//   SELECT
-//     u.*,
-//     fs.isOn
-//   FROM users u
-//   LEFT JOIN form_switch fs ON fs.switchID = 1
-//   WHERE u.userID = ?
-// `;
-//   db.query(query, [userID], (err, data) => {
-//     if (err) return res.json({ Error: "Error fetching user data." });
-//     if (data.length > 0) {
-//       console.log(data[0].isOn);
-
-//       return res.json(data[0]);
-//     } else {
-//       return res.json({ Error: "User not found" });
-//     }
-//   });
-// });
-
 router.post("/register", (req, res) => {
   const { firstName, middleName, lastName, email, password } = req.body;
 
@@ -196,10 +171,10 @@ router.post("/login", (req, res) => {
         (err, response) => {
           if (err) return res.json({ Error: "Compare error." });
           if (response) {
-            console.log(data[0].isOn);
+            // console.log(data[0].isOn);
 
             const userID = data[0].userID; // ✅ Correct variable name
-            // console.log("User ID from DB:", userID);
+            // // console.log("User ID from DB:", userID);
             const token = jwt.sign(
               {
                 userID,
@@ -220,7 +195,7 @@ router.post("/login", (req, res) => {
               //   secure: true,
               //   sameSite: "None",
               // });
-              // console.log("Is Admin: ", isAdmin);
+              // // console.log("Is Admin: ", isAdmin);
               return res.json({
                 Status: "Success",
                 isAdmin: isAdmin,
@@ -295,7 +270,7 @@ router.post("/forgotPassword", async (req, res) => {
         [hashedPassword, receiverEmail],
         (updateErr, updateResult) => {
           if (updateErr) {
-            console.log(updateErr);
+            // console.log(updateErr);
             return res.status(500).json({ error: "Server error" });
           }
           return res.json({

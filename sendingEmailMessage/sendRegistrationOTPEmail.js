@@ -10,13 +10,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const sendRegistrationOTPEmail = async (receiverEmail, firstName, otp) => {
-  //   console.log("Receiver email new:", receiverEmail, firstName,otp);
+  //   // console.log("Receiver email new:", receiverEmail, firstName,otp);
 
   const registrationOTP = path.join(
     __dirname,
     "./emailTemplates/registrationOTPEmail.ejs"
   );
-  //   console.log("Path:", registrationOTP);
+  //   // console.log("Path:", registrationOTP);
 
   const html = ejs.render(fs.readFileSync(registrationOTP, "utf-8"), {
     firstName,
@@ -40,7 +40,7 @@ const sendRegistrationOTPEmail = async (receiverEmail, firstName, otp) => {
     };
 
     let info = await transporter.sendMail(mailOptions);
-    console.log("OTP ", otp, " sent to ", receiverEmail);
+    // // console.log("OTP ", otp, " sent to ", receiverEmail);
     return info;
   } catch (error) {
     console.error("Error sending email:", error);

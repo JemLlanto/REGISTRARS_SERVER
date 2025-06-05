@@ -41,12 +41,12 @@ const deleteAllImagesInFolder = async (folderPath) => {
 
       // Delete all resources
       const result = await cloudinary.api.delete_resources(publicIds);
-      console.log(
-        `Deleted ${publicIds.length} images from folder: ${folderPath}`
-      );
+      // console.log(
+      //   `Deleted ${publicIds.length} images from folder: ${folderPath}`
+      // );
       return result;
     } else {
-      console.log(`No images found in folder: ${folderPath}`);
+      // console.log(`No images found in folder: ${folderPath}`);
       return { deleted: {} };
     }
   } catch (error) {
@@ -59,10 +59,10 @@ const deleteAllImagesInFolder = async (folderPath) => {
 const cleanFolderBeforeUpload = async (req, res, next) => {
   try {
     await deleteAllImagesInFolder("RegistrarUploads/LocationImage");
-    console.log("Successfully cleared all images from folder before upload");
+    // // console.log("Successfully cleared all images from folder before upload");
     next();
   } catch (error) {
-    console.error("Error clearing folder before upload:", error);
+    // console.error("Error clearing folder before upload:", error);
     // Continue with upload even if delete fails
     next();
   }
@@ -91,7 +91,7 @@ router.post(
         mimetype: req.file.mimetype,
       };
 
-      // console.log("Cloudinary URL: ", fileInfo.url);
+      // // console.log("Cloudinary URL: ", fileInfo.url);
 
       // SQL query - store the URL instead of just the filename
       const query = `
@@ -131,7 +131,7 @@ router.post("/updateLocationAndContacts", (req, res) => {
 
   db.query(query, values, (err, result) => {
     if (err) {
-      console.log("Error updating data: ", err);
+      // console.log("Error updating data: ", err);
       return res
         .status(500)
         .json({ Error: "Error updating data", Details: err });
@@ -146,7 +146,7 @@ router.get("/fetchLocationAndContacts", (req, res) => {
 
   db.query(query, (err, result) => {
     if (err) {
-      console.log("Error checking location and contact: ", err);
+      // console.log("Error checking location and contact: ", err);
       return res.status(500).json({
         Error: "Error checking location and contact",
         Details: err,
@@ -164,14 +164,14 @@ router.post("/updateGuidingPrinciples", (req, res) => {
   const { id, title, description } = req.body;
   const values = [title, description, id];
 
-  console.log(values);
+  // // console.log(values);
 
   const query =
     "UPDATE guiding_principles SET title = ?, description = ? WHERE id = ?";
 
   db.query(query, values, (err, result) => {
     if (err) {
-      console.log("Error updating data: ", err);
+      // console.log("Error updating data: ", err);
       return res
         .status(500)
         .json({ Error: "Error updating data", Details: err });
@@ -186,7 +186,7 @@ router.get("/fetchGuidingPrinciples", (req, res) => {
 
   db.query(query, (err, result) => {
     if (err) {
-      console.log("Error checking guiding principles: ", err);
+      // console.log("Error checking guiding principles: ", err);
       return res.status(500).json({
         Error: "Error checking guiding principles",
         Details: err,

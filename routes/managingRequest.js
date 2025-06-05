@@ -13,7 +13,7 @@ router.post("/cancelRequest", (req, res) => {
     "UPDATE requested_documents set status = 'cancelled', reason = ? WHERE requestID = ?";
   const values = [req.body.reason, req.body.requestID];
 
-  console.log("SQL values:", values);
+  // // console.log("SQL values:", values);
 
   db.query(query, values, (err, result) => {
     if (err) {
@@ -44,7 +44,7 @@ router.post("/cancelRequest", (req, res) => {
       }
     });
 
-    console.log("Query result:", result);
+    // console.log("Query result:", result);
     return res.json({ Status: "Success", Message: "Request cancelled." });
   });
 });
@@ -67,16 +67,16 @@ router.post("/changeStatus", (req, res) => {
 
   // const notifValues = [req.body.userID, notifMessage, req.body.requestID];
 
-  console.log("SQL values:", values);
-  console.log("Message:", notifMessage);
+  // // console.log("SQL values:", values);
+  // // console.log("Message:", notifMessage);
 
   db.query(query, values, (err, result) => {
     if (err) {
       return res.json({ Error: "Inserting data error." });
     }
 
-    console.log("Query result:", result);
-    console.log("Status updated to ", req.body.newStatus);
+    // // console.log("Query result:", result);
+    // // console.log("Status updated to ", req.body.newStatus);
 
     const notifQuery =
       "INSERT INTO notification (receiver, message, requestID) VALUES (?, ?, ?)";
@@ -116,7 +116,7 @@ router.post("/switchForm", (req, res) => {
 
     db.query(query, [switchTo], (err, result) => {
       if (err) {
-        console.log(err);
+        // console.log(err);
         return res.json({ Error: "Updating data error." });
       }
 
@@ -142,7 +142,7 @@ router.post("/switchFormAutomatic", (req, res) => {
 
     db.query(query, [switchTo], (err, result) => {
       if (err) {
-        console.log(err);
+        // console.log(err);
         return res.json({ Error: "Updating data error." });
       }
 

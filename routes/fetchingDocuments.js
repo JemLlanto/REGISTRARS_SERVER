@@ -19,7 +19,7 @@ router.get("/test", (req, res) => {
 
 router.get("/fetchRequestedDocuments/:userID", (req, res) => {
   const { userID } = req.params;
-  // console.log("User ID: ", userID);
+  // // console.log("User ID: ", userID);
   const query =
     "SELECT * FROM requested_documents WHERE userID = ? ORDER BY created";
   db.query(query, [userID], (err, data) => {
@@ -60,7 +60,7 @@ router.get("/fetchRequestedDocuments", (req, res) => {
 
 router.get("/fetchRequestedDocumentsDetails/:requestID", (req, res) => {
   const { requestID } = req.params;
-  // console.log("Request ID for: ", requestID);
+  // // console.log("Request ID for: ", requestID);
   const query = `
   SELECT 
     requested_documents.*,
@@ -134,7 +134,7 @@ router.get("/fetchRequestedDocumentFiles/:requestID", (req, res) => {
 
   db.query(query, [requestID], (err, data) => {
     if (err) {
-      console.error("Database Error: ", err); // Log the error
+      // console.error("Database Error: ", err); // Log the error
       return res.json({
         Status: "Error",
         Message: "Error fetching files.",
@@ -143,13 +143,13 @@ router.get("/fetchRequestedDocumentFiles/:requestID", (req, res) => {
     }
 
     if (data.length > 0) {
-      console.log("Files: ", data[0]);
+      // // console.log("Files: ", data[0]);
       return res.json({
         Status: "Success",
         data: data[0],
       });
     } else {
-      console.warn(`No files found for requestID: ${requestID}`); // Log warning if no files found
+      // console.warn(`No files found for requestID: ${requestID}`); // Log warning if no files found
       return res.json({
         Status: "Error",
         Message: "Files not found.",

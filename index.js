@@ -27,7 +27,7 @@ import notificationRoutes from "./routes/notification.js";
 import emailNotificationRoutes from "./routes/emailNotification.js";
 import updateProfileRoutes from "./routes/updateProfile.js";
 import feedbackFormRoutes from "./routes/feedbackForm.js";
-import scheduleSlipRoutes from "./routes/scheduleSLip.js";
+import scheduleSlipRoutes from "./routes/scheduleSlip.js";
 
 const app = express();
 

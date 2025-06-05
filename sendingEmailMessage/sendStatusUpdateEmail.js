@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 
 const sendStatusUpdateEmail = async (
   receiverEmail,
+  URL,
   requestID,
   newStatus,
   message
@@ -23,6 +24,7 @@ const sendStatusUpdateEmail = async (
   );
   const html = ejs.render(fs.readFileSync(statusUpdate, "utf-8"), {
     requestID,
+    URL,
     newStatus,
     message,
   });

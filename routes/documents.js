@@ -22,7 +22,7 @@ const router = express.Router();
 const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "uploads",
+    folder: "/RegistrarUploads/uploads",
     allowed_formats: ["jpg", "jpeg", "png", "pdf", "doc", "docx"],
   },
 });

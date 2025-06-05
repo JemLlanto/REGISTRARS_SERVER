@@ -18,6 +18,7 @@ const sendNewRequestEmail = async (email, requestID, message) => {
   );
   const html = ejs.render(fs.readFileSync(statusUpdate, "utf-8"), {
     requestID,
+    URL,
     message,
   });
 

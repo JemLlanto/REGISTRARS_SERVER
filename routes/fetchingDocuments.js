@@ -218,7 +218,7 @@ router.get("/fetchPurposes", (req, res) => {
   });
 });
 router.get("/fetchYearGraduated", (req, res) => {
-  const query = "SELECT * FROM year_graduated";
+  const query = "SELECT * FROM year_graduated ORDER BY yearGraduatedID DESC";
   db.query(query, (err, data) => {
     if (err)
       return res.json({

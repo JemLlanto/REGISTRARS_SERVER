@@ -11,8 +11,8 @@ const __dirname = path.dirname(__filename);
 
 const sendStatusUpdateEmail = async (
   receiverEmail,
-  URL,
   requestID,
+  URL,
   newStatus,
   message
 ) => {

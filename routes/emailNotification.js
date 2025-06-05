@@ -29,8 +29,8 @@ router.post("/sendStatusUpdate", async (req, res) => {
   try {
     await sendStatusUpdateEmail(
       receiverEmail,
-      URL,
       requestID,
+      URL,
       newStatus,
       message
     );
@@ -154,7 +154,7 @@ router.post("/sendNewRequestEmail", async (req, res) => {
       // // console.log(`Sending emails to ${superAdminEmails.length} super admins`);
       for (const admin of superAdmins) {
         try {
-          await sendNewRequestEmail(admin.email, URL, requestID, message);
+          await sendNewRequestEmail(admin.email, requestID, URL, message);
           emailsSent++;
           // // console.log(`Email sent to super admin ${admin.email} successfully!`);
         } catch (error) {
@@ -170,7 +170,7 @@ router.post("/sendNewRequestEmail", async (req, res) => {
       // // console.log(`Sending emails to ${admins.length} program admins`);
       for (const admin of admins) {
         try {
-          await sendNewRequestEmail(admin.email, URL, requestID, message);
+          await sendNewRequestEmail(admin.email, requestID, URL, message);
           emailsSent++;
           // // console.log(`Email sent to admin ${admin.email} successfully!`);
         } catch (error) {

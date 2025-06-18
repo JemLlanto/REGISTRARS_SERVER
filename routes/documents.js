@@ -337,7 +337,21 @@ router.post("/sendRequest", (req, res) => {
       });
     });
 
-    return res.json({ Status: "Success", InsertedID: result.insertId });
+    const updateQuery =
+      "UPDATE users SET hasUncompletedRequest = 1 WHERE userID = ?";
+
+    db.query(updateQuery, [userID], (err, result) => {
+      if (err) {
+        console.error("Database query error:", err);
+        return;
+      }
+      if (result.length === 0) {
+        // console.log("No admins found in this program.");
+        return;
+      }
+
+      return res.json({ Status: "Success", InsertedID: result.insertId });
+    });
   });
 });
 router.post("/insertDocTypes", (req, res) => {

@@ -44,11 +44,26 @@ router.post("/cancelRequest", (req, res) => {
       }
     });
 
-    // console.log("Query result:", result);
-    return res.json({ Status: "Success", Message: "Request cancelled." });
+    const updateQuery =
+      "UPDATE users SET hasUncompletedRequest = 0 WHERE userID = ?";
+
+    db.query(updateQuery, [req.body.userID], (err, result) => {
+      if (err) {
+        console.error("Database query error:", err);
+        return;
+      }
+      if (result.length === 0) {
+        // console.log("No admins found in this program.");
+        return;
+      }
+      // console.log("A user can now send new request.");
+      // console.log("Query result:", result);
+      return res.json({ Status: "Success", Message: "Request cancelled." });
+    });
   });
 });
 router.post("/changeStatus", (req, res) => {
+  console.log("New status: ", req.body.newStatus);
   const query =
     "UPDATE requested_documents set status = ?, feedbackType = ? WHERE requestID = ?";
   const values = [
@@ -97,6 +112,23 @@ router.post("/changeStatus", (req, res) => {
         });
       }
     });
+
+    if (req.body.newStatus === "completed") {
+      const updateQuery =
+        "UPDATE users SET hasUncompletedRequest = 0 WHERE userID = ?";
+
+      db.query(updateQuery, [req.body.userID], (err, result) => {
+        if (err) {
+          console.error("Database query error:", err);
+          return;
+        }
+        if (result.length === 0) {
+          // console.log("No admins found in this program.");
+          return;
+        }
+        // console.log("A user can now send new request.");
+      });
+    }
 
     return res.json({
       Status: "Success",

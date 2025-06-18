@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OTP Notification</title>
+    <title>Request Notification</title>
     <style>
       * {
         box-sizing: border-box !important;
@@ -29,9 +29,6 @@
         background-color: #0a1042 !important;
         border-radius: 12px !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-      }
-      .logo {
-        /* margin-bottom: 5px !important; */
       }
 
       .logo img {
@@ -127,6 +124,57 @@
           font-size: 14px !important;
         }
       }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          .progress-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 50px;
+      position: relative;
+      background-color: transparent;
+    }
+
+    .step {
+      width: 25px;
+      height: 25px;
+      background-color: #ccc;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      font-weight: bold;
+      color: #333;
+      box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    }
+
+    .step.active {
+      background-color: #002b6b;
+      color: #fff;
+      box-shadow: 0 0 10px #ffffff;
+    }
+
+    .line {
+      height: 5px;
+      background-color: #ddd;
+      flex: 1;
+      margin: 0 5px;
+      z-index: 0;
+    }
     </style>
   </head>
   <body>
@@ -144,10 +192,21 @@
         />
       </div>
       <div class="content">
-        <h2>Greetings from CvSU-CCAT Campus Registrar's Office!</h2>
-        <p>This is your One-Time-Password (OTP)</p>
-        <h4><%= otp %></h4>
+        <p>Greetings from CvSU-CCAT Campus Registrar's Office!</p>
+        <h2>Request #<%= requestID %></h2>
+        <p><%= message %></p>
+             <div class="progress-container">
+    <div class="step active">1</div>
+    <div class="line active"></div>
+    <div class="step active">2</div>
+    <div class="line"></div>
+    <div class="step">3</div>
+    <div class="line"></div>
+    <div class="step">4</div>
+  </div>
       </div>
+    
+      <a href="<%= URL %>" class="button">Check Request</a>
       <div>
         <hr />
         <footer>

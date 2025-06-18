@@ -124,6 +124,57 @@
           font-size: 14px !important;
         }
       }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          .progress-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 50px;
+      position: relative;
+      background-color: transparent;
+    }
+
+    .step {
+      width: 25px;
+      height: 25px;
+      background-color: #ccc;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      font-weight: bold;
+      color: #333;
+      box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    }
+
+    .step.active {
+      background-color: #002b6b;
+      color: #fff;
+      box-shadow: 0 0 10px #ffffff;
+    }
+
+    .line {
+      height: 5px;
+      background-color: #ddd;
+      flex: 1;
+      margin: 0 5px;
+      z-index: 0;
+    }
     </style>
   </head>
   <body>
@@ -144,7 +195,17 @@
         <p>Greetings from CvSU-CCAT Campus Registrar's Office!</p>
         <h2>Request #<%= requestID %></h2>
         <p><%= message %></p>
+        
       </div>
+         <div class="progress-container">
+    <div class="step active">1</div>
+    <div class="line active"></div>
+    <div class="step active">2</div>
+    <div class="line"></div>
+    <div class="step">3</div>
+    <div class="line"></div>
+    <div class="step">4</div>
+  </div>
       <a href="<%= URL %>" class="button">Check Request</a>
       <div>
         <hr />

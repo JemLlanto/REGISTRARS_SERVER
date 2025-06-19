@@ -3,218 +3,260 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Request Notification</title>
-    <style>
-      * {
-        box-sizing: border-box !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      body {
-        font-family: "Poppins", sans-serif !important;
-        background-color: #f4f4f4 !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        min-height: 100vh !important;
-        margin: 0 !important;
-        padding: 15px !important;
-        color: #ffffff !important;
-      }
-      .container {
-        text-align: center !important;
-        padding: 25px 20px !important;
-        margin: auto !important;
-        width: clamp(350px, 80%, 500px) !important;
-        background-color: #0a1042 !important;
-        border-radius: 12px !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-      }
-
-      .logo img {
-        width: 100px !important;
-        height: 100px !important;
-      }
-
-      .logo2 img {
-        width: 50% !important;
-        height: auto !important;
-        margin-bottom: 15px !important;
-      }
-      .content {
-        font-family: Arial, sans-serif !important;
-        text-align: center !important;
-        padding: 15px 10px !important;
-        color: #ffffff !important;
-      }
-      h2 {
-        color: #ffffff !important;
-        font-size: 20px !important;
-        margin-bottom: 10px !important;
-      }
-      p {
-        margin: 0 !important;
-        font-size: 16px !important;
-        margin-bottom: 15px !important;
-        color: #ffffff !important;
-        word-wrap: break-word !important;
-      }
-      .button {
-        display: inline-block !important;
-        padding: 12px 20px !important;
-        background-color: #f0f0f0 !important;
-        color: #27272c !important;
-        text-decoration: none !important;
-        border-radius: 8px !important;
-        font-size: 16px !important;
-        font-weight: bold !important;
-        transition: all 0.3s ease-in-out !important;
-        width: 100% !important;
-        max-width: 200px !important;
-      }
-      .button:hover {
-        background-color: #c1c1c1 !important;
-        color: #27272c !important;
-      }
-
-      footer p {
-        margin-top: 20px !important;
-        color: #cccccc !important;
-      }
-
-      hr {
-        margin-top: 40px !important;
-        border: 1px solid #ffffff !important;
-      }
-
-      /* Extra small devices */
-      @media screen and (max-width: 320px) {
-        .container {
-          padding: 15px 10px !important;
-        }
-        .content {
-          padding: 10px 5px !important;
-        }
-        h2 {
-          font-size: 18px !important;
-        }
-        p {
-          font-size: 14px !important;
-          margin-bottom: 12px !important;
-        }
-        .button {
-          padding: 10px 15px !important;
-          font-size: 14px !important;
-        }
-      }
-
-      /* Small devices */
-      @media screen and (max-width: 480px) {
-        .container {
-          padding: 18px 15px !important;
-        }
-        h2 {
-          font-size: 18px !important;
-        }
-        p {
-          font-size: 14px !important;
-        }
-        .button {
-          padding: 10px 16px !important;
-          font-size: 14px !important;
-        }
-      }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          .progress-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 50px;
-      position: relative;
-      background-color: transparent;
-    }
-
-    .step {
-      width: 25px;
-      height: 25px;
-      background-color: #ccc;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1;
-      font-weight: bold;
-      color: #333;
-      box-shadow: 0 0 5px rgba(0,0,0,0.2);
-    }
-
-    .step.active {
-      background-color: #002b6b;
-      color: #fff;
-      box-shadow: 0 0 10px #ffffff;
-    }
-
-    .line {
-      height: 5px;
-      background-color: #ddd;
-      flex: 1;
-      margin: 0 5px;
-      z-index: 0;
-    }
-    </style>
+    <title>Request Notification - Email Compatible</title>
   </head>
-  <body>
-    <div class="container">
-      <div class="logo">
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 5px;
+      color: #ffffff;
+    "
+  >
+    <div
+      style="
+        text-align: center;
+        padding: 25px 20px;
+        margin: auto;
+        max-width: 500px;
+        background-color: #0a1042;
+        border-radius: 12px;
+      "
+    >
+      <!-- Logo Section -->
+      <div style="text-align: center; margin-bottom: 20px">
         <img
           src="https://res.cloudinary.com/dhgpir5ae/image/upload/v1746423700/cvsu-logo_iydkt9.png"
           alt="CVSU Logo"
+          style="width: 100px; height: 100px; display: block; margin: 0 auto"
         />
       </div>
-      <div class="logo2">
+
+      <div style="text-align: center; margin-bottom: 20px">
         <img
           src="https://res.cloudinary.com/dhgpir5ae/image/upload/v1746423699/cvsu_x9udii.png"
           alt="CVSU Logo"
+          style="width: 50%; height: auto; display: block; margin: 0 auto"
         />
       </div>
-      <div class="content">
-        <p>Greetings from CvSU-CCAT Campus Registrar's Office!</p>
-        <h2>Request #<%= requestID %></h2>
-        <p><%= message %></p>
-        
+
+      <!-- Content Section -->
+      <div style="text-align: center; padding: 15px 10px; color: #ffffff">
+        <p style="margin: 0 0 15px 0; font-size: 16px; color: #ffffff">
+          Greetings from CvSU-CCAT Campus Registrar's Office!
+        </p>
+        <h2 style="color: #ffffff; font-size: 20px; margin: 0 0 10px 0">
+          Request #<%= requestID %>
+        </h2>
+        <p style="margin: 0 0 15px 0; font-size: 16px; color: #ffffff">
+          <%= message %>
+        </p>
       </div>
-         <div class="progress-container">
-    <div class="step active">1</div>
-    <div class="line active"></div>
-    <div class="step active">2</div>
-    <div class="line"></div>
-    <div class="step">3</div>
-    <div class="line"></div>
-    <div class="step">4</div>
-  </div>
-      <a href="<%= URL %>" class="button">Check Request</a>
-      <div>
-        <hr />
-        <footer>
-          <p>
-            &copy; <%= new Date().getFullYear() %> CvSU-CCAT Campus. All rights
-            reserved.
-          </p>
-        </footer>
+
+      <!-- Email-Compatible Progress Bar -->
+      <div style="margin: 25px 0; text-align: center; position: relative">
+        <!-- Progress Labels -->
+        <table
+          style="width: 100%; margin-bottom: 10px"
+          cellpadding="0"
+          cellspacing="0"
+        >
+          <tr>
+            <td
+              style="
+                width: 25%;
+                text-align: center;
+                font-size: 12px;
+                color: #ffffff;
+              "
+            >
+              Pending
+            </td>
+            <td
+              style="
+                width: 25%;
+                text-align: center;
+                font-size: 12px;
+                color: #ffffff;
+              "
+            >
+              Processing
+            </td>
+            <td
+              style="
+                width: 25%;
+                text-align: center;
+                font-size: 12px;
+                color: #ffffff;
+              "
+            >
+              For Pick-up
+            </td>
+            <td
+              style="
+                width: 25%;
+                text-align: center;
+                font-size: 12px;
+                color: #ffffff;
+              "
+            >
+              Completed
+            </td>
+          </tr>
+        </table>
+
+        <% let step = 0; if (newStatus === 'processing') step = 1; else if
+        (newStatus === 'ready to pickup') step = 2; else if (newStatus ===
+        'completed') step = 3; %>
+
+        <!-- Progress Steps using Table -->
+        <table
+          style="width: 100%; margin-bottom: 5px"
+          cellpadding="0"
+          cellspacing="0"
+        >
+          <tr>
+            <!-- Step 1 -->
+            <td style="width: 25%; text-align: center">
+              <div
+                style="
+                width: 25px;
+                height: 25px;
+                background-color: <%= step >= 0 ? '#00ccff' : '#ccc' %>;
+                border-radius: 50%;
+                color: <%= step >= 0 ? '#fff' : '#333' %>;
+                font-weight: bold;
+                line-height: 25px;
+                margin: 0 auto;
+              "
+              >
+                1
+              </div>
+            </td>
+
+            <!-- Step 2 -->
+            <td style="width: 25%; text-align: center">
+              <div
+                style="
+                width: 25px;
+                height: 25px;
+                background-color: <%= step >= 1 ? '#00ccff' : '#ccc' %>;
+                border-radius: 50%;
+                color: <%= step >= 1 ? '#fff' : '#333' %>;
+                font-weight: bold;
+                line-height: 25px;
+                margin: 0 auto;
+              "
+              >
+                2
+              </div>
+            </td>
+
+            <!-- Step 3 -->
+            <td style="width: 25%; text-align: center">
+              <div
+                style="
+                  width: 25px;
+                  height: 25px;
+                  background-color: <%= step >= 2 ? '#00ccff' : '#ccc' %>;
+                  border-radius: 50%;
+                  color: <%= step >= 2 ? '#fff' : '#333' %>;
+                  font-weight: bold;
+                  line-height: 25px;
+                  margin: 0 auto;
+                "
+              >
+                3
+              </div>
+            </td>
+
+            <!-- Step 4 -->
+            <td style="width: 25%; text-align: center">
+              <div
+                style="
+                width: 25px;
+                height: 25px;
+                background-color: <%= step >= 3 ? '#00ccff' : '#ccc' %>;
+                border-radius: 50%;
+                color: <%= step >= 3 ? '#fff' : '#333' %>;
+                font-weight: bold;
+                line-height: 25px;
+                margin: 0 auto;
+              "
+              >
+                4
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <% let width = '0%'; if (newStatus === 'processing') width = '37.5%';
+        else if (newStatus === 'ready to pickup') width = '63.5%'; else if
+        (newStatus === 'completed') width = '100%'; %>
+
+        <!-- Progress Bar using Table -->
+        <table
+          style="
+            width: 100%;
+            background-color: #ffffff;
+            height: 8px;
+            border-radius: 4px;
+          "
+          cellpadding="0"
+          cellspacing="0"
+        >
+          <tr>
+            <td
+              style="
+                width: <%= width %>;
+                background-color: #00ccff;
+                height: 8px;
+                border-radius: 4px;
+              "
+            ></td>
+            <td
+              style="
+                width: 65%;
+                background-color: #ffffff;
+                height: 8px;
+                border-radius: 4px;
+              "
+            ></td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Button -->
+      <div style="text-align: center; margin: 20px 0">
+        <a
+          href="<%= URL %>"
+          style="
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #f0f0f0;
+            color: #27272c;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+          "
+          >Check Request</a
+        >
+      </div>
+
+      <!-- Footer -->
+      <div
+        style="
+          text-align: center;
+          margin-top: 40px;
+          padding-top: 20px;
+          border-top: 1px solid #ffffff;
+        "
+      >
+        <p style="margin: 0; color: #cccccc; font-size: 14px">
+          &copy; 2025 CvSU-CCAT Campus. All rights reserved.
+        </p>
       </div>
     </div>
   </body>

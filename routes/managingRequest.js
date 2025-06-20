@@ -65,8 +65,15 @@ router.post("/cancelRequest", (req, res) => {
 router.post("/changeStatus", (req, res) => {
   console.log("New status: ", req.body.newStatus);
   const query =
-    "UPDATE requested_documents set status = ?, feedbackType = ? WHERE requestID = ?";
+    "UPDATE requested_documents set readyToReleaseDate = ?, status = ?, feedbackType = ? WHERE requestID = ?";
+
+  const readyToReleaseDate =
+    req.body.newStatus === "ready to pickup" ? new Date() : null;
+
+  console.log("ReadyDate: ", readyToReleaseDate);
+
   const values = [
+    readyToReleaseDate,
     req.body.newStatus,
     req.body.feedbackType,
     req.body.requestID,
@@ -133,6 +140,59 @@ router.post("/changeStatus", (req, res) => {
     return res.json({
       Status: "Success",
       Message: "Request status updated.",
+    });
+  });
+});
+router.post("/markUnclaimedRequest", (req, res) => {
+  const unclaimedDocs = req.body;
+  // console.log("Unclaimed docs: ", unclaimedDocs);
+
+  const message =
+    "Your request has been marked as unclaimed due to inactivity for over a month. The document is now scheduled for disposal.";
+
+  // LOOP TO MARK ALL UNCLAIMED REQUEST
+  unclaimedDocs.forEach((doc, index) => {
+    const query =
+      "UPDATE requested_documents set status = 'unclaimed' WHERE requestID = ?";
+    const values = [doc.requestID];
+    // // console.log("SQL values:", values);
+    db.query(query, values, (err, result) => {
+      if (err) {
+        return res.json({ Error: "Inserting data error." });
+      }
+      const notifQuery =
+        "INSERT INTO notification (receiver, message, requestID) VALUES (?, ?, ?)";
+      const notifValues = [doc.userID, message, doc.requestID];
+      db.query(notifQuery, notifValues, (err, notifResult) => {
+        if (err) {
+          console.error("Error creating notification:", err);
+        } else {
+          // Emit socket event with the new notification
+          io.to(req.body.userID).emit("new_notification", {
+            id: notifResult.insertId,
+            receiver: doc.userID,
+            message: message,
+            requestID: doc.requestID,
+            created: new Date(),
+            isRead: false,
+          });
+        }
+      });
+      const updateQuery =
+        "UPDATE users SET hasUncompletedRequest = 0 WHERE userID = ?";
+      db.query(updateQuery, [doc.userID], (err, result) => {
+        if (err) {
+          console.error("Database query error:", err);
+          return;
+        }
+        if (index === unclaimedDocs.length - 1) {
+          // Respond only after the last item has been processed
+          return res.json({
+            Status: "Success",
+            Message: "All unclaimed requests processed.",
+          });
+        }
+      });
     });
   });
 });

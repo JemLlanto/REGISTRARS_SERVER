@@ -21,6 +21,8 @@ router.post("/sendStatusUpdate", async (req, res) => {
       ? "Your request has been successfully completed."
       : newStatus === "cancelled"
       ? `Your request has been cancelled. Reason: ${reason}. Please contact us if you have any questions.`
+      : newStatus === "unclaimed"
+      ? "Your request has been marked as unclaimed because you did not claim your requested document for over a month. As a result, the document is scheduled for disposal."
       : null;
 
   const URL = `${process.env.VITE_REACT_APP_FRONTEND_BASEURL}/request-details/${requestID}`;

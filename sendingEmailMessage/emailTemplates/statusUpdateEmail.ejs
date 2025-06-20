@@ -54,6 +54,7 @@
         </p>
       </div>
 
+      <% if (newStatus !== 'cancelled' && newStatus !== 'unclaimed') { %>
       <!-- Email-Compatible Progress Bar -->
       <div style="margin: 25px 0; text-align: center; position: relative">
         <!-- Progress Labels -->
@@ -226,6 +227,7 @@
           </tr>
         </table>
       </div>
+      <% } %>
 
       <!-- Button -->
       <div style="text-align: center; margin: 20px 0">

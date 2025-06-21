@@ -86,6 +86,7 @@ app.use(
   express.static(path.join(__dirname, "./public/uploads/scheduleSlip"))
 );
 
+// FOR VERIFYING LOGGED IN USER
 const verifyUser = (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers["authorization"];
   // // console.log("Request Headers:", req.headers);

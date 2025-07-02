@@ -295,16 +295,60 @@ router.post("/sendRequest", (req, res) => {
       });
     });
 
-    // FOR FETCHING USERID'S OF THE ADMINS
-    const adminIDQuery =
-      "SELECT adminID FROM program_course WHERE programName = ?";
-    db.query(adminIDQuery, program, (err, result) => {
+    // CHECKING IF THE PURPOSE HAS ASSIGNED ADMIN
+    const purposeAdminIDQuery =
+      "SELECT adminID FROM purposes WHERE purposeName = ?";
+    db.query(purposeAdminIDQuery, purpose, (err, result) => {
       if (err) {
         console.error("Database query error:", err);
         return;
       }
-      if (result.length === 0) {
-        // console.log("No admins found in this program.");
+      if (result[0].adminID === null) {
+        // IF NO ADMIN IS ASSIGNED ON THE PURPOSE, CHECKING THE ADMIN ASSIGNED TO THE PROGRAM
+        const programAdminIDQuery =
+          "SELECT adminID FROM program_course WHERE programName = ?";
+        // console.log("Sending notification to the admin for program: ", program);
+
+        db.query(programAdminIDQuery, program, (err, result) => {
+          if (err) {
+            console.error("Database query error:", err);
+            return;
+          }
+          if (result[0].adminID === null) {
+            console.error("No admin found to be sent notification.");
+            return;
+          }
+          const adminID = result[0].adminID;
+
+          // Insert notification for each super admin
+          const notifQuery =
+            "INSERT INTO notification (receiver, message, requestID) VALUES (?, ?, ?)";
+          const notifValues = [
+            adminID,
+            `${lastName}, ${firstName} requested a document.`,
+            requestID,
+          ];
+
+          db.query(notifQuery, notifValues, (err, notifResult) => {
+            if (err) {
+              console.error("Error creating notifications:", err);
+              return;
+            }
+
+            // // console.log("Admin ID: ", adminID);
+            // Emit notification to each admin
+
+            io.to(adminID).emit("new_notification", {
+              id: notifResult.insertId,
+              receiver: adminID,
+              message: `${lastName}, ${firstName} requested a document.`,
+              requestID: requestID,
+              created: new Date(),
+              isRead: false,
+            });
+          });
+        });
+
         return;
       }
       const adminID = result[0].adminID;
@@ -317,6 +361,7 @@ router.post("/sendRequest", (req, res) => {
         `${lastName}, ${firstName} requested a document.`,
         requestID,
       ];
+      // console.log("Sending notification to the admin for purpose: ", purpose);
       db.query(notifQuery, notifValues, (err, notifResult) => {
         if (err) {
           console.error("Error creating notifications:", err);

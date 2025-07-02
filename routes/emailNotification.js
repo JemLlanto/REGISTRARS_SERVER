@@ -204,142 +204,197 @@ router.post("/sendNewRequestEmail", async (req, res) => {
 });
 router.post("/sendFeedbackResponseEmail", async (req, res) => {
   try {
-    const { requestID, firstName, lastName, program } = req.body;
+    const { requestID, firstName, lastName, program, purpose } = req.body;
     const message = `${firstName} ${lastName} has submitted a response to the feedback form.`;
-    let emailsSent = false;
+    const URL = `${process.env.VITE_REACT_APP_FRONTEND_BASEURL}/request-details/${requestID}`;
 
-    // Query super admins
-    const superAdminQuery = "SELECT email, userID FROM users WHERE isAdmin = 2";
+    let hasResponded = false; // Flag to prevent multiple responses
+
+    // Helper function to send single response
+    const sendResponse = (statusCode, responseMessage) => {
+      if (!hasResponded) {
+        hasResponded = true;
+        return res.status(statusCode).json({ message: responseMessage });
+      }
+    };
+
+    // Helper function to handle notification creation
+    const createNotification = (admin, callback) => {
+      const notifQuery =
+        "INSERT INTO notification (receiver, message, requestID) VALUES ?";
+      const notifValues = [[admin.userID, message, requestID]];
+
+      db.query(notifQuery, [notifValues], (notifErr, notifResult) => {
+        if (notifErr) {
+          console.error(
+            `Error creating notification for admin ${admin.userID}:`,
+            notifErr
+          );
+          return callback(notifErr);
+        }
+
+        // Emit notification
+        io.to(admin.userID).emit("new_notification", {
+          id: notifResult.insertId,
+          receiver: admin.userID,
+          message: message,
+          requestID: requestID,
+          created: new Date(),
+          isRead: false,
+        });
+
+        callback(null);
+      });
+    };
+
+    // SEND NOTIFICATION TO SUPER ADMINS (first one only)
+    const superAdminQuery =
+      "SELECT email, userID FROM users WHERE isAdmin = 2 LIMIT 1";
+
     db.query(superAdminQuery, async (err, superAdmins) => {
       if (err) {
         console.error("Database query error (super admins):", err);
-        return res
-          .status(500)
-          .json({ error: "Database error when querying super admins" });
+        return sendResponse(500, "Database error when querying super admins");
       }
 
-      // Process super admins if found
+      // Process first super admin if found
       if (superAdmins.length > 0) {
-        for (const admin of superAdmins) {
-          // Send email
-          try {
-            await sendNewRequestEmail(admin.email, requestID, message);
-            // // console.log(
-            //   `Email sent to super admin ${admin.email} successfully!`
-            // );
-            emailsSent = true;
-          } catch (error) {
-            // console.error(
-            //   `Failed to send email to super admin ${admin.email}:`,
-            //   error
-            // );
-            // Continue with other admins even if one email fails
-          }
+        const admin = superAdmins[0]; // Only get first result
 
-          // Insert notification
-          const notifQuery =
-            "INSERT INTO notification (receiver, message, requestID) VALUES ?";
-          const notifValues = [[admin.userID, message, requestID]]; // Correctly nested array
-
-          db.query(notifQuery, [notifValues], (notifErr, notifResult) => {
-            if (notifErr) {
-              console.error(
-                `Error creating notification for super admin ${admin.userID}:`,
-                notifErr
-              );
-              return;
-            }
-
-            // Emit notification
-            io.to(admin.userID).emit("new_notification", {
-              id: notifResult.insertId,
-              receiver: admin.userID,
-              message: message,
-              requestID: requestID,
-              created: new Date(),
-              isRead: false,
-            });
-          });
+        // Send email
+        try {
+          await sendNewRequestEmail(admin.email, requestID, URL, message);
+          console.log(`Email sent to super admin ${admin.email} successfully!`);
+        } catch (error) {
+          console.error(
+            `Failed to send email to super admin ${admin.email}:`,
+            error
+          );
         }
-      } else {
-        // console.log("No super admins found.");
+
+        // Create notification
+        createNotification(admin, (notifErr) => {
+          if (notifErr) {
+            console.error(
+              "Error creating notification for super admin:",
+              notifErr
+            );
+          }
+          console.log("Super admin notification processed");
+        });
+      }
+    });
+
+    // SEND NOTIFICATION TO PURPOSE/PROGRAM ADMINS (first one only)
+    const purposeAdminQuery = `
+      SELECT u.email, u.userID 
+      FROM users u 
+      LEFT JOIN purposes p ON u.userID = p.adminID
+      WHERE p.purposeName = ?
+      LIMIT 1
+    `;
+
+    db.query(purposeAdminQuery, [purpose], async (progErr, purposeAdmins) => {
+      if (progErr) {
+        console.error("Database query error (purpose admins):", progErr);
+        return sendResponse(500, "Database error when querying purpose admins");
       }
 
-      // Query program admins
-      const adminQuery = `
-        SELECT u.email, u.userID 
-        FROM users u 
-        LEFT JOIN program_course p ON u.userID = p.adminID
-        WHERE p.programName = ?
-      `;
+      if (purposeAdmins.length === 0) {
+        // IF NO ADMINS FOUND FOR PURPOSE, SEARCH FOR PROGRAM ADMINS
+        console.log("No admin found for purpose:", purpose);
 
-      db.query(adminQuery, [program], async (progErr, programAdmins) => {
-        if (progErr) {
-          console.error("Database query error (program admins):", progErr);
-          return res
-            .status(500)
-            .json({ error: "Database error when querying program admins" });
-        }
+        const programAdminQuery = `
+          SELECT u.email, u.userID 
+          FROM users u 
+          LEFT JOIN program_course p ON u.userID = p.adminID
+          WHERE p.programName = ?
+          LIMIT 1
+        `;
 
-        // Process program admins if found
-        if (programAdmins.length > 0) {
-          for (const admin of programAdmins) {
-            // console.log(admin.userID);
-            // Send email
-            try {
-              await sendNewRequestEmail(admin.email, requestID, message);
-              // // console.log(
-              //   `Email sent to program admin ${admin.email} successfully!`
-              // );
-              emailsSent = true;
-            } catch (error) {
-              // console.error(
-              //   `Failed to send email to program admin ${admin.email}:`,
-              //   error
-              // );
-              // Continue with other admins even if one email fails
+        db.query(
+          programAdminQuery,
+          [program],
+          async (progErr, programAdmins) => {
+            if (progErr) {
+              console.error("Database query error (program admins):", progErr);
+              return sendResponse(
+                500,
+                "Database error when querying program admins"
+              );
             }
 
-            // Insert notification
-            const notifQuery =
-              "INSERT INTO notification (receiver, message, requestID) VALUES ?";
-            const notifValues = [[admin.userID, message, requestID]]; // Correctly nested array
+            if (programAdmins.length === 0) {
+              console.log("No admin found for program:", program);
+              return sendResponse(
+                200,
+                "Emails sent successfully to super admins only"
+              );
+            }
 
-            db.query(notifQuery, [notifValues], (notifErr, notifResult) => {
+            // Process first program admin only
+            const admin = programAdmins[0];
+
+            try {
+              await sendNewRequestEmail(admin.email, requestID, URL, message);
+              console.log(
+                `Email sent to program admin: ${program}, email: ${admin.email}`
+              );
+            } catch (error) {
+              console.error(
+                `Failed to send email to program admin ${admin.email}:`,
+                error
+              );
+            }
+
+            createNotification(admin, (notifErr) => {
               if (notifErr) {
                 console.error(
-                  `Error creating notification for program admin ${admin.userID}:`,
+                  "Error creating notification for program admin:",
                   notifErr
                 );
-                return;
               }
-
-              // Emit notification
-              io.to(admin.userID).emit("new_notification", {
-                id: notifResult.insertId,
-                receiver: admin.userID,
-                message: message,
-                requestID: requestID,
-                created: new Date(),
-                isRead: false,
-              });
+              sendResponse(200, "Emails sent successfully");
             });
           }
-        } else {
-          // console.log("No program admins found for program:", program);
+        );
+      } else {
+        // Process first purpose admin only
+        const admin = purposeAdmins[0];
+
+        try {
+          await sendNewRequestEmail(admin.email, requestID, URL, message);
+          console.log(
+            `Email sent to purpose admin: ${purpose}, email: ${admin.email}`
+          );
+        } catch (error) {
+          console.error(
+            `Failed to send email to purpose admin ${admin.email}:`,
+            error
+          );
         }
 
-        // Send final response after both queries complete
-        if (emailsSent) {
-          return res.status(200).json({ message: "Emails sent successfully" });
-        } else {
-          return res.status(404).json({ message: "No admins found to notify" });
-        }
-      });
+        createNotification(admin, (notifErr) => {
+          if (notifErr) {
+            console.error(
+              "Error creating notification for purpose admin:",
+              notifErr
+            );
+          }
+          sendResponse(200, "Emails sent successfully");
+        });
+      }
     });
+
+    // Fallback timeout to ensure response is sent
+    setTimeout(() => {
+      sendResponse(200, "Processing completed");
+    }, 5000); // 5 second timeout
   } catch (error) {
     console.error("Unexpected error:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    if (!hasResponded) {
+      return res.status(500).json({ error: "Internal server error" });
+    }
   }
 });
 

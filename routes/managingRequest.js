@@ -63,7 +63,7 @@ router.post("/cancelRequest", (req, res) => {
   });
 });
 router.post("/changeStatus", (req, res) => {
-  console.log("New status: ", req.body.newStatus);
+  // console.log("New status: ", req.body.newStatus);
   const query =
     "UPDATE requested_documents set readyToReleaseDate = ?, status = ?, feedbackType = ? WHERE requestID = ?";
 

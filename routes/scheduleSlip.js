@@ -32,7 +32,7 @@ router.post("/sendScheduleSlipDetails", (req, res) => {
     timeRelease,
     processedBy,
   ];
-  console.log("requestID: ", requestID);
+  // console.log("requestID: ", requestID);
   // Step 1: Check if controlNum already exists
   const checkQuery = "SELECT * FROM scheduleSlip WHERE controlNum = ?";
 
@@ -68,7 +68,7 @@ router.post("/sendScheduleSlipDetails", (req, res) => {
             .status(500)
             .json({ error: "Error updating data", details: updateErr });
         }
-        console.log("Marked document as scheduled.");
+        // console.log("Marked document as scheduled.");
       });
 
       return res.status(200).json({ message: "Data inserted successfully." });
@@ -78,7 +78,7 @@ router.post("/sendScheduleSlipDetails", (req, res) => {
 
 router.post("/sendScheduleSlipDocTypes", (req, res) => {
   const { requestID, documentTypes } = req.body;
-  console.log("sendScheduleSlipDocTypes requestID: ", requestID);
+  // console.log("sendScheduleSlipDocTypes requestID: ", requestID);
 
   if (
     !requestID ||
@@ -93,7 +93,7 @@ router.post("/sendScheduleSlipDocTypes", (req, res) => {
 
   db.query(checkQuery, [requestID], (err, result) => {
     if (err) {
-      console.log("Error checking for existing requestID: ", err);
+      // console.log("Error checking for existing requestID: ", err);
       return res.status(500).json({ error: "Database error", details: err });
     }
 
@@ -128,7 +128,7 @@ router.post("/sendScheduleSlipDocTypes", (req, res) => {
 
 router.post("/sendScheduleSlipRequirements", (req, res) => {
   const { requestID, requirements } = req.body;
-  console.log("requestID: ", requestID);
+  // console.log("requestID: ", requestID);
 
   if (!requestID || !Array.isArray(requirements) || requirements.length === 0) {
     return res.status(400).json({ error: "Invalid input." });
@@ -140,7 +140,7 @@ router.post("/sendScheduleSlipRequirements", (req, res) => {
 
   db.query(checkQuery, [requestID], (err, result) => {
     if (err) {
-      console.log("Error checking for existing requestID: ", err);
+      // console.log("Error checking for existing requestID: ", err);
       return res.status(500).json({ error: "Database error", details: err });
     }
 
@@ -192,7 +192,7 @@ router.get("/fetchScheduleSlipDocTypes/:requestID", (req, res) => {
   const query = "SELECT * FROM scheduleSlipDocTypes WHERE requestID = ?";
   db.query(query, [requestID], (err, result) => {
     if (err) {
-      console.log("Error fetching schedule slip document types: ", err);
+      // console.log("Error fetching schedule slip document types: ", err);
       return res.status(500).json({
         Error: "Error fetching schedule slip document types",
         Details: err,

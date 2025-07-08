@@ -42,10 +42,11 @@ router.post("/sendScheduleSlipDetails", (req, res) => {
       return res.status(500).json({ error: "Database error", details: err });
     }
 
-    // if (result.length > 0) {
-    //   // Control number already exists
-    //   return res.status(409).json({ error: "Control number already exists." });
-    // }
+    if (result.length > 0) {
+      // Control number already exists
+      // console.log("Control number already exists.");
+      return res.status(409).json({ error: "Control number already exists." });
+    }
 
     // Step 2: Insert if it doesn't exist
     const insertQuery =

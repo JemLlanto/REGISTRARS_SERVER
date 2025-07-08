@@ -63,14 +63,13 @@ router.post("/cancelRequest", (req, res) => {
   });
 });
 router.post("/changeStatus", (req, res) => {
-  console.log("New status: ", req.body.newStatus);
+  // console.log("New status: ", req.body.newStatus);
   const query =
     "UPDATE requested_documents set readyToReleaseDate = ?, status = ?, feedbackType = ? WHERE requestID = ?";
 
-  const readyToReleaseDate =
-    req.body.newStatus === "ready to pickup" ? new Date() : null;
+  const readyToReleaseDate = req.body.dateRelease ? req.body.dateRelease : null;
 
-  console.log("ReadyDate: ", readyToReleaseDate);
+  // console.log("ReadyDate: ", readyToReleaseDate);
 
   const values = [
     readyToReleaseDate,
@@ -85,6 +84,8 @@ router.post("/changeStatus", (req, res) => {
       ? "Your request is ready for pickup."
       : req.body.newStatus === "completed"
       ? "Your request has been completed."
+      : req.body.newStatus === "unclaimed"
+      ? "Your request has been completed."
       : null;
 
   // const notifValues = [req.body.userID, notifMessage, req.body.requestID];
@@ -94,6 +95,7 @@ router.post("/changeStatus", (req, res) => {
 
   db.query(query, values, (err, result) => {
     if (err) {
+      // console.error("Database query error:", err);
       return res.json({ Error: "Inserting data error." });
     }
 
@@ -148,7 +150,7 @@ router.post("/markUnclaimedRequest", (req, res) => {
   // console.log("Unclaimed docs: ", unclaimedDocs);
 
   const message =
-    "Your request has been marked as unclaimed due to inactivity for over a month. The document is now scheduled for disposal.";
+    "Your request has been marked as unclaimed because it wasn't claimed within the allotted time.";
 
   // LOOP TO MARK ALL UNCLAIMED REQUEST
   unclaimedDocs.forEach((doc, index) => {

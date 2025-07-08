@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const sendNewRequestEmail = async (email, requestID, URL, message) => {
-  // console.log("Receiver email n:", email);
+  // console.log("Message: ", message);
 
   const statusUpdate = path.join(
     __dirname,

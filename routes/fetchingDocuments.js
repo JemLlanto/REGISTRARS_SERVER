@@ -130,6 +130,8 @@ router.get("/fetchRequestedDocumentFiles/:requestID", (req, res) => {
     requested_document_file
   WHERE 
     requestID = ?
+  ORDER BY
+    fileID DESC
   `;
 
   db.query(query, [requestID], (err, data) => {
@@ -146,7 +148,7 @@ router.get("/fetchRequestedDocumentFiles/:requestID", (req, res) => {
       // // console.log("Files: ", data[0]);
       return res.json({
         Status: "Success",
-        data: data[0],
+        data: data,
       });
     } else {
       // console.warn(`No files found for requestID: ${requestID}`); // Log warning if no files found

@@ -40,6 +40,22 @@ router.post("/addProgramAdmin", (req, res) => {
     });
   });
 });
+router.post("/addPurposeAdmin", (req, res) => {
+  const { purposeID, userID } = req.body;
+  const query = "UPDATE purposes SET adminID = ? WHERE purposeID = ?";
+  const values = [userID, purposeID];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      // console.log(err);
+      return res.json({ Status: "Failed", Message: err });
+    }
+    return res.json({
+      Status: "Success",
+      Message: "Purpose admin added.",
+    });
+  });
+});
 router.post("/removeProgramAdmin", (req, res) => {
   const { programID } = req.body;
   const query = "UPDATE program_course SET adminID = 0 WHERE programID = ?";
@@ -48,6 +64,21 @@ router.post("/removeProgramAdmin", (req, res) => {
     if (err) {
       return res.json({ Status: "Falied", Message: "Removing admin failed." });
     }
+    return res.json({
+      Status: "Success",
+      Message: "Removed admin successfully.",
+    });
+  });
+});
+router.post("/removePurposeAdmin", (req, res) => {
+  const { purposeID } = req.body;
+  const query = "UPDATE purposes SET adminID = 0 WHERE purposeID = ?";
+  // console.log("Removing purpose admin with ID:", purposeID);
+  db.query(query, [purposeID], (err, result) => {
+    if (err) {
+      return res.json({ Status: "Falied", Message: "Removing admin failed." });
+    }
+    // console.log("Admin removed successfully.");
     return res.json({
       Status: "Success",
       Message: "Removed admin successfully.",
@@ -121,6 +152,33 @@ router.get("/fetchProgramAdmins", (req, res) => {
       return res.json({
         Status: "Failed",
         Message: "Error fetching program admins.",
+      });
+    }
+    // // console.log(result);
+    return res.json({ Status: "Success", result: result });
+  });
+});
+
+router.get("/fetchPurposeAdmins", (req, res) => {
+  const query = `
+  SELECT 
+    p.purposeID,
+    p.purposeName,
+    p.adminID,
+    u.firstName,
+    u.lastName
+  FROM
+    purposes p
+  LEFT JOIN
+    users u ON p.adminID = u.userID
+    `;
+
+  db.query(query, (err, result) => {
+    if (err) {
+      // console.error("Database error:", err);
+      return res.json({
+        Status: "Failed",
+        Message: "Error fetching purpose admins.",
       });
     }
     // // console.log(result);

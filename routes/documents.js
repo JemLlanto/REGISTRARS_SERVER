@@ -41,7 +41,7 @@ const uploadScheduleSlip = multer({ storage: cloudinaryStorageScheduleSlip });
 
 router.post("/uploadDocuments", upload.single("file"), (req, res) => {
   try {
-    const { requestID } = req.body;
+    const { requestID, uploadID } = req.body;
 
     // Check for file
     if (!req.file) {
@@ -59,31 +59,52 @@ router.post("/uploadDocuments", upload.single("file"), (req, res) => {
       mimetype: req.file.mimetype,
     };
 
-    // console.log("Request ID for upload: ", requestID);
-    // console.log("Cloudinary URL: ", fileInfo.url);
+    // Fetch uploadDescription using uploadID
+    const fetchDescriptionQuery = `SELECT uploadDescription FROM purpose_upload WHERE uploadID = ?`;
 
-    // SQL query - store the URL instead of just the filename
-    const query = `
-      INSERT INTO requested_document_file (requestID, cloudinary_url, cloudinary_public_id) 
-      VALUES (?, ?, ?)
-    `;
-    const values = [requestID, fileInfo.url, fileInfo.publicId];
-
-    // Execute query and send response
-    db.query(query, values, (err, result) => {
-      if (err) {
-        console.error("Database Insert Error:", err);
-        return res.status(500).json({
-          Error: "Inserting data error.",
-          Details: err,
-        });
+    db.query(fetchDescriptionQuery, [uploadID], (descErr, descResult) => {
+      if (descErr) {
+        console.error("Error fetching upload description:", descErr);
+        return res
+          .status(500)
+          .json({ error: "Failed to fetch upload description" });
       }
 
-      return res.status(200).json({
-        Status: "Success",
-        message: "File uploaded successfully to Cloudinary",
-        InsertedID: result.insertId,
-        file: fileInfo,
+      if (descResult.length === 0) {
+        return res
+          .status(404)
+          .json({ error: "UploadID not found in purpose_upload" });
+      }
+
+      const uploadDescription = descResult[0].uploadDescription;
+
+      // Now insert into requested_document_file
+      const insertQuery = `
+        INSERT INTO requested_document_file (requestID, fileName, cloudinary_url, cloudinary_public_id) 
+        VALUES (?, ?, ?, ?)
+      `;
+      const values = [
+        requestID,
+        uploadDescription,
+        fileInfo.url,
+        fileInfo.publicId,
+      ];
+
+      db.query(insertQuery, values, (err, result) => {
+        if (err) {
+          console.error("Database Insert Error:", err);
+          return res.status(500).json({
+            Error: "Inserting data error.",
+            Details: err,
+          });
+        }
+
+        return res.status(200).json({
+          Status: "Success",
+          message: "File uploaded successfully to Cloudinary",
+          InsertedID: result.insertId,
+          file: fileInfo,
+        });
       });
     });
   } catch (error) {
@@ -295,16 +316,60 @@ router.post("/sendRequest", (req, res) => {
       });
     });
 
-    // FOR FETCHING USERID'S OF THE ADMINS
-    const adminIDQuery =
-      "SELECT adminID FROM program_course WHERE programName = ?";
-    db.query(adminIDQuery, program, (err, result) => {
+    // CHECKING IF THE PURPOSE HAS ASSIGNED ADMIN
+    const purposeAdminIDQuery =
+      "SELECT adminID FROM purposes WHERE purposeName = ?";
+    db.query(purposeAdminIDQuery, purpose, (err, result) => {
       if (err) {
         console.error("Database query error:", err);
         return;
       }
-      if (result.length === 0) {
-        // console.log("No admins found in this program.");
+      if (result[0].adminID === null) {
+        // IF NO ADMIN IS ASSIGNED ON THE PURPOSE, CHECKING THE ADMIN ASSIGNED TO THE PROGRAM
+        const programAdminIDQuery =
+          "SELECT adminID FROM program_course WHERE programName = ?";
+        // console.log("Sending notification to the admin for program: ", program);
+
+        db.query(programAdminIDQuery, program, (err, result) => {
+          if (err) {
+            console.error("Database query error:", err);
+            return;
+          }
+          if (result[0].adminID === null) {
+            console.error("No admin found to be sent notification.");
+            return;
+          }
+          const adminID = result[0].adminID;
+
+          // Insert notification for each super admin
+          const notifQuery =
+            "INSERT INTO notification (receiver, message, requestID) VALUES (?, ?, ?)";
+          const notifValues = [
+            adminID,
+            `${lastName}, ${firstName} requested a document.`,
+            requestID,
+          ];
+
+          db.query(notifQuery, notifValues, (err, notifResult) => {
+            if (err) {
+              console.error("Error creating notifications:", err);
+              return;
+            }
+
+            // // console.log("Admin ID: ", adminID);
+            // Emit notification to each admin
+
+            io.to(adminID).emit("new_notification", {
+              id: notifResult.insertId,
+              receiver: adminID,
+              message: `${lastName}, ${firstName} requested a document.`,
+              requestID: requestID,
+              created: new Date(),
+              isRead: false,
+            });
+          });
+        });
+
         return;
       }
       const adminID = result[0].adminID;
@@ -317,6 +382,7 @@ router.post("/sendRequest", (req, res) => {
         `${lastName}, ${firstName} requested a document.`,
         requestID,
       ];
+      // console.log("Sending notification to the admin for purpose: ", purpose);
       db.query(notifQuery, notifValues, (err, notifResult) => {
         if (err) {
           console.error("Error creating notifications:", err);
@@ -501,109 +567,7 @@ router.post("/insertInputs", (req, res) => {
     });
   }
 });
-// router.post("/uploadDocuments", upload.single("file"), (req, res) => {
-//   try {
-//     const { requestID } = req.body;
 
-//     // Check for file
-//     if (!req.file) {
-//       return res.status(400).json({ error: "No file uploaded" });
-//     }
-
-//     // File info
-//     const fileInfo = {
-//       originalName: req.file.originalname,
-//       filename: req.file.filename,
-//       path: req.file.path,
-//       size: req.file.size,
-//       mimetype: req.file.mimetype,
-//     };
-
-//     // console.log("Request ID for upload: ", requestID);
-//     // console.log("Filename: ", fileInfo.filename);
-
-//     // SQL query
-//     const query = `
-//       INSERT INTO requested_document_file (requestID, image_file)
-//       VALUES (?, ?)
-//     `;
-//     const values = [requestID, fileInfo.filename];
-
-//     // Execute query and send response
-//     db.query(query, values, (err, result) => {
-//       if (err) {
-//         console.error("Database Insert Error:", err);
-//         return res.status(500).json({
-//           Error: "Inserting data error.",
-//           Details: err,
-//         });
-//       }
-
-//       // Only send ONE response here with all the data
-//       return res.status(200).json({
-//         Status: "Success",
-//         message: "File uploaded successfully",
-//         InsertedID: result.insertId,
-//         file: fileInfo,
-//       });
-//     });
-//   } catch (error) {
-//     console.error("Error handling file upload:", error);
-//     return res.status(500).json({ error: "Failed to process uploaded file" });
-//   }
-// });
-// router.post(
-//   "/uploadScheduleSlip",
-//   uploadScheduleSlip.single("file"),
-//   (req, res) => {
-//     try {
-//       const { requestID, feedbackType } = req.body;
-
-//       // Check for file
-//       if (!req.file) {
-//         return res.status(400).json({ error: "No file uploaded" });
-//       }
-
-//       // File info
-//       const fileInfo = {
-//         originalName: req.file.originalname,
-//         filename: req.file.filename,
-//       };
-
-//       // console.log("Request ID for upload: ", requestID);
-//       // console.log("Filename: ", fileInfo.filename);
-//       // console.log("FeedbackType: ", feedbackType);
-
-//       // SQL query
-//       const query = `
-//       UPDATE requested_documents set feedbackType = ?, scheduleSlip = ? WHERE requestID = ?
-//     `;
-//       const values = [feedbackType, fileInfo.filename, requestID];
-
-//       // Execute query and send response
-//       db.query(query, values, (err, result) => {
-//         if (err) {
-//           console.error("Database Insert Error:", err);
-//           return res.status(500).json({
-//             Error: "Inserting data error.",
-//             Details: err,
-//           });
-//         }
-//         // console.log("Uploaded schedule slip successfully.");
-//         // Only send ONE response here with all the data
-//         return res.status(200).json({
-//           Status: "Success",
-//           message: "File uploaded successfully",
-//           InsertedID: result.insertId,
-//           file: fileInfo,
-//         });
-//       });
-//     } catch (error) {
-//       console.error("Error handling file upload:", error);
-//       return res.status(500).json({ error: "Failed to process uploaded file" });
-//     }
-//   }
-// );
 router.post("/addProgram", (req, res) => {
   const { programName } = req.body;
 

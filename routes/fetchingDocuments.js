@@ -17,6 +17,31 @@ router.get("/test", (req, res) => {
   res.send("It works!");
 });
 
+router.get("/fetchAdminDetails/:userID", (req, res) => {
+  const { userID } = req.params;
+  // console.log("User ID: ", userID);
+  const query = `
+  SELECT 
+  email, firstName, lastName, middleName 
+  FROM users 
+  WHERE userID = ?`;
+  db.query(query, [userID], (err, data) => {
+    if (err)
+      return res.json({
+        Status: "Error",
+        Message: "Error fetching Requested Documents data.",
+      });
+    if (data.length > 0) {
+      return res.status(200).json({ data: data[0] });
+    } else {
+      return res.status(404).json({
+        Status: "Error",
+        Message: "Requested Documents not found",
+      });
+    }
+  });
+});
+
 router.get("/fetchRequestedDocuments/:userID", (req, res) => {
   const { userID } = req.params;
   // // console.log("User ID: ", userID);

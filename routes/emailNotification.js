@@ -10,7 +10,8 @@ import sendNewRequestEmail from "../sendingEmailMessage/sendNewRequestEmail.js";
 const router = express.Router();
 
 router.post("/sendStatusUpdate", async (req, res) => {
-  const { receiverEmail, requestID, newStatus, reason } = req.body;
+  const { receiverEmail, requestID, newStatus, reason, adminDetails } =
+    req.body;
 
   const message =
     newStatus === "processing"
@@ -28,13 +29,21 @@ router.post("/sendStatusUpdate", async (req, res) => {
   const URL = `${process.env.VITE_REACT_APP_FRONTEND_BASEURL}/request-details/${requestID}`;
   // console.log(URL);
 
+  const fullName = `${adminDetails.firstName} ${
+    adminDetails.middleName ? adminDetails.middleName.charAt(0) + "." : ""
+  } ${adminDetails.lastName}`;
+
+  const adminEmail = adminDetails.email;
+
   try {
     await sendStatusUpdateEmail(
       receiverEmail,
       requestID,
       URL,
       newStatus,
-      message
+      message,
+      fullName,
+      adminEmail
     );
     res.status(200).json({ message: "Email sent successfully!" });
   } catch (error) {

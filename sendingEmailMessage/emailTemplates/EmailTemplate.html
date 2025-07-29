@@ -54,6 +54,7 @@
         </p>
       </div>
 
+      <% if (newStatus !== 'cancelled' && newStatus !== 'unclaimed') { %>
       <!-- Email-Compatible Progress Bar -->
       <div style="margin: 25px 0; text-align: center; position: relative">
         <!-- Progress Labels -->
@@ -129,7 +130,6 @@
                 font-weight: bold;
                 line-height: 25px;
                 margin: 0 auto;
-                box-shadow: 0 0 15px rgb(255, 255, 255);
               "
               >
                 1
@@ -148,7 +148,6 @@
                 font-weight: bold;
                 line-height: 25px;
                 margin: 0 auto;
-                box-shadow: 0 0 15px rgb(255, 255, 255);
               "
               >
                 2
@@ -167,7 +166,6 @@
                   font-weight: bold;
                   line-height: 25px;
                   margin: 0 auto;
-                  box-shadow: 0 0 15px rgb(255, 255, 255);
                 "
               >
                 3
@@ -180,13 +178,12 @@
                 style="
                 width: 25px;
                 height: 25px;
-                background-color: #00ccff;
+                background-color: <%= step >= 3 ? '#00ccff' : '#ccc' %>;
                 border-radius: 50%;
                 color: <%= step >= 3 ? '#fff' : '#333' %>;
                 font-weight: bold;
                 line-height: 25px;
                 margin: 0 auto;
-                box-shadow: 0 0 15px rgb(255, 255, 255);
               "
               >
                 4
@@ -230,11 +227,12 @@
           </tr>
         </table>
       </div>
+      <% } %>
 
       <!-- Button -->
       <div style="text-align: center; margin: 20px 0">
         <a
-          href="#"
+          href="<%= URL %>"
           style="
             display: inline-block;
             padding: 12px 20px;
@@ -248,12 +246,18 @@
           >Check Request</a
         >
       </div>
+      <div>
+        <h5 style="margin: 35px 0 0 0; color: #dcdcdc">For questions:</h5>
+        <h5 style="margin: 0 0 0 0; color: #dcdcdc">
+          <%= fullName %>(<%= email %>)
+        </h5>
+      </div>
 
       <!-- Footer -->
       <div
         style="
           text-align: center;
-          margin-top: 40px;
+          margin-top: 30px;
           padding-top: 20px;
           border-top: 1px solid #ffffff;
         "

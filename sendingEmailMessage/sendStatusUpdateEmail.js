@@ -14,7 +14,9 @@ const sendStatusUpdateEmail = async (
   requestID,
   URL,
   newStatus,
-  message
+  message,
+  fullName,
+  adminEmail
 ) => {
   // console.log("Receiver email n:", receiverEmail);
 
@@ -27,6 +29,8 @@ const sendStatusUpdateEmail = async (
     URL,
     newStatus,
     message,
+    fullName,
+    adminEmail,
   });
 
   try {

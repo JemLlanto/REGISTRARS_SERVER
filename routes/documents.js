@@ -324,12 +324,12 @@ router.post("/sendRequest", (req, res) => {
         console.error("Database query error:", err);
         return;
       }
-      if (result[0].adminID === null) {
+      if (result[0].adminID === null || result[0].adminID === 0) {
         // IF NO ADMIN IS ASSIGNED ON THE PURPOSE, CHECKING THE ADMIN ASSIGNED TO THE PROGRAM
+
         const programAdminIDQuery =
           "SELECT adminID FROM program_course WHERE programName = ?";
         // console.log("Sending notification to the admin for program: ", program);
-
         db.query(programAdminIDQuery, program, (err, result) => {
           if (err) {
             console.error("Database query error:", err);
@@ -339,7 +339,26 @@ router.post("/sendRequest", (req, res) => {
             console.error("No admin found to be sent notification.");
             return;
           }
+
           const adminID = result[0].adminID;
+
+          // console.log(
+          //   "Has admin assigned to the program: ",
+          //   program,
+          //   " assigning to admin: ",
+          //   adminID
+          // );
+
+          // ASSIGNING ADMIN TO THE REQUEST
+          const assignAdminQuery = `UPDATE requested_documents SET adminAssigned = ? WHERE requestID = ?`;
+          const assignValues = [adminID, requestID];
+          db.query(assignAdminQuery, assignValues, (err, result) => {
+            if (err) {
+              console.error("Error assigning admin:", err);
+              return;
+            }
+            console.log("Admin assigned successfully:", result);
+          });
 
           // Insert notification for each super admin
           const notifQuery =
@@ -374,7 +393,24 @@ router.post("/sendRequest", (req, res) => {
       }
       const adminID = result[0].adminID;
 
-      // Insert notification for each super admin
+      // console.log(
+      //   "Has admin assigned to the purpose: ",
+      //   purpose,
+      //   " assigning to admin: ",
+      //   adminID
+      // );
+      // ASSIGNING ADMIN TO THE REQUEST
+      const assignAdminQuery = `UPDATE requested_documents SET adminAssigned = ? WHERE requestID = ?`;
+      const assignValues = [adminID, requestID];
+      db.query(assignAdminQuery, assignValues, (err, result) => {
+        if (err) {
+          console.error("Error assigning admin:", err);
+          return;
+        }
+        console.log("Admin assigned successfully:", result);
+      });
+
+      // SENDING NOTIFICATION TO THE ADMIN ASSIGNED
       const notifQuery =
         "INSERT INTO notification (receiver, message, requestID) VALUES (?, ?, ?)";
       const notifValues = [

@@ -78,24 +78,5 @@ router.get("/fetchDocumentTypes", (req, res) => {
     }
   });
 });
-router.get("/fetchAdminPrograms", (req, res) => {
-  const { adminID } = req.query;
-  // // console.log("Admin ID:", adminID);
-  const query = "SELECT * FROM program_course WHERE adminID = ?";
-
-  db.query(query, [adminID], (err, data) => {
-    if (err) {
-      return res.json({ Error: "Fetching data error." });
-    }
-    if (data.length > 0) {
-      return res.status(200).json({ data: data });
-    } else {
-      return res.json({
-        Status: "Error",
-        Message: "No Programs found.",
-      });
-    }
-  });
-});
 
 export default router;

@@ -273,7 +273,7 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
         // Send email
         try {
           await sendNewRequestEmail(admin.email, requestID, URL, message);
-          console.log(`Email sent to super admin ${admin.email} successfully!`);
+          // console.log(`Email sent to super admin ${admin.email} successfully!`);
         } catch (error) {
           console.error(
             `Failed to send email to super admin ${admin.email}:`,
@@ -289,7 +289,7 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
               notifErr
             );
           }
-          console.log("Super admin notification processed");
+          // console.log("Super admin notification processed");
         });
       }
     });
@@ -373,9 +373,10 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
 
         try {
           await sendNewRequestEmail(admin.email, requestID, URL, message);
-          console.log(
-            `Email sent to purpose admin: ${purpose}, email: ${admin.email}`
-          );
+          console
+            .log
+            // `Email sent to purpose admin: ${purpose}, email: ${admin.email}`
+            ();
         } catch (error) {
           console.error(
             `Failed to send email to purpose admin ${admin.email}:`,

@@ -246,7 +246,7 @@ router.post("/submitFeedbackExternal", async (req, res) => {
   }
 });
 router.get("/fetchFeedbackExternalData", async (req, res) => {
-  // // console.log("Request query:", req.query);
+  console.log("Request query:", req.query);
   const { requestID } = req.query;
 
   if (!requestID) {
@@ -256,17 +256,17 @@ router.get("/fetchFeedbackExternalData", async (req, res) => {
   const query = "SELECT * FROM feedback_external WHERE requestID = ?";
   db.query(query, [requestID], (err, result) => {
     if (err) {
-      // // console.log(err);
+      console.log(err);
       return res.status(500).json({ message: err.message });
     }
     if (result.length > 0) {
-      // // console.log("Found data for requestID:", requestID);
-      // // console.log(result[0]);
+      console.log("Found data for requestID:", requestID);
+      console.log(result[0]);
       return res
         .status(200)
         .json({ message: "feedback data fetched", result: result[0] });
     } else {
-      // // console.log("No data found for requestID:", requestID);
+      console.log("No data found for requestID:", requestID);
       // return res
       //   .status(404)
       //   .json({ message: "No feedback data found for this requestID" });

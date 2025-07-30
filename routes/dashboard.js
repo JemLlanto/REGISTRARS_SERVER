@@ -33,28 +33,29 @@ router.get("/fetchRequestedDocuments", (req, res) => {
           Message: "Error fetching Requested Documents data.",
         });
       }
+      return res.json({ Status: "Success", data: data });
+
       // // console.log("Query results:", data);
-      if (data.length > 0) {
-        return res.json({ Status: "Success", data: data });
-      } else {
-        // Try a query without the date filter to see if ANY records exist
-        db.query(
-          "SELECT * FROM requested_documents LIMIT 5",
-          (fallbackErr, fallbackData) => {
-            // // console.log("Fallback query results:", fallbackData);
-            return res.json({
-              Status: "Error",
-              Message:
-                "Requested Documents not found for the specified date range",
-              debug: {
-                withFilter: data,
-                sample: fallbackData,
-                error: err,
-              },
-            });
-          }
-        );
-      }
+      // if (data.length > 0) {
+      // } else {
+      //   // Try a query without the date filter to see if ANY records exist
+      //   db.query(
+      //     "SELECT * FROM requested_documents LIMIT 5",
+      //     (fallbackErr, fallbackData) => {
+      //       // // console.log("Fallback query results:", fallbackData);
+      //       return res.json({
+      //         Status: "Error",
+      //         Message:
+      //           "Requested Documents not found for the specified date range",
+      //         debug: {
+      //           withFilter: data,
+      //           sample: fallbackData,
+      //           error: err,
+      //         },
+      //       });
+      //     }
+      //   );
+      // }
     });
   });
 });

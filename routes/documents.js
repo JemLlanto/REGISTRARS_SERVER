@@ -357,7 +357,7 @@ router.post("/sendRequest", (req, res) => {
               console.error("Error assigning admin:", err);
               return;
             }
-            console.log("Admin assigned successfully:", result);
+            // console.log("Admin assigned successfully:", result);
           });
 
           // Insert notification for each super admin
@@ -407,7 +407,7 @@ router.post("/sendRequest", (req, res) => {
           console.error("Error assigning admin:", err);
           return;
         }
-        console.log("Admin assigned successfully:", result);
+        // console.log("Admin assigned successfully:", result);
       });
 
       // SENDING NOTIFICATION TO THE ADMIN ASSIGNED

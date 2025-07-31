@@ -131,7 +131,7 @@ router.post("/updateLocationAndContacts", (req, res) => {
 
   db.query(query, values, (err, result) => {
     if (err) {
-      // console.log("Error updating data: ", err);
+      console.log("Error updating data: ", err);
       return res
         .status(500)
         .json({ Error: "Error updating data", Details: err });

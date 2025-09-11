@@ -18,15 +18,6 @@ cloudinary.config({
 
 const router = express.Router();
 
-// Configure Cloudinary storage for regular uploads
-const cloudinaryStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "/RegistrarUploads/uploads",
-    allowed_formats: ["jpg", "jpeg", "png", "pdf", "doc", "docx"],
-  },
-});
-
 // Configure Cloudinary storage for schedule slips
 const cloudinaryStorageScheduleSlip = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -36,15 +27,33 @@ const cloudinaryStorageScheduleSlip = new CloudinaryStorage({
   },
 });
 
-const upload = multer({ storage: cloudinaryStorage });
 const uploadScheduleSlip = multer({ storage: cloudinaryStorageScheduleSlip });
+
+// Configure Cloudinary storage for regular uploads
+const cloudinaryStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "/RegistrarUploads/uploads",
+    allowed_formats: ["jpg", "jpeg", "png", "pdf", "doc", "docx"],
+  },
+});
+
+const upload = multer({ storage: cloudinaryStorage });
 
 router.post("/uploadDocuments", upload.single("file"), (req, res) => {
   try {
     const { requestID, uploadID } = req.body;
 
+    // Add validation
+    if (!requestID || !uploadID) {
+      return res.status(400).json({
+        error: "Missing required fields: requestID or uploadID",
+      });
+    }
+
     // Check for file
     if (!req.file) {
+      console.error("No file uploaded");
       return res.status(400).json({ error: "No file uploaded" });
     }
 

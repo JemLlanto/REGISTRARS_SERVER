@@ -13,6 +13,7 @@ router.post("/sendStatusUpdate", async (req, res) => {
   const { receiverEmail, requestID, newStatus, reason, adminDetails } =
     req.body;
 
+  // console.log("Sending status update email:", req.body);
   const message =
     newStatus === "processing"
       ? "Your request is currently being processed. Please wait while we complete it."

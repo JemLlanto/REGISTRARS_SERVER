@@ -139,7 +139,9 @@ router.get("/fetchProgramAdmins", (req, res) => {
     p.programName,
     p.adminID,
     u.firstName,
-    u.lastName
+    u.middleName,
+    u.lastName,
+    u.email
   FROM
     program_course p
   LEFT JOIN
@@ -166,7 +168,9 @@ router.get("/fetchPurposeAdmins", (req, res) => {
     p.purposeName,
     p.adminID,
     u.firstName,
-    u.lastName
+    u.middleName,
+    u.lastName,
+    u.email
   FROM
     purposes p
   LEFT JOIN

@@ -30,11 +30,15 @@ router.post("/sendStatusUpdate", async (req, res) => {
   const URL = `${process.env.VITE_REACT_APP_FRONTEND_BASEURL}/request-details/${requestID}`;
   // console.log(URL);
 
-  const fullName = `${adminDetails.firstName} ${
-    adminDetails.middleName ? adminDetails.middleName.charAt(0) + "." : ""
-  } ${adminDetails.lastName}`;
+  const fullName = adminDetails?.firstName
+    ? `${adminDetails.firstName} ${
+        adminDetails.middleName ? adminDetails.middleName.charAt(0) + "." : ""
+      } ${adminDetails.lastName}`
+    : "CVSU - CCAT Registrar's Office";
 
-  const adminEmail = adminDetails.email;
+  const adminEmail = adminDetails?.email
+    ? adminDetails.email
+    : "registrar@cvsu-rosario.edu.ph";
 
   try {
     await sendStatusUpdateEmail(

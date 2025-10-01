@@ -18,22 +18,40 @@ const sendStatusUpdateEmail = async (
   fullName,
   adminEmail
 ) => {
-  // console.log("Receiver email n:", receiverEmail);
+  console.log("=== Email Send Attempt ===");
+  console.log("Receiver email:", receiverEmail);
+  console.log("EMAIL_USER exists:", !!process.env.EMAIL_USER);
+  console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
+  console.log(
+    "EMAIL_USER value:",
+    process.env.EMAIL_USER
+      ? process.env.EMAIL_USER.substring(0, 3) + "***"
+      : "undefined"
+  );
 
   const statusUpdate = path.join(
     __dirname,
     "./emailTemplates/statusUpdateEmail.ejs"
   );
-  const html = ejs.render(fs.readFileSync(statusUpdate, "utf-8"), {
-    requestID,
-    URL,
-    newStatus,
-    message,
-    fullName,
-    adminEmail,
-  });
 
   try {
+    // Check if template file exists
+    if (!fs.existsSync(statusUpdate)) {
+      console.error("Template file not found at:", statusUpdate);
+      throw new Error("Email template file not found");
+    }
+
+    const html = ejs.render(fs.readFileSync(statusUpdate, "utf-8"), {
+      requestID,
+      URL,
+      newStatus,
+      message,
+      fullName,
+      adminEmail,
+    });
+
+    console.log("Template rendered successfully");
+
     let transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -42,6 +60,12 @@ const sendStatusUpdateEmail = async (
       },
     });
 
+    console.log("Transporter created");
+
+    // Verify transporter configuration
+    await transporter.verify();
+    console.log("Transporter verified successfully");
+
     let mailOptions = {
       from: process.env.EMAIL_USER,
       to: receiverEmail,
@@ -49,11 +73,18 @@ const sendStatusUpdateEmail = async (
       html,
     };
 
+    console.log("Attempting to send email...");
     let info = await transporter.sendMail(mailOptions);
-    // console.log("Email sent:", info.response);
+    console.log("✓ Email sent successfully!");
+    console.log("Message ID:", info.messageId);
+    console.log("Response:", info.response);
     return info;
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("✗ Email sending failed!");
+    console.error("Error name:", error.name);
+    console.error("Error message:", error.message);
+    console.error("Error code:", error.code);
+    console.error("Full error:", error);
     throw error;
   }
 };

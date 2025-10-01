@@ -131,7 +131,7 @@ router.post("/sendScheduleSlipRequirements", (req, res) => {
   const { requestID, requirements } = req.body;
   // console.log("requestID: ", requestID);
 
-  if (!requestID || !Array.isArray(requirements) || requirements.length === 0) {
+  if (!requestID) {
     return res.status(400).json({ error: "Invalid input." });
   }
 
@@ -214,11 +214,12 @@ router.get("/fetchScheduleSlipRequirements/:requestID", (req, res) => {
         Details: err,
       });
     }
-    if (result.length > 0) {
-      return res.status(200).json({ result: result });
-    } else {
-      return res.status(404).json("Cannot find any data");
-    }
+    return res.status(200).json({ result: result });
+    // if (result.length > 0) {
+    //   return res.status(200).json({ result: result });
+    // } else {
+    //   return res.status(404).json("Cannot find any data");
+    // }
   });
 });
 

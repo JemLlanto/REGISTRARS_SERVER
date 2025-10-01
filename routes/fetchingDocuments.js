@@ -105,14 +105,16 @@ router.get("/fetchRequestedDocumentsDetails/:requestID", (req, res) => {
         Message: "Error fetching details.",
       });
     if (data.length > 0) {
+      // console.log("Details: ", data[0]);
       return res.json({
         Status: "Success",
         data: data[0],
       });
     } else {
+      console.log("No details found for requestID:", requestID);
       return res.json({
         Status: "Error",
-        Message: "Detials not found.",
+        Message: "Details not found.",
       });
     }
   });

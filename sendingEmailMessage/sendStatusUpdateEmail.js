@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 dotenv.config();
 import ejs from "ejs";
@@ -9,6 +9,9 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Initialize Resend with your API key
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 const sendStatusUpdateEmail = async (
   receiverEmail,
   requestID,
@@ -18,10 +21,10 @@ const sendStatusUpdateEmail = async (
   fullName,
   adminEmail
 ) => {
-  console.log("=== Email Send Attempt ===");
+  console.log("=== Email Send Attempt (Resend) ===");
   console.log("Receiver email:", receiverEmail);
-  console.log("EMAIL_USER exists:", !!process.env.EMAIL_USER);
-  console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
+  console.log("RESEND_API_KEY exists:", !!process.env.RESEND_API_KEY);
+  // console.log("FROM_EMAIL exists:", !!process.env.FROM_EMAIL);
 
   const statusUpdate = path.join(
     __dirname,
@@ -46,63 +49,31 @@ const sendStatusUpdateEmail = async (
 
     console.log("Template rendered successfully");
 
-    // FIXED: Use port 465 with secure: true for Render
-    let transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465, // Changed from 587
-      secure: true, // Changed from false - use SSL
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // Must be App Password
-      },
-      logger: true,
-      debug: true,
-      // Increased timeouts for slower connections
-      connectionTimeout: 30000,
-      greetingTimeout: 30000,
-      socketTimeout: 30000,
+    // Send email using Resend
+    const data = await resend.emails.send({
+      from: "CvSU-CCAT Registrar <onboarding@resend.dev>",
+      to: receiverEmail,
+      subject: "CvSU-CCAT Registrar's Office - Status Update",
+      html: html,
     });
 
-    console.log("Transporter created with port 465");
-
-    // Verify connection
-    try {
-      await transporter.verify();
-      console.log("✓ Transporter verified successfully");
-    } catch (verifyError) {
-      console.error("✗ Transporter verification failed:", verifyError.message);
-      // Continue anyway - verification sometimes fails but sending works
-    }
-
-    let mailOptions = {
-      from: `"CvSU-CCAT Registrar" <${process.env.EMAIL_USER}>`,
-      to: receiverEmail,
-      subject: `CvSU-CCAT Registrar's Office - Status Update`,
-      html,
-    };
-
-    console.log("Attempting to send email...");
-
-    let info = await transporter.sendMail(mailOptions);
-
     console.log("✓ Email sent successfully!");
-    console.log("Message ID:", info.messageId);
-    console.log("Response:", info.response);
-    return info;
+    console.log("Email ID:", data.id);
+    return data;
   } catch (error) {
     console.error("✗ Email sending failed!");
     console.error("Error name:", error.name);
     console.error("Error message:", error.message);
-    console.error("Error code:", error.code);
 
-    // Provide helpful error messages
-    if (error.code === "ETIMEDOUT") {
-      console.error("→ Timeout error: Render may be blocking SMTP ports");
-      console.error("→ Try using SendGrid or another email service");
-    } else if (error.code === "EAUTH") {
-      console.error("→ Authentication failed: Check your App Password");
+    if (error.message.includes("API key")) {
+      console.error("→ Invalid or missing RESEND_API_KEY");
+      console.error("→ Get your API key from: https://resend.com/api-keys");
+    } else if (error.message.includes("domain")) {
+      console.error("→ Domain verification issue");
+      console.error("→ Verify your domain at: https://resend.com/domains");
     }
 
+    console.error("Full error:", error);
     throw error;
   }
 };

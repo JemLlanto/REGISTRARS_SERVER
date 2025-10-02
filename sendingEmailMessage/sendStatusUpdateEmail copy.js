@@ -53,6 +53,9 @@ const sendStatusUpdateEmail = async (
     console.log("Template rendered successfully");
 
     let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,

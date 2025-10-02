@@ -33,6 +33,7 @@ router.post("/sendScheduleSlipDetails", (req, res) => {
     processedBy,
   ];
   // console.log("requestID: ", requestID);
+  console.log(req.body);
   // Step 1: Check if controlNum already exists
   const checkQuery = "SELECT * FROM scheduleSlip WHERE controlNum = ?";
 

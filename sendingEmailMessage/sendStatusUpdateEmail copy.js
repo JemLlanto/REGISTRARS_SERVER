@@ -74,19 +74,7 @@ const sendStatusUpdateEmail = async (
     };
 
     console.log("Attempting to send email...");
-
-    // Wrap sendMail in a Promise
-    let info = await new Promise((resolve, reject) => {
-      transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-          console.error("Error while sending mail:", err);
-          reject(err);
-        } else {
-          resolve(info);
-        }
-      });
-    });
-
+    let info = await transporter.sendMail(mailOptions);
     console.log("✓ Email sent successfully!");
     console.log("Message ID:", info.messageId);
     console.log("Response:", info.response);

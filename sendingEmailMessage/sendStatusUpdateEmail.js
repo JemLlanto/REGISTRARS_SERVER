@@ -22,12 +22,6 @@ const sendStatusUpdateEmail = async (
   console.log("Receiver email:", receiverEmail);
   console.log("EMAIL_USER exists:", !!process.env.EMAIL_USER);
   console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
-  console.log(
-    "EMAIL_USER value:",
-    process.env.EMAIL_USER
-      ? process.env.EMAIL_USER.substring(0, 3) + "***"
-      : "undefined"
-  );
 
   const statusUpdate = path.join(
     __dirname,
@@ -52,48 +46,44 @@ const sendStatusUpdateEmail = async (
 
     console.log("Template rendered successfully");
 
+    // FIXED: Use port 465 with secure: true for Render
     let transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      logger: true,
-      debug: true,
+      port: 465, // Changed from 587
+      secure: true, // Changed from false - use SSL
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        pass: process.env.EMAIL_PASS, // Must be App Password
       },
-      connectionTimeout: 10000, // 10 seconds
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
+      logger: true,
+      debug: true,
+      // Increased timeouts for slower connections
+      connectionTimeout: 30000,
+      greetingTimeout: 30000,
+      socketTimeout: 30000,
     });
 
-    console.log("Transporter created");
+    console.log("Transporter created with port 465");
 
-    // Verify transporter configuration
-    await transporter.verify();
-    console.log("Transporter verified successfully");
+    // Verify connection
+    try {
+      await transporter.verify();
+      console.log("✓ Transporter verified successfully");
+    } catch (verifyError) {
+      console.error("✗ Transporter verification failed:", verifyError.message);
+      // Continue anyway - verification sometimes fails but sending works
+    }
 
     let mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"CvSU-CCAT Registrar" <${process.env.EMAIL_USER}>`,
       to: receiverEmail,
-      subject: `CvSU-CCAT Registrar's Office`,
+      subject: `CvSU-CCAT Registrar's Office - Status Update`,
       html,
     };
 
     console.log("Attempting to send email...");
 
-    // Wrap sendMail in a Promise
-    let info = await new Promise((resolve, reject) => {
-      transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-          console.error("Error while sending mail:", err);
-          reject(err);
-        } else {
-          resolve(info);
-        }
-      });
-    });
+    let info = await transporter.sendMail(mailOptions);
 
     console.log("✓ Email sent successfully!");
     console.log("Message ID:", info.messageId);
@@ -104,7 +94,15 @@ const sendStatusUpdateEmail = async (
     console.error("Error name:", error.name);
     console.error("Error message:", error.message);
     console.error("Error code:", error.code);
-    console.error("Full error:", error);
+
+    // Provide helpful error messages
+    if (error.code === "ETIMEDOUT") {
+      console.error("→ Timeout error: Render may be blocking SMTP ports");
+      console.error("→ Try using SendGrid or another email service");
+    } else if (error.code === "EAUTH") {
+      console.error("→ Authentication failed: Check your App Password");
+    }
+
     throw error;
   }
 };

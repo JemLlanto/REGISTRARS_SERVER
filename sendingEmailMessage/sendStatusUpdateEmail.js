@@ -1,16 +1,13 @@
-import { Resend } from "resend";
 import dotenv from "dotenv";
 dotenv.config();
 import ejs from "ejs";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import axios from "axios";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Initialize Resend with your API key
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendStatusUpdateEmail = async (
   receiverEmail,
@@ -21,10 +18,9 @@ const sendStatusUpdateEmail = async (
   fullName,
   adminEmail
 ) => {
-  console.log("=== Email Send Attempt (Resend) ===");
+  console.log("=== Email Send Attempt (Brevo) ===");
   console.log("Receiver email:", receiverEmail);
-  console.log("RESEND_API_KEY exists:", !!process.env.RESEND_API_KEY);
-  // console.log("FROM_EMAIL exists:", !!process.env.FROM_EMAIL);
+  console.log("BREVO_API_KEY exists:", !!process.env.BREVO_API_KEY);
 
   const statusUpdate = path.join(
     __dirname,
@@ -49,31 +45,66 @@ const sendStatusUpdateEmail = async (
 
     console.log("Template rendered successfully");
 
-    // Send email using Resend
-    const data = await resend.emails.send({
-      from: "CvSU-CCAT Registrar <onboarding@resend.dev>",
-      to: receiverEmail,
-      subject: "CvSU-CCAT Registrar's Office - Status Update",
-      html: html,
-    });
+    // Brevo API request using axios
+    const response = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "CvSU-CCAT Registrar",
+          email: process.env.EMAIL_USER,
+        },
+        to: [
+          {
+            email: receiverEmail,
+            name: fullName || receiverEmail,
+          },
+        ],
+        subject: "CvSU-CCAT Registrar's Office - Status Update",
+        htmlContent: html,
+      },
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "api-key": process.env.BREVO_API_KEY,
+        },
+      }
+    );
 
-    console.log("✓ Email sent successfully!");
-    console.log("Email ID:", data.id);
-    return data;
+    console.log("Brevo API response status:", response.status);
+    console.log("✓ Email sent successfully via Brevo!");
+    console.log("Message ID:", response.data.messageId);
+
+    return response.data;
   } catch (error) {
     console.error("✗ Email sending failed!");
     console.error("Error name:", error.name);
     console.error("Error message:", error.message);
 
-    if (error.message.includes("API key")) {
-      console.error("→ Invalid or missing RESEND_API_KEY");
-      console.error("→ Get your API key from: https://resend.com/api-keys");
-    } else if (error.message.includes("domain")) {
-      console.error("→ Domain verification issue");
-      console.error("→ Verify your domain at: https://resend.com/domains");
+    // Handle axios error response
+    if (error.response) {
+      console.error("Response status:", error.response.status);
+      console.error("Response data:", error.response.data);
+
+      // Provide helpful error messages
+      if (error.response.status === 401) {
+        console.error("→ API Key error: Check your BREVO_API_KEY in .env");
+      } else if (error.response.status === 400) {
+        console.error(
+          "→ Bad Request: Check sender email is verified in Brevo dashboard"
+        );
+      } else if (error.response.status === 403) {
+        console.error(
+          "→ Forbidden: API key may not have permission to send emails"
+        );
+      }
+    } else if (error.request) {
+      console.error("→ No response received from Brevo API");
+      console.error("Request details:", error.request);
+    } else {
+      console.error("→ Error setting up request:", error.message);
     }
 
-    console.error("Full error:", error);
     throw error;
   }
 };

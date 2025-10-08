@@ -4,7 +4,7 @@ import ejs from "ejs";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import axios from "axios";
+import nodemailer from "nodemailer";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,9 +18,10 @@ const sendStatusUpdateEmail = async (
   fullName,
   adminEmail
 ) => {
-  console.log("=== Email Send Attempt (Brevo) ===");
+  console.log("=== Email Send Attempt (Nodemailer) ===");
   console.log("Receiver email:", receiverEmail);
-  console.log("BREVO_API_KEY exists:", !!process.env.BREVO_API_KEY);
+  console.log("EMAIL_USER exists:", !!process.env.EMAIL_USER);
+  console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
 
   const statusUpdate = path.join(
     __dirname,
@@ -45,64 +46,58 @@ const sendStatusUpdateEmail = async (
 
     console.log("Template rendered successfully");
 
-    // Brevo API request using axios
-    const response = await axios.post(
-      "https://api.brevo.com/v3/smtp/email",
-      {
-        sender: {
-          name: "CvSU-CCAT Registrar",
-          email: process.env.EMAIL_USER,
-        },
-        to: [
-          {
-            email: receiverEmail,
-            name: fullName || receiverEmail,
-          },
-        ],
-        subject: "CvSU-CCAT Registrar's Office - Status Update",
-        htmlContent: html,
+    // Create nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // or your email service
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS, // App password for Gmail
       },
-      {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "api-key": process.env.BREVO_API_KEY,
-        },
-      }
-    );
+      connectionTimeout: 15000, // 15 seconds
+      greetingTimeout: 15000, // 15 seconds
+      socketTimeout: 15000, // 15 seconds
+    });
 
-    console.log("Brevo API response status:", response.status);
-    console.log("✓ Email sent successfully via Brevo!");
-    console.log("Message ID:", response.data.messageId);
+    // Email options
+    const mailOptions = {
+      from: {
+        name: "CvSU-CCAT Registrar",
+        address: process.env.EMAIL_USER,
+      },
+      to: receiverEmail,
+      subject: "CvSU-CCAT Registrar's Office - Status Update",
+      html: html,
+    };
 
-    return response.data;
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("✓ Email sent successfully via Nodemailer!");
+    console.log("Message ID:", info.messageId);
+    console.log("Response:", info.response);
+
+    return info;
   } catch (error) {
     console.error("✗ Email sending failed!");
     console.error("Error name:", error.name);
     console.error("Error message:", error.message);
 
-    // Handle axios error response
-    if (error.response) {
-      console.error("Response status:", error.response.status);
-      console.error("Response data:", error.response.data);
-
-      // Provide helpful error messages
-      if (error.response.status === 401) {
-        console.error("→ API Key error: Check your BREVO_API_KEY in .env");
-      } else if (error.response.status === 400) {
-        console.error(
-          "→ Bad Request: Check sender email is verified in Brevo dashboard"
-        );
-      } else if (error.response.status === 403) {
-        console.error(
-          "→ Forbidden: API key may not have permission to send emails"
-        );
-      }
-    } else if (error.request) {
-      console.error("→ No response received from Brevo API");
-      console.error("Request details:", error.request);
-    } else {
-      console.error("→ Error setting up request:", error.message);
+    // Provide helpful error messages
+    if (error.code === "EAUTH") {
+      console.error(
+        "→ Authentication failed: Check EMAIL_USER and EMAIL_PASS in .env"
+      );
+      console.error(
+        "→ For Gmail: Make sure you're using an App Password, not your regular password"
+      );
+    } else if (error.code === "ECONNECTION") {
+      console.error(
+        "→ Connection error: Check your internet connection and email service"
+      );
+    } else if (error.code === "ETIMEDOUT") {
+      console.error("→ Request timed out: Email service may be unavailable");
+    } else if (error.responseCode === 550) {
+      console.error("→ Invalid recipient email address");
     }
 
     throw error;

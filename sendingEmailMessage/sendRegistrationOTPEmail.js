@@ -4,17 +4,16 @@ import ejs from "ejs";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import nodemailer from "nodemailer";
+import * as brevo from "@getbrevo/brevo";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const sendRegistrationOTPEmail = async (receiverEmail, firstName, otp) => {
-  console.log("=== Sending OTP Email (Nodemailer) ===");
+  console.log("=== Sending OTP Email (Brevo) ===");
   console.log("Receiver email:", receiverEmail);
   console.log("First name:", firstName);
-  console.log("EMAIL_USER exists:", !!process.env.EMAIL_USER);
-  console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
+  console.log("BREVO_API_KEY exists:", !!process.env.BREVO_API_KEY);
 
   const registrationOTP = path.join(
     __dirname,
@@ -36,61 +35,54 @@ const sendRegistrationOTPEmail = async (receiverEmail, firstName, otp) => {
 
     console.log("Template rendered successfully");
 
-    // Create nodemailer transporter with timeout
-    const transporter = nodemailer.createTransport({
-      service: "gmail", // or your email service
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // App password for Gmail
-      },
-      connectionTimeout: 15000, // 15 seconds
-      greetingTimeout: 15000, // 15 seconds
-      socketTimeout: 15000, // 15 seconds
-    });
+    // Initialize Brevo API client
+    const apiInstance = new brevo.TransactionalEmailsApi();
+    apiInstance.setApiKey(
+      brevo.TransactionalEmailsApiApiKeys.apiKey,
+      process.env.BREVO_API_KEY
+    );
 
-    // Email options
-    const mailOptions = {
-      from: {
-        name: "CvSU-CCAT Registrar",
-        address: process.env.EMAIL_USER,
-      },
-      to: receiverEmail,
-      subject: "CvSU-CCAT Registrar's Office - Registration OTP",
-      html: html,
+    // Create send email object
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    sendSmtpEmail.subject = "CvSU-CCAT Registrar's Office - Registration OTP";
+    sendSmtpEmail.htmlContent = html;
+    sendSmtpEmail.sender = {
+      name: "CvSU-CCAT Registrar",
+      email: process.env.BREVO_SENDER_EMAIL || process.env.EMAIL_USER,
     };
+    sendSmtpEmail.to = [{ email: receiverEmail }];
 
     // Send email
-    const info = await transporter.sendMail(mailOptions);
+    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
 
     console.log("✓ OTP email sent successfully!");
-    console.log("Message ID:", info.messageId);
+    console.log("Message ID:", data.messageId);
     console.log("OTP sent to:", receiverEmail);
-    console.log("Response:", info.response);
 
-    return info;
+    return data;
   } catch (error) {
     console.error("✗ OTP email sending failed!");
     console.error("Error name:", error.name);
     console.error("Error message:", error.message);
 
     // Provide helpful error messages
-    if (error.code === "EAUTH") {
+    if (error.response) {
       console.error(
-        "→ Authentication failed: Check EMAIL_USER and EMAIL_PASS in .env"
+        "→ Brevo API Error:",
+        error.response.body || error.response.text
       );
-      console.error(
-        "→ For Gmail: Make sure you're using an App Password, not your regular password"
-      );
-    } else if (error.code === "ECONNECTION") {
-      console.error(
-        "→ Connection error: Check your internet connection and email service"
-      );
-    } else if (error.code === "ETIMEDOUT") {
-      console.error(
-        "→ Request timed out after 15 seconds: Email service may be unavailable"
-      );
-    } else if (error.responseCode === 550) {
-      console.error("→ Invalid recipient email address");
+
+      if (error.status === 401) {
+        console.error("→ Authentication failed: Check BREVO_API_KEY in .env");
+      } else if (error.status === 400) {
+        console.error("→ Bad request: Check email address and content");
+      } else if (error.status === 402) {
+        console.error("→ Payment required: Check your Brevo account credits");
+      } else if (error.status === 404) {
+        console.error("→ Sender email not verified in Brevo");
+      }
+    } else if (error.code === "ECONNECTION" || error.code === "ETIMEDOUT") {
+      console.error("→ Network error: Check your internet connection");
     }
 
     console.error("Full error:", error);

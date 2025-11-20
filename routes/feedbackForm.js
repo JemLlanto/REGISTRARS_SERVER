@@ -127,9 +127,9 @@ router.get("/fetchFeedbackInternalData", async (req, res) => {
         .json({ message: "feedback data fetched", result: result[0] });
     } else {
       // // console.log("No data found for requestID:", requestID);
-      // return res
-      //   .status(404)
-      //   .json({ message: "No feedback data found for this requestID" });
+      return res
+        .status(404)
+        .json({ message: "No feedback data found for this requestID" });
     }
   });
 });
@@ -267,9 +267,9 @@ router.get("/fetchFeedbackExternalData", async (req, res) => {
         .json({ message: "feedback data fetched", result: result[0] });
     } else {
       console.log("No data found for requestID:", requestID);
-      // return res
-      //   .status(404)
-      //   .json({ message: "No feedback data found for this requestID" });
+      return res
+        .status(404)
+        .json({ message: "No feedback data found for this requestID" });
     }
   });
 });

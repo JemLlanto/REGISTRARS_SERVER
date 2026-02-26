@@ -75,7 +75,7 @@ app.use(
     origin: allowedOrigins,
     credentials: true,
     allowedHeaders: ["authorization", "Content-Type"],
-  })
+  }),
 );
 app.use(cookieParser());
 
@@ -83,7 +83,7 @@ app.use(cookieParser());
 app.use("/uploads", express.static(path.join(__dirname, "./public/uploads")));
 app.use(
   "/scheduleSlipUploads",
-  express.static(path.join(__dirname, "./public/uploads/scheduleSlip"))
+  express.static(path.join(__dirname, "./public/uploads/scheduleSlip")),
 );
 
 // FOR VERIFYING LOGGED IN USER

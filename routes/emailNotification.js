@@ -18,14 +18,14 @@ router.post("/sendStatusUpdate", async (req, res) => {
     newStatus === "processing"
       ? "Your request is currently being processed. Please wait while we complete it."
       : newStatus === "ready to pickup"
-      ? "Your request is ready for pickup. Please download your schedule slip and present it to our transaction window."
-      : newStatus === "completed"
-      ? "Your request has been successfully completed."
-      : newStatus === "cancelled"
-      ? `Your request has been cancelled. Reason: ${reason}. Please contact us if you have any questions.`
-      : newStatus === "unclaimed"
-      ? "Your request has been marked as unclaimed because you did not claim your requested document within allotted time. As a result, the document is now set to be disposed of if it remains unclaimed for more than a month."
-      : null;
+        ? "Your request is ready for pickup. Click 'Check Request' to download you schedule slip and present it to our transaction window at release date."
+        : newStatus === "completed"
+          ? "Your request has been successfully completed."
+          : newStatus === "cancelled"
+            ? `Your request has been cancelled. Reason: ${reason}. Please contact us if you have any questions.`
+            : newStatus === "unclaimed"
+              ? "Your request has been marked as unclaimed because you did not claim your requested document within allotted time. As a result, the document is now set to be disposed of if it remains unclaimed for more than a month."
+              : null;
 
   const URL = `${process.env.VITE_REACT_APP_FRONTEND_BASEURL}/request-details/${requestID}`;
   // console.log(URL);
@@ -48,7 +48,7 @@ router.post("/sendStatusUpdate", async (req, res) => {
       newStatus,
       message,
       fullName,
-      adminEmail
+      adminEmail,
     );
     res.status(200).json({ message: "Email sent successfully!" });
   } catch (error) {
@@ -243,7 +243,7 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
         if (notifErr) {
           console.error(
             `Error creating notification for admin ${admin.userID}:`,
-            notifErr
+            notifErr,
           );
           return callback(notifErr);
         }
@@ -283,7 +283,7 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
         } catch (error) {
           console.error(
             `Failed to send email to super admin ${admin.email}:`,
-            error
+            error,
           );
         }
 
@@ -292,7 +292,7 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
           if (notifErr) {
             console.error(
               "Error creating notification for super admin:",
-              notifErr
+              notifErr,
             );
           }
           // console.log("Super admin notification processed");
@@ -335,7 +335,7 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
               console.error("Database query error (program admins):", progErr);
               return sendResponse(
                 500,
-                "Database error when querying program admins"
+                "Database error when querying program admins",
               );
             }
 
@@ -343,7 +343,7 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
               console.log("No admin found for program:", program);
               return sendResponse(
                 200,
-                "Emails sent successfully to super admins only"
+                "Emails sent successfully to super admins only",
               );
             }
 
@@ -353,12 +353,12 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
             try {
               await sendNewRequestEmail(admin.email, requestID, URL, message);
               console.log(
-                `Email sent to program admin: ${program}, email: ${admin.email}`
+                `Email sent to program admin: ${program}, email: ${admin.email}`,
               );
             } catch (error) {
               console.error(
                 `Failed to send email to program admin ${admin.email}:`,
-                error
+                error,
               );
             }
 
@@ -366,12 +366,12 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
               if (notifErr) {
                 console.error(
                   "Error creating notification for program admin:",
-                  notifErr
+                  notifErr,
                 );
               }
               sendResponse(200, "Emails sent successfully");
             });
-          }
+          },
         );
       } else {
         // Process first purpose admin only
@@ -386,7 +386,7 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
         } catch (error) {
           console.error(
             `Failed to send email to purpose admin ${admin.email}:`,
-            error
+            error,
           );
         }
 
@@ -394,7 +394,7 @@ router.post("/sendFeedbackResponseEmail", async (req, res) => {
           if (notifErr) {
             console.error(
               "Error creating notification for purpose admin:",
-              notifErr
+              notifErr,
             );
           }
           sendResponse(200, "Emails sent successfully");

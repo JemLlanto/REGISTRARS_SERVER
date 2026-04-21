@@ -45,7 +45,7 @@ router.post("/google-login", async (req, res) => {
             issuedAt: new Date().toISOString(),
           },
           process.env.JWT_SECRET_KEY,
-          { expiresIn: "1d" }
+          { expiresIn: "1d" },
         );
 
         const queryIsAdmin = "SELECT isAdmin FROM users WHERE userID = ?";
@@ -102,7 +102,7 @@ router.post("/google-login", async (req, res) => {
                 issuedAt: new Date().toISOString(),
               },
               process.env.JWT_SECRET_KEY,
-              { expiresIn: "1d" }
+              { expiresIn: "1d" },
             );
 
             return res.json({
@@ -136,7 +136,7 @@ router.post("/register", (req, res) => {
     (field) =>
       requiredFields[field] === undefined ||
       requiredFields[field] === null ||
-      requiredFields[field] === ""
+      requiredFields[field] === "",
   );
 
   if (missingFields.length > 0) {
@@ -181,7 +181,7 @@ router.post("/login", (req, res) => {
                 issuedAt: new Date().toISOString(), // Add the current date
               },
               process.env.JWT_SECRET_KEY,
-              { expiresIn: "1d" }
+              { expiresIn: "1d" },
             );
 
             const queryIsAdmin = "SELECT isAdmin FROM users WHERE userID = ?";
@@ -205,7 +205,7 @@ router.post("/login", (req, res) => {
           } else {
             return res.json({ Error: "Invalid credentials." });
           }
-        }
+        },
       );
     } else {
       return res.json({ Error: "Invalid credentials." });
@@ -233,7 +233,7 @@ router.post("/forgotPassword", async (req, res) => {
       (field) =>
         requiredFields[field] === undefined ||
         requiredFields[field] === null ||
-        requiredFields[field] === ""
+        requiredFields[field] === "",
     );
 
     if (missingFields.length > 0) {
@@ -277,7 +277,7 @@ router.post("/forgotPassword", async (req, res) => {
             status: "Success",
             message: "Password updated successfully.",
           });
-        }
+        },
       );
     });
   } catch (error) {
@@ -310,7 +310,7 @@ router.post("/resetToken", async (req, res) => {
           Message: "Email verified successfully.",
           token: resetToken,
         });
-      }
+      },
     );
   } catch (error) {
     console.error("Error storing reset token:", error);

@@ -36,7 +36,7 @@ const deleteAllImagesInFolder = async (folderPath) => {
     if (resources.resources && resources.resources.length > 0) {
       // Extract public IDs of all resources
       const publicIds = resources.resources.map(
-        (resource) => resource.public_id
+        (resource) => resource.public_id,
       );
 
       // Delete all resources
@@ -119,7 +119,7 @@ router.post(
       console.error("Error handling file upload:" + error);
       return res.status(500).json({ error: "Failed to process uploaded file" });
     }
-  }
+  },
 );
 
 router.post("/updateLocationAndContacts", (req, res) => {

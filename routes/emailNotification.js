@@ -16,9 +16,9 @@ router.post("/sendStatusUpdate", async (req, res) => {
   // console.log("Sending status update email:", req.body);
   const message =
     newStatus === "processing"
-      ? "Your request is currently being processed. Please wait while we complete it."
+      ? "Your document is currently being prepared. Please wait while we complete it."
       : newStatus === "ready to pickup"
-        ? "Your request is ready for pickup. Click 'Check Request' to download you schedule slip and present it to our transaction window at release date."
+        ? "Your document is marked for release. Please download your schedule slip before picking up your documents."
         : newStatus === "completed"
           ? "Your request has been successfully completed."
           : newStatus === "cancelled"

@@ -34,11 +34,7 @@ const app = express();
 app.use(express.json());
 
 // Define allowed origins
-const allowedOrigins = [
-  "http://localhost:5173",
-  process.env.VITE_REACT_APP_FRONTEND_BASEURL,
-  "https://registrars-client.onrender.com",
-];
+const allowedOrigins = [process.env.VITE_REACT_APP_FRONTEND_BASEURL];
 
 const server = http.createServer(app);
 

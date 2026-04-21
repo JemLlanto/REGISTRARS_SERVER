@@ -16,15 +16,16 @@ const sendStatusUpdateEmail = async (
   newStatus,
   message,
   fullName,
-  adminEmail
+  adminEmail,
 ) => {
   console.log("=== Email Send Attempt (Brevo) ===");
   console.log("Receiver email:", receiverEmail);
   console.log("BREVO_API_KEY exists:", !!process.env.BREVO_API_KEY);
+  console.log("URL exists:", URL);
 
   const statusUpdate = path.join(
     __dirname,
-    "./emailTemplates/statusUpdateEmail.ejs"
+    "./emailTemplates/statusUpdateEmail.ejs",
   );
 
   try {
@@ -49,7 +50,7 @@ const sendStatusUpdateEmail = async (
     const apiInstance = new brevo.TransactionalEmailsApi();
     apiInstance.setApiKey(
       brevo.TransactionalEmailsApiApiKeys.apiKey,
-      process.env.BREVO_API_KEY
+      process.env.BREVO_API_KEY,
     );
 
     // Create send email object
@@ -78,7 +79,7 @@ const sendStatusUpdateEmail = async (
     if (error.response) {
       console.error(
         "→ Brevo API Error:",
-        error.response.body || error.response.text
+        error.response.body || error.response.text,
       );
 
       if (error.status === 401) {

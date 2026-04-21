@@ -88,14 +88,11 @@ router.get("/fetchRequestedDocumentsDetails/:requestID", (req, res) => {
   // // console.log("Request ID for: ", requestID);
   const query = `
   SELECT 
-    requested_documents.*,
-    purposes.purposeID
+    *  
   FROM 
     requested_documents
-  JOIN
-    purposes ON requested_documents.purpose = purposes.purposeName
   WHERE 
-    requested_documents.requestID = ?
+    requestID = ?
   
   `;
   db.query(query, [requestID], (err, data) => {

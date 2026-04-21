@@ -79,14 +79,14 @@ router.post("/changeStatus", (req, res) => {
   ];
   const notifMessage =
     req.body.newStatus === "processing"
-      ? "Your request is currently being processed."
+      ? "Your request is currently being prepared."
       : req.body.newStatus === "ready to pickup"
-      ? "Your request is ready for pickup."
-      : req.body.newStatus === "completed"
-      ? "Your request has been completed."
-      : req.body.newStatus === "unclaimed"
-      ? "Your request has been completed."
-      : null;
+        ? "Your request is ready for release."
+        : req.body.newStatus === "completed"
+          ? "Your request has been completed."
+          : req.body.newStatus === "unclaimed"
+            ? "Your request has been completed."
+            : null;
 
   // const notifValues = [req.body.userID, notifMessage, req.body.requestID];
 
